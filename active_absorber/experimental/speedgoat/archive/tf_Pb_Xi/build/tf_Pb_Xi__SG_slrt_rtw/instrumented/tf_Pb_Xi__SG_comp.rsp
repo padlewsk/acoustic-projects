@@ -1,0 +1,10 @@
+-I"\\files7\data\padlewsk\My Documents\PhD_local\Projects\SpeedGoat\tf_Pb_Xi\build"
+-I"\\files7\data\padlewsk\My Documents\PhD_local\Projects\SpeedGoat\tf_Pb_Xi\build\tf_Pb_Xi__SG_slrt_rtw"
+-I"C:\Program Files\MATLAB\R2020a\extern\include"
+-I"C:\Program Files\MATLAB\R2020a\simulink\include"
+-I"C:\Program Files\MATLAB\R2020a\rtw\c\src"
+-I"C:\Program Files\MATLAB\R2020a\simulink\include\messages"
+-IC:\ProgramData\Speedgoat\hdlc\hcip\R2020a\sfunc\include
+-IC:\ProgramData\Speedgoat\speedgoatlib\R2020a\8.28.4
+-IC:\ProgramData\Speedgoat\speedgoatlib\R2020a\8.28.4\sg_blocks\common\libsg
+-I"C:\Program Files\MATLAB\R2020a\toolbox\rtw\targets\xpc\target\build\xpcblocks\include"

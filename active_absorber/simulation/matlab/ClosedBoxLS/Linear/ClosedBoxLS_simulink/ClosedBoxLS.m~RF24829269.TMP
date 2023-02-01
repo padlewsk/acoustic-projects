@@ -1,0 +1,75 @@
+close all; 
+clear all; 
+clc;
+
+
+%%Parameters
+% Speaker (Visaton AL-170)
+Sd = 133E-4;    % Effective piston area [m^2]
+Mms  = 13E-3;      % Moving mass [kg]
+Rms = 0.6;       % Mechanical resitance [N.s/m]
+Cms = 594.85E-6; % Mechanical complicance due to surround suspension and spider [m/N]
+Cab = 10;       % Compliance of enclosure due to back pressure [N/m^4]
+Cmc = (1/Cms + Sd^2/Cab)^-1;
+
+Bl = 6.9;        % Force factor [N/A]
+Le = 0.9E-3;    % Voice coil inductance [H]
+Re = 5.6;       % DC coil resistance [Ohm]
+
+
+% Target impedance weights:
+muM = 1/Mms; %%IDEAL
+muR = 1/Rms;
+muC = Cmc;
+
+% Transfer function coefficients
+%num:
+a2 = muM*Mms - 1;
+a1 = muR*Rms - 1;
+a0 = muC/Cmc - 1;
+
+%den:
+b2 = muM*Mms;
+b1 = muR*Rms;
+b0 = muC/Cmc;
+
+%{
+% Electrical resonator Shunt network
+Ll = 3.46E-3;   % [H] 
+Rl = 1.84;     % [Ohm] negative?????
+Cl = 706.74E-6; % Resonatore capacitance 
+%}
+
+
+%% input voltage u
+t_sim = 10; %simulation time in seconds
+
+freq_i = 0.01; % Freq sweep limit
+freq_f = 100; % Freq sweep limit
+
+Dt = 0.001;
+
+freq = 5; %Hz
+
+t_ = 0:Dt:t_sim;
+
+
+
+u = square(2*pi*t_*freq)+randn(size(t_))/10;% driven coil
+Pf = sin(2*pi*t_*freq)+3 ; %+randn(size(t))/10;% Incoming front pressure waveplane
+
+sim('ClosedBoxLS_model',t_sim);
+
+%%
+
+
+Zst = Zst_sim.Data;
+Zc = 346.13*1.1839; % characteristic specific acoustic impedence at 25°C
+t_ = Zst_sim.Time;
+alpha = 1 - norm((Zst-Zc)./(Zst+Zc)).^2;
+
+%alpha vs freq
+figure;
+plot(t_,Zst)%
+
+

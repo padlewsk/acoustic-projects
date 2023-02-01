@@ -1,0 +1,273 @@
+%%% CLOSED BOX LOUD SPEAKER MEASURE FRONT PRESSURE
+%%% TIME REPRESENTATION APPROACH
+
+close all; 
+clear; 
+clc;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PARAMETERS 
+p0 = 101325; %atmospheric pressure (Pa)
+Zc = 346.13*1.1839; % characteristic specific acoustic impedence at 25°C
+
+% Speaker (Visaton AL-170)
+Sd = 133E-4;    % Effective piston area [m^2]
+Mms  = 13E-3;      % Moving mass [kg]
+Rms = 0.6;       % Mechanical resitance [N.s/m]
+Cms = 594.85E-6; % Mechanical complicance due to surround suspension and spider [m/N]
+Cab = 10;       % Compliance of enclosure due to back pressure [N/m^4]
+Cmc = (1/Cms + Sd^2/Cab)^-1;
+
+f0 = 1/(2*pi*sqrt((Mms*Cms*Cab)/(Sd^2*Cms+Cab))); % Resonnance frequency Hz
+
+Bl = 6.9;        % Force factor [N/A]
+Le = 0.9E-3;    % Voice coil inductance [H]
+Re = 5.6;       % DC coil resistance [Ohm]
+
+%%% TARGET IMPEDENCE WEIGHTS 
+%%% muR = muM = muC = 1 -> open circuit
+%%% <1 reflection ; >1 absorption
+muR =  (Zc/(Rms/Sd)); % Optimal absorption = Zc/Zas
+muM = 1; 
+muC = 0.5; 
+fst = f0*sqrt(muC/muM); %Target resonnance frequency
+
+
+%%% TRANSFER FUNCTION COEFFICIENTS
+%num:
+a2 = Sd*(muM - 1)*Mms;
+a1 = Sd*(muR - 1)*Rms;
+a0 = Sd*(muC - 1)/Cmc ;
+
+%den:
+b2 = Bl*muM*Mms;
+b1 = Bl*muR*Rms;
+b0 = Bl*muC/Cmc;
+
+%{
+% Electrical resonator Shunt network
+Ll = 3.46E-3;   % [H] 
+Rl = 1.84;     % [Ohm] negative?????
+Cl = 706.74E-6; % Resonatore capacitance 
+%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SIMULATION
+%%% Outputs the specific acoustic impedance across the frequency range for
+%%% various control delays tau
+
+tf = 10; %simulation time in seconds
+
+fi = 0.1; % Freq sweep limit
+ff = 1000; % Freq sweep limit
+
+fs = 10*ff; % Sampling frequency must be beyond the Nyquist limit RMK: BW = fs/2
+ts = 1/fs; % Sampling period
+
+
+t = (0:ts:tf)'; %time vector
+f = fi+(ff-fi)*t/tf; %frequency vector
+
+N = length(t); %Number of samples
+
+%%% Incoming front pressure waveplane (NOT WORKING FOR NOW)
+% (ACTUALLY, IT'S THE CHANGE OF PF) DeltaPf(t) = Pf(t) - P0) !!!!!!!! why??
+pf = sin(2*pi*f.*t)+randn(size(t))/10; %noisy chirp
+%pf = chirp(t,fi,tf,ff);  %ideal chirp 
+
+%wind = 	hamming(N); % Necessary?? The main role of the window is to damp  out the effects of the Gibbs phenomenon that results from truncation of an infinite series
+
+tau_max = 5*ts; % Maximum time delay for contorl loop
+ii = 1;
+
+tau_list = linspace(0,tau_max,5); %[0:ts:(tau_max-ts),tau_max]; %tau list
+
+%tau_list = tau_max; %tau list bypass
+
+for tau = tau_list 
+    sim('ClosedBoxLS_model',tf); %simulink
+    
+    %%% Acoustic impedance
+    
+    %%% tfestimate method (Determines the transfer function between v and pf):
+    [Zs{ii},F] = tfestimate(v_out.data,pf_out.data,wind,[],[],fs);
+    
+    %%% FFT method (Does the same as tfestimate):
+    %
+    pf = pf_out.data; %wind.*pf_out.data; %hamming(L).*pf_out.data;
+    v = v_out.data;% wind.*v_out.data;
+
+    NFFT = 2^(nextpow2(length(pf))+3); % n-point dft + padding
+
+    Pf = fft(pf,NFFT); %2sided spectrum
+    V = fft(v,NFFT);
+
+    Pf = Pf(1:NFFT/2);%1sided spectrum (up to Nyquist bin)
+    V = V(1:NFFT/2);
+
+    Zs{ii}  = Pf./V; %Specific Acoustic Impedance
+    F = (1/ts*((1:NFFT/2))/NFFT)'; %FFT frequency vector
+%}
+
+    %%% Absorption coefficient
+    alpha{ii} = 1 - abs((Zs{ii}-Zc)./(Zs{ii}+Zc)).^2;
+    
+    
+    %%% Bandwitsh of efficient absorption
+    %{
+    idx_temp = alpha{ii}>0.83 & F<ff & F>fi;
+    alpha_temp =  alpha{ii}(idx_temp);
+    F_temp = F(idx_temp);
+    
+    TF{ii} = islocalmin(alpha_temp,'MinSeparation',fs*10,'SamplePoints', F_temp);
+    %BW{ii} = F_temp(TF) - min(BW_temp);
+    %}
+    
+    
+    ii = ii + 1;
+end
+%t = tout; %Sometimes t is different??? WHY???
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FIGURES
+close all;
+
+%%% pf&v VS t&f --------------------------------------------------------
+figure(1)
+tt = tiledlayout(1,1);
+ax1 = axes(tt);
+plot(ax1,t(f<100),v_out.data(f<100)*1000,'-k','LineWidth',1)
+xlabel("Time (s)")
+ylabel("Velocity (mm/s)")
+ax1.XColor = 'k';
+ax1.YColor = 'k';
+
+
+ax2 = axes(tt);
+plot(ax2,f(f<100),pf_out.data(f<100),'-r','LineWidth',1)
+xlabel("Corresponding frequency (Hz)")
+ylabel("Front pressure (Pa)")
+ylim([-20 20])
+ax2.XAxisLocation = 'top';
+ax2.YAxisLocation = 'right';
+ax2.Color = 'none';
+ax2.XColor = 'r';
+ax2.YColor = 'r';
+
+ax1.Box = 'off';
+ax2.Box = 'off';
+
+
+%{
+yyaxis right
+plot(t,pf_out.data);
+ylim([-20 20])
+ylabel("Front pressure (Pa)")
+
+yyaxis left
+plot(t,v_out.data);
+ylabel("Velocity (m.s^{-1})")
+xlim([0 ff]);
+xlabel("Frequency (Hz)")
+legend("v","P_f")
+%}
+
+
+
+
+
+
+
+%%%alpha vs freq
+figure(2);
+cmap = copper(numel(alpha)); % Cell array of colors.
+
+for ii = 1:numel(alpha)
+    semilogx(F,alpha{ii},'color',cmap(ii,:),'LineWidth',3)
+    %plot(F(TF{ii}),alpha{ii}(TF{ii}),'r*')
+    hold on %% must hold on AFTER initial axis is created
+end
+hold off
+linespec = {'LabelVerticalAlignment','bottom'}; %'LabelOrientation','horizontal','LabelHorizontalAlignment','center'
+xline(f0,'-.k','f_0 = ' + string(round(f0,1)) + ' Hz',linespec{:});
+xline(fst,'-.k','f_{st} = ' + string(round(fst,1)) + ' Hz',linespec{:});
+
+xlim([1 ff]);
+ylim([0 1.1]);
+
+xlabel("Frequency (Hz)")
+ylabel("Absorbtion coefficient")
+title("\mu_R = " + muR + ",   " + "\mu_M = " + muM + ",   " + "\mu_C = " + muC)
+box on
+grid on
+legend("\tau = " + string(tau_list*1000) + " ms",'Location','northwest')
+
+
+
+
+
+
+
+
+%%% Bode plot 
+figure(3);
+cmap = copper(numel(alpha)); % Cell array of colors.
+
+tt = tiledlayout(2,1); %Create tile layout
+
+%%% Magnetude of Specific Acoustic Impedance
+ax1 = nexttile; 
+for ii = 1:numel(alpha) 
+    semilogx(ax1,F,abs(Zs{ii}),'color',cmap(ii,:),'LineWidth',3)
+    xline(f0,'-.k');
+    xline(fst,'-.k');
+    ylabel("Magnetiude (Pa.s/m)")
+    ylim([0 1200]);
+    box on
+    grid on
+    set(ax1,'xticklabel',[])
+    hold on %% must hold on AFTER initial axis is created
+end
+hold off
+%legend("\tau = " + string(tau_list*1000) + " ms",'Location','northwest')
+title("\mu_R = " + muR + ",   " + "\mu_M = " + muM + ",   " + "\mu_C = " + muC)
+
+%%% Phase
+ax2 = nexttile;
+for ii = 1:numel(alpha) 
+    semilogx(ax2,F,angle(Zs{ii}),'color',cmap(ii,:),'LineWidth',3)
+    linespec = {'LabelVerticalAlignment','bottom'}; %'LabelOrientation','horizontal','LabelHorizontalAlignment','center'
+    xline(f0,'-.k','f_0 = ' + string(round(f0,1)) + ' Hz',linespec{:});
+    xline(fst,'-.k','f_{st} = ' + string(round(fst,1)) + ' Hz',linespec{:});
+    ylabel("Phase (rad)")
+    %xlabel("Frequency (Hz)")
+    box on
+    grid on
+    ylim([-pi pi])
+    set(ax2,'YTick',-pi:pi/2:pi)
+    set(ax2,'YTickLabel',{'-\pi','-\pi/2','0','\pi/2','\pi'})
+    hold on %% must hold on AFTER initial axis is created
+end
+hold off
+
+% Link the axes
+linkaxes([ax1,ax2],'x');
+xlim([1 ff]);
+
+% Move plots closer together
+xticklabels(ax1,{})
+tt.TileSpacing = 'compact';
+
+
+
+
+autoArrangeFigures 
+
+ %% Sweep spectral analisis
+ %{
+figure(2);
+%pspectrum(Pf,t,'spectrogram','TimeResolution',0.1,'OverlapPercent',99,'Leakage',0)
+pspectrum(Pf,t,'spectrogram','FrequencyLimits',[f_i f_f],'TimeResolution',0.1,'OverlapPercent',99,'Leakage',0.9)
+ %axis([0 t_f 0 f_f])
+%}
+

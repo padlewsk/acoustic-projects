@@ -1,0 +1,16 @@
+%%% ACOUSTIC SSH MODEL %%%%%%%%%%%%%%%%%%
+clear all
+close all
+clc
+
+%% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));%
+%% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+run('params.m');
+L = sqrt(Sd);
+omega = 1:10:1000;
+
+k = omega./c0;
+Zs = (Mms*(1i*omega) + Rms + 1./(1i*omega*Cmc))/Sd; 
+%% SIMULATION
+Zeff_s = 4*Zc*Zs/(Zc+Zs).^2*exp(-1i*k*2*L);

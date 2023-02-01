@@ -1,0 +1,202 @@
+%%% SCATTERING THROUGH AN ACOUSTIC LINER IN TIME DOMAIN %%%%%%%%%%%%%%%%%%
+clear all
+close all
+clc
+
+%% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));%
+%% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+run('params.m');
+
+%% MODEL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fprintf("### COMPUTING SPECIFIC ACOUSTIC IMPEDANCE FOR EACH FREQUENCY...\n")
+
+%%% SIMULATION TIME (ode45 normally uses adaptive step size) %tspan = linspace(t0,tf,100);
+
+
+F = [];
+R = [];
+T = [];
+alpha = [];
+
+
+fi = 100;
+ff = 1000;
+
+%%% SAMPLING 
+fs = 1E5;%Hz 
+ts = 1/fs;
+
+tf = 5; %simulation time in seconds
+tspan_vec =  linspace(0,tf,fs); %TIME VECTOR
+
+for f = fi:5:ff %Hz
+    tic
+    
+    fprintf("### f = "+ string(f)+ " Hz \n")
+    %%% xi_s: liner speaker displacement
+    %%% xi_tot: total displacement at the inlet of the duct
+    %%% xi_t: transmitted displacement at the outlet of the duct
+   
+   
+    %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    y0 = [0,0,0,0,0,0];% INITIAL CONDITION %%% y = [xi_s, v_s, xi_tot, v_tot, xi_t,v_t]
+    [t_out,y_out] = ode15s(@(t,y) odefun(t,y,f),[0 tf],y0);
+    
+    %%% OUTPUT
+    vtot = y_out(:,4);
+    vtra = y_out(:,6);
+    
+    pinc = source(A_pinc,f,t_out);
+    pref = pinc - rho0*c0*vtot;
+    ptra = rho0*c0*vtra;
+
+    %interpolate (JUST BEFORE FFT)
+    pinc = interp1(t_out,pinc,tspan_vec);
+    pref = interp1(t_out,pref,tspan_vec);
+    ptra = interp1(t_out,ptra,tspan_vec);
+    
+    %%%% ASSUME CYCLE LIMIT IS ACHEIVED AFTER 10 cycles
+    pinc = pinc(tspan_vec>10/f);
+    pref = pref(tspan_vec>10/f);
+    ptra = ptra(tspan_vec>10/f);
+    
+    %%% FFT
+    [F1,Pinc] = onesideft(pinc,fs,1); %[Pinc, Pref, Ptra]%2sided spectrum, padding
+    [F2,Pref] = onesideft(pref,fs,1);
+    [F3,Ptra] = onesideft(ptra,fs,1);
+    
+    %%% Find fund amp
+    Pinc_idx = find(abs(Pinc) == max(abs(Pinc)));
+    Pref_idx = find(abs(Pref) == max(abs(Pref)));
+    Ptra_idx = find(abs(Ptra) == max(abs(Ptra)));
+
+    Pinc_f0 = Pinc(Pinc_idx);
+    Pref_f0 = Pref(Pref_idx);
+    Ptra_f0 = Ptra(Ptra_idx);
+    
+ 
+    F_temp = f;  
+    
+    %%% Reflection coefficient:
+    R_temp = Pref_f0/Pinc_f0;
+    %%% Transmission coefficient:
+    T_temp = Ptra_f0/Pinc_f0;
+    %%% Absorbtion coefficient:
+    alpha_temp = 1 - abs(R_temp)^2 - abs(T_temp)^2;
+      
+    %%% LOG
+    F = [F,F_temp];
+    R = [R,R_temp];
+    T = [T,T_temp];
+    alpha = [alpha,alpha_temp]; %transmission loss
+    
+    
+    %%% FIGURE LOOP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    % Enlarge figure to full screen.
+    set(gcf, 'Units', 'Normalized', 'OuterPosition', [0 0 1 1]);
+    
+    fig1 = figure(1);
+    subplot(2,2,1);
+    grid
+    box on
+    plot(t_out*1000, y_out(:,1)*1000)%Pinc
+    xlim([0,(50/ff)*1000])
+    %ylim([-5E-4 5E-4])
+    xlabel("Time (ms)")
+    ylabel("Speaker Displacement (mm)")
+    str = {'$$ \xi_{s} $$'};
+    legend(str, 'Interpreter','latex', 'Location','NW')
+    
+    subplot(2,2,2);
+    
+    box on
+    hold on
+    plot(F3,abs(Ptra),'r')
+    plot(F2,abs(Pref),'b')
+    hold off
+    xlim([0 1000]);
+    %ylim([0 0.25E-3])
+    xlabel("Frequency (Hz)")
+    ylabel("Amplitude (a.u)")
+    str = {'$$ FFT(P_{ref}) $$','$$ FFT(P_{tra}) $$'};
+    legend(str, 'Interpreter','latex', 'Location','NW')
+    
+     
+    subplot(2,2,[3,4]); 
+    hold on
+    plot(F,alpha,'o','color',[0, 0.4470, 0.7410])
+    plot(F,abs(R),'o','color',[0.8500, 0.3250, 0.0980])
+    plot(F,abs(T),'o','color',[0.9290, 0.6940, 0.1250])
+    xlim([fi,ff])
+    %ylim([0,1])
+    xlabel("Frequency (Hz)")
+    hold off
+    box on
+    grid on
+    str = {'$\alpha$','R','T'};
+    legend(str, 'Interpreter','latex', 'Location','NW')
+    %}
+    toc
+end
+hold off
+
+
+
+
+
+
+%% FIGURES
+%close all
+%%% Figure 2
+fig2 = figure(2);
+hold on
+%plot(F, Zs)
+plot(F,alpha)%xi
+plot(F,abs(R))%xi
+plot(F,abs(T))%xi
+
+hold off
+box on
+grid on
+str = {'$\alpha$','R','T'};
+legend(str, 'Interpreter','latex', 'Location','NW')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%% FUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% PRESSURE SOURCE (sin)
+function S = source(amp,freq,time)
+S = amp*sin(2*pi*freq*time);
+end
+
+%%% system of differential equations y′=f(t,y)
+function dydt = odefun(t,y,f)
+    run('params.m');
+     %%% y =  [xi_s, v_s, xi_tot, v_tot, xi_t, v_t]
+    
+    gamma = (1/Ca)*(y(3)-(Sd/S)*y(1)-y(5));
+    %%%pinc = A_pinc*sin(2*pi*f*t); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    pinc = source(A_pinc,f,t); %source pressure
+   
+    dydt = zeros(6,1);
+    dydt(1) = y(2); %vs
+    dydt(2) = (1/Mas)*(gamma - Ras*y(2) - 1/Cac*y(1));
+    dydt(3) = y(4); %vtot
+    dydt(4) = (2/Ma)*(-gamma + 2*pinc - Zc*y(4)) ;
+    dydt(5) = y(6); %vt
+    dydt(6) = (2/Ma)*(gamma - Zc*y(6)) ;
+end

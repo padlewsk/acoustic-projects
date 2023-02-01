@@ -1,0 +1,74 @@
+close all; 
+clear all; 
+clc;
+
+
+%%Parameters
+Zc = 346.13*1.1839;
+
+% Speaker (Visaton AL-170)
+Sd = 133E-4;    % Effective piston area [m^2]
+Mms  = 13E-3;      % Moving mass [kg]
+Rms = 0.6;       % Mechanical resitance [N.s/m]
+Cms = 594.85E-6; % Mechanical complicance due to surround suspension and spider [m/N]
+Cab = 10;       % Compliance of enclosure due to back pressure [N/m^4]
+Cmc = (1/Cms + Sd^2/Cab)^-1;
+
+f0 = 1/(2*pi*sqrt((Mms*Cms*Cab)/(Sd^2*Cms+Cab))) % Resonnance frequency Hz
+
+P0 = 101325; %atmospheric pressure
+
+Bl = 6.9;        % Force factor [N/A]
+Le = 0.9E-3;    % Voice coil inductance [H]
+Re = 5.6;       % DC coil resistance [Ohm]
+
+
+% Target impedance weights:
+muM = 1;  %%IDEAL
+muR = 10; 
+muC = 10; 
+
+% Transfer function coefficients
+%num:
+a2 = Sd*(muM - 1)*Mms;
+a1 = Sd*(muR - 1)*Rms;
+a0 = Sd*(muC - 1)/Cmc ;
+
+%den:
+b2 = Bl*muM*Mms;
+b1 = Bl*muR*Rms;
+b0 = Bl*muC/Cmc;
+
+
+
+t_f = 1; %simulation time in seconds
+
+f_i = 0; % Freq sweep limit
+f_f = 1000; % Freq sweep limit
+
+Dt = 0.2E-3;
+t = 0:Dt:t_f;
+
+f = (f_i+(f_f-f_i).*t./t_f);
+omega = 2*pi*f;
+
+Zas = (Mms*i*omega + Rms + 1./(Cmc*i*omega))./Sd; %Specific acoustic impedance for open circuit
+
+TF = (Sd*(i*omega*(muM-1)*Mms + (muR-1)*Rms + (muC-1)./(i*omega*Cms)))./(Bl*(i*omega*(muM)*Mms + (muR)*Rms + (muC)./(i*omega*Cms)));
+
+Zs = Zas./(1-Bl*TF/Sd);%Specific acoustic impedance of the electoacoustic absorber Where the current driving the voice coil is controlled by the front pressure through the transfer function
+
+
+alpha_as = 1 - abs((Zas-Zc)./(Zas+Zc)).^2; % basic configuration: when the closed box LS is in open circuit and is not coupled to any additional resonator
+alpha_s = 1 - abs((Zs-Zc)./(Zs+Zc)).^2;
+ 
+
+
+figure(1)
+semilogx(f,alpha_as,f,alpha_s,'--')
+xlabel('Frequency (Hz)')
+ylabel('Absorption Coefficient')
+
+%hold off
+%legend('Basic', 'Control')
+

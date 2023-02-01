@@ -1,0 +1,75 @@
+%%% Back Pressure and Displacement transfer function meausrement 
+%%% Generate frequency sweep and measure velocity v,front pressure pf and
+%%% back pressure pb.
+%%% OPEN CIRCUIT CONFIGURATION
+
+%%% add toolbox library
+addpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox');
+addpath('__fun');
+
+p = param_struct();
+
+%% BUILD MODEL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+SG__build;
+
+%% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Data = SG_measure;
+
+f = Data(:,1);
+pb = Data(:,2); %front pressure signal (V)
+v  = Data(:,3)/sens_v;  %velocity (m/s)
+
+xi = v./(1i*2*pi*f); %displacement §§§§§
+%%% tf_Pb_Xi: Relation between displacement Xi and backpressure Pb
+%[tf_Pb_V,F] = tfestimate(v,pb,hamming(N/8),'',N);% If you specify noverlap as empty, then tfestimate uses a number that produces 50% overlap between segments. 
+[tf_pb_xi,F] = tfestimate(xi,pb,hamming(p.N/8),'',p.freq, p.fs_acq);
+
+
+
+%% PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+figure(1)
+tile = tiledlayout(2,1);
+ax1 = nexttile;
+plot(ax1,f,pb)
+
+ax2 = nexttile;
+plot(ax2,f,v)
+
+
+% Link the axes
+linkaxes([ax1,ax2],'x');
+xlim([0,tmax])
+title(tile,'front pressure, velocity, back pressure vs time')
+xlabel(tile,'frequency (Hz)')
+ylabel(tile,'Amplitude')
+
+% Move plots closer together
+xticklabels(ax1,{})
+tile.TileSpacing = 'compact';
+
+
+
+%%%
+figure(2);
+plot(F,abs(tf_pb_xi),'LineWidth',3)
+xlim([fi ff]);
+xlabel("Frequency (Hz)")
+ylabel("Magnitude (Pa\cdot{}m^{-1})")
+title("H_{P_b,\xi} \approx " + tf_Pb_Xi_AVG + " (Pa\cdot{}m^{-1})")
+box on
+grid on
+legend("data",'Location','northwest')
+
+
+autoArrangeFigures
+%% SAVE DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%save('tf_pb_xi__out','F','tf_pb_xi');
+
+
+   
+
+
+
