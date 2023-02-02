@@ -1,0 +1,32 @@
+# Exported data
+__data/
+*.mat
+
+# OS files
+Thumbs.db
+.DS_Store
+.vs
+*.log
+*.lnk
+
+# LabView bitfiles and cache
+*.lvbitx
+*.aliases
+*.lvlps
+
+
+# Matlab/Simulink build files, backups and cache
+*.p
+slprj/
+hdl_prj/
+*.asv
+*.autosave
+*.slxc
+*.slx.r20*
+*.mdl.r20*
+*.mldatx
+*_slrt_rtw/
+
+# Xilinx Vivado files
+*.mcs
+*.jou
