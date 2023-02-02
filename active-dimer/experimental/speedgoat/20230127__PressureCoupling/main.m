@@ -6,7 +6,7 @@ clc
 clf
 
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));%
+addpath(genpath('\\files7\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));%
 addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
@@ -26,7 +26,7 @@ l2 = p.x3 - p.offset ; %distance between left edge of specimen and mic 3
 s1 = abs(p.x2-p.x1); %mic  separation
 s2 = abs(p.x4-p.x3);%mic separation
 
-%% SYMMETRIC CASE
+%% SYMMETRIC + RECIPROCAL CASE
 %{
 %%% CORRECTION DATA
 fstruct = dir('./__data/*100us*.mat');
@@ -54,7 +54,7 @@ s22 = s11;
 s21 = s12;
 %}
 
-%% ASYMMETRIC CASE
+%% ASYMMETRIC +CASE
 %
 %%% CORRECTION DATA
 fstruct = dir('./__data/*100us*.mat');
@@ -94,13 +94,13 @@ D_b = 1i*(H41_b.*exp(-1i*k*l2)      - H31_b.*exp(-1i*k*(l2+s2)))./(2*sin(k*s2));
 
 s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
 s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be +!
-s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
+s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);
 s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 
 %}
 
 %%% COMPUTE TRANSFER MATRIX 
-t11 = s21-(s11.*s22./s12);
+t11 = 1./conj(s12);%s21-(s11.*s22./s12);
 t12 = s22./s12;
 t21 = -s11./s12;
 t22 = 1./s12;
