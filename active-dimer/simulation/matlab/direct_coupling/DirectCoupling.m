@@ -4,8 +4,8 @@ close all
 k =  (1/2.511373e-04); % reference sring constant
 r = 2.79e-01;
 Bl = 1.1;
-kappa = 0.15*k; %inter-coupling
-rho = 0.15*r;
+kappa = 0.8*k; %inter-coupling
+rho = 0*r;
 
 
 a = 0.2806;%0.25 % unitcell size
@@ -23,7 +23,7 @@ init_v2 = 0;
 
 %%% WITH DELAY
 %
-tau = 50e-6; %1e-12;% 
+tau = 1e-12;%50e-6; %1e-12;% 
 lags = [tau]; %list of possible lags to choose from
 sol = dde23( @(t,x,Z) MassSpringDelay(t,x,Z,kappa,rho,freq), lags,  @history, tspan); % x = [x1,dx1dt,x2,dx2dt]
 tsol = sol.x'; %%% NOT THE SAME AS BEFORE

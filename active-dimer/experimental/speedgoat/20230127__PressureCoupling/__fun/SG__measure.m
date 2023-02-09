@@ -62,10 +62,15 @@ function Data = SG__measure(p, dlg)
     %turn control on
     tg.setparam([p.MDL, '/enable_control'], 'Value', true);
    
-    % gain factor for control!!!
+    % gain factor for control
+    % linear coupling coupling   
     tg.setparam([p.MDL, '/control/kappa_m'], 'Gain', p.kappa/p.Bl_m);%
     tg.setparam([p.MDL, '/control/kappa_p'], 'Gain', p.kappa/p.Bl_p);%
-
+    % non-linear coupling coupling   
+    tg.setparam([p.MDL, '/control/kappa_nl_m'], 'Gain', p.kappa_nl/p.Bl_m);%
+    tg.setparam([p.MDL, '/control/kappa_nl_p'], 'Gain', p.kappa_nl/p.Bl_p);%
+    
+    % onsite non-linear (backpressure)
     tg.setparam([p.MDL, '/control/rho_m'], 'Gain', p.rho/p.Bl_m);%
     tg.setparam([p.MDL, '/control/rho_p'], 'Gain', p.rho/p.Bl_p);%
     

@@ -155,7 +155,8 @@ function params = param_struct();
 
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %params.t_ssh = 0; % SSH hopping parameter -1<0<1
-    params.kappa = 0*(-params.Sd); %0*(params.muC_m/params.Cmc_m);%(params.muC_m/params.Cmc_m); % 20221103 update - the control was inverted... 
-    params.rho = 0; %0*params.muR_m*params.Rms_m;%(params.muR_m*params.Rms_m); % local non-linearity
+    params.kappa    = 0*(-params.Sd); % coupling (front pressure)
+    params.kappa_nl = 1.5e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
+    params.rho      = 0e3; % local non-linearity (backpressure)
 end
 

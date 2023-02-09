@@ -29,7 +29,7 @@ s2 = abs(p.x4-p.x3);%mic separation
 %% SYMMETRIC + RECIPROCAL CASE
 %{
 %%% CORRECTION DATA
-fstruct = dir('./__data/*100us*.mat');
+fstruct = dir('./__data/*50us*.mat');
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
@@ -54,10 +54,10 @@ s22 = s11;
 s21 = s12;
 %}
 
-%% ASYMMETRIC +CASE
+%% ASYMMETRIC + CASE
 %
 %%% CORRECTION DATA
-fstruct = dir('./__data/*100us*.mat');
+fstruct = dir('./__data/*50us*.mat');
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
@@ -94,7 +94,7 @@ D_b = 1i*(H41_b.*exp(-1i*k*l2)      - H31_b.*exp(-1i*k*(l2+s2)))./(2*sin(k*s2));
 
 s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
 s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be +!
-s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);
+s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be -!
 s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 
 %}
@@ -155,15 +155,15 @@ legend("Re(q_{F})","Im(q_{F})","q_F = 2\pif/a ")
 %%% S-MATRIX
 figure(2);
 
-semilogy(p.freq, abs(s11).^2, 'DisplayName', 's11');
+semilogy(p.freq, abs(s11), 'DisplayName', 's11');
 hold on;
-semilogy(p.freq, abs(s21).^2, 'DisplayName', 's21');
-semilogy(p.freq, abs(s12).^2, 'DisplayName', 's12');
-semilogy(p.freq, abs(s22).^2, 'DisplayName', 's22');
+semilogy(p.freq, abs(s21), 'DisplayName', 's21');
+semilogy(p.freq, abs(s12), 'DisplayName', 's12');
+semilogy(p.freq, abs(s22), 'DisplayName', 's22');
 legend show
 %ylim([1e-4,10])
 xlabel("Frequency (Hz)")
-title("Transmission/reflection coefficients")
+title("Transmission/reflection")
 box on
 grid on
 
