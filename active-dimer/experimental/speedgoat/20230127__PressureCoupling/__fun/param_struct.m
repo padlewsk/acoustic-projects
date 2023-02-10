@@ -155,8 +155,8 @@ function params = param_struct();
 
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %params.t_ssh = 0; % SSH hopping parameter -1<0<1
-    params.kappa    = 0*(-params.Sd); % coupling (front pressure)
-    params.kappa_nl = 1.5e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
-    params.rho      = 0e3; % local non-linearity (backpressure)
+    params.kappa    = 1*(-params.Sd); % coupling (front pressure) MAX 1
+    params.kappa_nl = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
+    params.kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
 end
 

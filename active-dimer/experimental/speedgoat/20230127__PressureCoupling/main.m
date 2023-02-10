@@ -86,11 +86,12 @@ C_b = 1i*(H31_b.*exp(+1i*k*(l2+s2)) - H41_b.*exp(+1i*k*l2))./(2*sin(k*s2));
 D_b = 1i*(H41_b.*exp(-1i*k*l2)      - H31_b.*exp(-1i*k*(l2+s2)))./(2*sin(k*s2));
 
 %%% COMPUTE SCATTERING MATRIX --> RECHECK THIS!
-
-%s11 = +(D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
-%s21 = +(D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
-%s12 = +(A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
-%s22 = +(A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
+%{
+s11 = +(D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
+s21 = +(D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
+s12 = +(A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
+s22 = +(A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
+%}
 
 s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
 s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be +!
@@ -149,9 +150,6 @@ legend("Re(q_{F})","Im(q_{F})","q_F = 2\pif/a ")
 %legend("\tau = " + string(tau_list*1000) + " ms",'Location','northwest')
 %}
 
-
-
-
 %%% S-MATRIX
 figure(2);
 
@@ -166,7 +164,6 @@ xlabel("Frequency (Hz)")
 title("Transmission/reflection")
 box on
 grid on
-
 
 %Correlation (C-files)
 figure(3);
@@ -185,7 +182,7 @@ autoArrangeFigures
 
 %%% T-MATRIX
 %{
-figure(3);
+figure(4);
 %hold on;
 plot(f, abs(t11), 'DisplayName', 't11');
 hold on;

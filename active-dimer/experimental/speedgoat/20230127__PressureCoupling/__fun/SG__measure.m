@@ -70,9 +70,9 @@ function Data = SG__measure(p, dlg)
     tg.setparam([p.MDL, '/control/kappa_nl_m'], 'Gain', p.kappa_nl/p.Bl_m);%
     tg.setparam([p.MDL, '/control/kappa_nl_p'], 'Gain', p.kappa_nl/p.Bl_p);%
     
-    % onsite non-linear (backpressure)
-    tg.setparam([p.MDL, '/control/rho_m'], 'Gain', p.rho/p.Bl_m);%
-    tg.setparam([p.MDL, '/control/rho_p'], 'Gain', p.rho/p.Bl_p);%
+    % onsite kerr like non-linear (backpressure)
+    tg.setparam([p.MDL, '/control/kerr_nl_m'], 'Gain', p.kerr_nl/p.Bl_m);%
+    tg.setparam([p.MDL, '/control/kerr_nl_p'], 'Gain', p.kerr_nl/p.Bl_p);%
     
     % mic sensitivity
     tg.setparam([p.MDL, '/control/sens_p_m'], 'Gain', p.sens_p_m);%
