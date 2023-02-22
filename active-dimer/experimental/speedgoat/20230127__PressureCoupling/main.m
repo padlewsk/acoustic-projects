@@ -27,7 +27,7 @@ s1 = abs(p.x2-p.x1); %mic  separation
 s2 = abs(p.x4-p.x3);%mic separation
 
 %% SYMMETRIC + RECIPROCAL CASE
-%{
+%
 %%% CORRECTION DATA
 fstruct = dir('./__data/*50us*.mat');
 load(strcat(fstruct.folder,'\',fstruct.name));
@@ -55,7 +55,7 @@ s21 = s12;
 %}
 
 %% ASYMMETRIC + CASE
-%
+%{
 %%% CORRECTION DATA
 fstruct = dir('./__data/*50us*.mat');
 load(strcat(fstruct.folder,'\',fstruct.name));
