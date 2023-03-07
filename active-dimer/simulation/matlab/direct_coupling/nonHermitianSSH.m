@@ -22,8 +22,8 @@ w = 0.5*(1 - lambda); % intercell coupling
 
 
 kl = 2*pi*freq/c0*a0/2; %kl!!!
-gamma0 = abs(Yms(kl)); %losses
-qa_up_0 = acos((2*(cos(kl)+gamma0).^2 - (1+lambda^2))/(1-lambda^2));
+gamma0 = (Yms(kl)); %losses
+qa_up_0 = acos((2*(cos(kl)+1i*gamma0).^2 - (1+lambda^2))/(1-lambda^2));
 %qa_dn_0 = 
 
 
@@ -35,7 +35,7 @@ figure(1)
 set(gca,'FontSize',18)
 set(gca,'LineWidth',2)
 box on
-plot(kl/(pi),abs(Yms(kl)),'b-','LineWidth',3)
+plot(kl/(pi),imag(Yms(kl)),'b-','LineWidth',3)
 
 
 figure(2)
