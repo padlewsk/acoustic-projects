@@ -1,4 +1,4 @@
-%% NH SSH MODEL 
+%% NON-HERMITIAN SSH MODEL (BLOCH TH APPLIES)
 
 %REGIME 1: WEAKLY COUPLED DIMER: |v| << |w|
 %REGIME 2: STRONGLY COUPLED DIMER: |v| >> |w|
@@ -6,27 +6,23 @@ close all
 clear all
 clc
 % parameters
-global a0 c0 
-a0 = 0.28; % cell size (m)
+global a c0 
+a = 0.28; % cell size (m)
 c0 = 347; % air speed (m/s)
 
 %
 N = 80;
 %qa = linspace(-pi,pi,N); %q_Floquet
-freq = linspace(0,c0/a0,N); %q_Floquet
+freq = linspace(0,c0/a,N); %q_Floquet
 lambda = 0.13; %dimerization parameter 
 v = 0.5*(1 + lambda); % intracell coupling
 w = 0.5*(1 - lambda); % intercell coupling
 
-
-
-
-kl = 2*pi*freq/c0*a0/2; %kl!!!
+kl = 2*pi*freq/c0*a/2; %kl!!!
+E0 = cos(2*pi*(c0/a/2)*a/2) % pseudo acoustic energy := cos(q0a/2), q0 =2*pi*omega0/0 ?????
 gamma0 = (Yms(kl)); %losses
-qa_up_0 = acos((2*(cos(kl)+1i*gamma0).^2 - (1+lambda^2))/(1-lambda^2));
+qa_up_0 = acos((2*(cos(kl)+E0+1i*gamma0).^2 - (1+lambda^2))/(1-lambda^2));
 %qa_dn_0 = 
-
-
 
 
 %%% FIGURES %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,21 +57,21 @@ hold off
  
 xlabel("q_Fa/\pi")
 %ylabel("Unitcell Eigenfrequencies (\omega_0)")
-ylabel("ka/\pi")
+ylabel("ka/(2\pi)")
 legend('Re(q_Fa/\pi)','Im(q_Fa/\pi)','Y_{norm}')
 %title('BAND DIAGRAM', sprintf('v = %.1f, w = %.1f',[v,w]))
 
 axis square
 
-%%%
 
 function YY = Yms(kl)
 global c0
-global a0
+global a
 Rms	= 0.261*0.2;	% mechanical resistance
 Mms	= 6.670769e-04; % moving mass (kg)
 Cmc	= 2.128414e-04; % mechanical compliance (N/m)
-freq =  2*c0.*kl./(2*pi*a0);
+freq =  2*c0.*kl./(2*pi*a);
+f0 = 1/(2*pi*sqrt(Mms*Cmc));
 %kl = 2*pi*freq/c0*a0/2; %kl!!!
 % losses
 YY = Rms./((1i*2*pi*freq).*Mms + Rms + 1./((1i*2*pi*freq)*Cmc));

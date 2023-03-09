@@ -1,3 +1,5 @@
+%%% Coupling by looking at the membrane displacement (not so good)
+
 clear
 close all
 
@@ -5,7 +7,7 @@ k =  (1/2.511373e-04); % reference sring constant
 r = 2.79e-01;
 Bl = 1.1;
 kappa = 0.8*k; %inter-coupling
-rho = 0*r;
+rho = 0.8*r;
 
 
 a = 0.2806;%0.25 % unitcell size
