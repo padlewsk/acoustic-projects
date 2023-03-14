@@ -7,54 +7,34 @@ clc
 
 % excitation angular frequency
 global N freq_src
-freq_src = 2000;
-T_src = 1/freq_src;
+freq_src = 1000;
+
+f_samp = 10000;
 % number of cells
 N = 2;
+c0 = 347;
+a = 0.28;
 
 
-tspan = 0:T_src/100:(5000-1/100)*T_src; % equal spacing required for FFT
+tspan = 0:1/f_samp:1; % equal spacing required for FFT
+xspan = 0:a/2:a*N;
+
 %% SIMULATION
 % initial condition
 p0 = [zeros(2*N,1)];% [1;zeros(2*N-1,1)];
-[t_sig,p_sig] = ode45(@nl_nh_ssh, tspan, p0); 
-%% PROCESSING
-%p(t,x) --> p(omega,q)
-fs = 1/(t_sig(2)-t_sig(1));
-L_sig = length(t_sig); % signal lengh
-
-P = fft(p_sig);
-P = abs(P/L_sig); %two-sided spectrum 
-P = P(1:L_sig/2+1,:); %single-sided spectrum 
-P(2:end-1,:) = 2*P(2:end-1,:);
-
-freq_sig = fs*(0:(L_sig/2))/L_sig;
-
-figure(3)
-semilogy(freq_sig,P) 
-title("Single-Sided Amplitude Spectrum of P(t)")
-xlabel("f (Hz)")
-ylabel("|P(f)|")
-xlim([0,2000])
-
-%{
-figure(4)
-hold on
-plot(tspan,real(conj(p_sig(:,1))))
-plot(tspan,imag(conj(p_sig(:,1))))
-hold off
-%}
+[t_raw,p_raw] = ode45(@nl_nh_ssh, tspan, p0); 
 %% FIGURES
-%%abs?
+close all
+
 
 figure(1)
 %tiledlayout(2,1)
 %nexttile
 hold on
-plot(t_sig/T_src,abs(p_sig(:,1)),'-')
-plot(t_sig/T_src,abs(p_sig(:,2)),'-')
-plot(t_sig/T_src,abs(p_sig(:,3)),'-.')
-plot(t_sig/T_src,abs(p_sig(:,4)),'-.')
+plot(t_raw,abs(p_raw(:,1)),'-')
+plot(t_raw,abs(p_raw(:,2)),'-')
+plot(t_raw,abs(p_raw(:,3)),'-.')
+plot(t_raw,abs(p_raw(:,4)),'-.')
 hold off
 box on
 grid on
@@ -65,22 +45,54 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 %ylim([-1,1])
 %}
 
-
+%%% p(t,N)
 figure(2)
 set(gca,'FontSize',20)
 %set(gcf,'position',[0, 0, 800, 1000]);
 hold on
-image([1:2*N],t_sig/T_src,abs(p_sig(:,[1:2*N])),'CDataMapping','scaled')% all resonators
+image(1:2*N,t_raw,abs(p_raw(:,1:2*N)),'CDataMapping','scaled')% all resonators
 c = colorbar;
 c.Label.String = 'Amplitude';
 %caxis([0 1]), %clim after 2022a!!!!
 xlabel("site (N)",'Interpreter','latex')
 ylabel("t",'Interpreter','latex')
 xlim([0.5,2*N+0.5])
-ylim([t_sig(1)/T_src,t_sig(end)/T_src])
+ylim([t_raw(1),t_raw(end)])
 %title("Transmission peak as a function of local disorder")
+box on
 
-%box on
+%%% p(omega,q)
+fs = 1/(t_raw(2)-t_raw(1));
+NFFT_f = length(t_raw); % signal lengh
+freq = fs*(0:(NFFT_f/2))/NFFT_f;
+
+P_f= fft(p_raw,'',1);
+P_f = abs(P_f/NFFT_f); %two-sided spectrum 
+P_f = P_f(1:NFFT_f/2+1,:); %single-sided spectrum 
+P_f(2:end-1,:) = 2*P_f(2:end-1,:);
+
+
+NFFT_q = 2*N;
+q = 2*pi*(a/2)*(0:(NFFT_q/2))/NFFT_q;
+
+P_q = fft(P_f,'',2);
+P_q = abs(P_q/NFFT_q); %two-sided spectrum 
+P_q = P_q(1:NFFT_q/2+1,:); %single-sided spectrum 
+P_q(2:end-1,:) = 2*P_q(2:end-1,:);
+
+figure(3)
+set(gca,'FontSize',20)
+%set(gcf,'position',[0, 0, 800, 1000]);
+hold on
+image(q*pi/a,freq,abs(P_f),'CDataMapping','scaled')% all resonators
+c = colorbar;
+c.Label.String = 'Amplitude';
+%caxis([0 1]), %clim after 2022a!!!!
+xlabel("qa/pi",'Interpreter','latex')
+ylabel("freq",'Interpreter','latex')
+xlim([-1,1])
+ylim([0,max(freq)])
+%title("Transmission peak as a function of local disorder")
 
 %}
 
@@ -115,7 +127,8 @@ T_src = 2*pi/omega_src; %1/freq
 t0 = 10*T_src;% delay
 tau = 3*T_src;% width
 
-src =  0*omega_src/2*exp(+1i*(omega_src*t)) + omega_src/2*exp(1i*(omega_src*t)-(t-t0)^2/tau^2); %% physicist time convention!!!
+src =  omega_src/2*exp(+1i*(omega_src*t))*0 + omega_src/2*exp(1i*(omega_src*t)-(t-t0)^2/tau^2); %% physicist time convention!!!
+
 
 Rms	= 0.261*0.2;	% mechanical resistance
 Mms	= 6.670769e-04; % moving mass (kg)
@@ -149,14 +162,15 @@ for ii = 1:2*N %row
                     M(ii,jj-1)  =  W ; 
                 elseif mod(ii,2) == 0 && mod(jj,2) == 0 %B site
                     M(ii,jj-1)  =  v; 
-                    M(ii,jj+1)  = W; 
+                    M(ii,jj+1)  =  W; 
                 end
             end
         end 
     end
 end
 
-
+%phase_vec = [exp(1i*a/2*(1:2*N))]';
+%p(:) = p(:).*phase_vec;
 %{
 W_p = (w + lambda_NL*(abs(p(3))^2 + abs(p(2))^2));
 W_m = (w + lambda_NL*(abs(p(1))^2 + abs(p(4))^2));
@@ -168,5 +182,5 @@ M = [
            0*W_m,       0,         v,      omega0-1i*gamma;
     ];
 %}
-dpdt = -1i.*(M*p(:)+ [src; zeros(2*N-1,1)]); % p(:) = [p(1),p(2),...,P(2N)] and [epsilon*src;zeros(2*N-1,1)]) = [epsilon*src,0,0,...,0]
+dpdt = -1i.*(M*p(:) + [src; zeros(2*N-1,1)]); % p(:) = [p(1),p(2),...,P(2N)] and [epsilon*src;zeros(2*N-1,1)]) = [epsilon*src,0,0,...,0]
 end
