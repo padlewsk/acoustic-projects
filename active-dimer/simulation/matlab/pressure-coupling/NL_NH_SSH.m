@@ -3,6 +3,7 @@ clear all
 close all
 clc
 
+%test
 %% PARAMETERS
 
 % excitation angular frequency
