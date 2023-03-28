@@ -15,13 +15,13 @@ N = 80;
 %qa = linspace(-pi,pi,N); %q_Floquet
 freq = linspace(0,c0/a,N); %q_Floquet
 lambda = 0.13; %dimerization parameter 
-v = 0.5*(1 + lambda); % intracell coupling
-w = 0.5*(1 - lambda); % intercell coupling
+K = 1/2; %must be 0.5
+v = K*(1 + lambda); % intracell coupling
+w = K*(1 - lambda); % intercell coupling
 
 kl = 2*pi*freq/c0*a/2; %kl!!!
 E0 = cos(2*pi*(c0/a/2)*a/2) % pseudo acoustic energy := cos(q0a/2), q0 =2*pi*omega0/0 ?????
-gamma0 = (Yms(kl)); %losses
-qa_up_0 = acos((2*(cos(kl)+E0+1i*gamma0).^2 - (1+lambda^2))/(1-lambda^2));
+qa_0 = acos(((1/K)*(cos(kl) - E0 + 1i*gamma(kl)).^2 - (1+lambda^2))/(1-lambda^2));
 %qa_dn_0 = 
 
 
@@ -31,7 +31,7 @@ figure(1)
 set(gca,'FontSize',18)
 set(gca,'LineWidth',2)
 box on
-plot(kl/(pi),imag(Yms(kl)),'b-','LineWidth',3)
+plot(kl/(pi),imag(gamma(kl)),'b-','LineWidth',3)
 
 
 figure(2)
@@ -41,9 +41,9 @@ box on
 %xlim([-1,1])
 %ylim([0,1])
 hold on
-plot(real(qa_up_0)/pi,kl/(pi) ,'r-','LineWidth',3)
-plot(abs(imag(qa_up_0))/pi,kl/(pi) ,'k--','LineWidth',3)
-plot(abs(Yms(kl)),kl/(pi),'b-','LineWidth',3)
+plot(real(qa_0)/pi,kl/(pi) ,'r-','LineWidth',3)
+plot(abs(imag(qa_0))/pi,kl/(pi) ,'k--','LineWidth',3)
+plot(abs(gamma(kl)),kl/(pi),'b-','LineWidth',3)
 %plot(qa/pi,real(ka_dn_0)/pi,'r-','LineWidth',3)
 %plot(qa/pi,ka_up_1/pi,'b-','LineWidth',3)
 %plot(qa/pi,ka_dn_1/pi,'r-','LineWidth',3)
@@ -64,7 +64,7 @@ legend('Re(q_Fa/\pi)','Im(q_Fa/\pi)','Y_{norm}')
 axis square
 
 
-function YY = Yms(kl)
+function YY = gamma(kl) %loss function
 global c0
 global a
 Rms	= 0.261*0.2;	% mechanical resistance
@@ -76,3 +76,5 @@ f0 = 1/(2*pi*sqrt(Mms*Cmc));
 % losses
 YY = Rms./((1i*2*pi*freq).*Mms + Rms + 1./((1i*2*pi*freq)*Cmc));
 end
+
+
