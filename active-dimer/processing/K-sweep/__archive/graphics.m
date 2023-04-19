@@ -134,7 +134,7 @@ figure(3)
 ax = gca; % current axes
 fig = gcf;
 set(ax,fig_prop{:})
-ax.YTickLabel= ''
+%ax.YTickLabel= ''
 ax.PositionConstraint = "innerposition";
 fig.InnerPosition = window_size;
 
@@ -160,7 +160,7 @@ for ii = flip(1:numel(t_list))
     xlim([0 1])
     ylim([0 1200])
     
-    %legend("$\tilde{\delta} = 1.00 \cdot a/4$", "$\tilde{\delta} = 0.75\cdot a/4$", "$\tilde{\delta} = 0.50\cdot a/4$", "$\tilde{\delta} = 0.25\cdot a/4$", "$\tilde{\delta} = 0$",'Interpreter','latex')%,'Location','northeastoutside')
+    legend("$\delta = 1.00 \cdot a/4$", "$\delta = 0.75\cdot a/4$", "$\delta = 0.50\cdot a/4$", "$\delta = 0.25\cdot a/4$", "$\delta = 0$",'Interpreter','latex')%,'Location','northeastoutside')
     %title("Dispersion vs t: simulation",'Interpreter','latex')
     box on
     grid on
