@@ -35,7 +35,7 @@ h = 0.01; %%m  height of the duct
 S = h*sqrt(Sd); %m^2
 
 %%% ZONE BELOW S1&S2
-V =S*sqrt(Sd); %m^3
+V =S*sqrt(Sd); %m^3 ?????????
 Ma = rho0*V/S;
 Ca = (V/(rho0*c0^2))/S;
 

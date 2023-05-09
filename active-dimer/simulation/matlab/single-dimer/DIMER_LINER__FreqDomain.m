@@ -35,6 +35,7 @@ for s = 1i*2*pi*[fi:10:ff]; %s = i*omega = i*2pi*freq
     
     ii = ii + 1;
 end
+%specify inc Pressure)
  Pinc = A_pinc*ones(1,ii-1);
 %%% Reflection coefficient:
 R = (Pinc-Zc*V(2,:))./Pinc;
