@@ -14,7 +14,7 @@ tspan = (t_0:1/freq_samp:(t_1-1/freq_samp))'; %
 %beta4 = beta(:,4);
 
 
-gamma = (diff(beta2)./diff(t));% this is the "finite difference" derivative. Note it is  one element shorter than y and x
+gamma = (diff(beta)./diff(t));% this is the "finite difference" derivative. Note it is  one element shorter than y and x
 td = (t(2:end) + t(1:(end-1)))/2; % this is to assign yd an abscissa midway between two subsequent x
 
 
