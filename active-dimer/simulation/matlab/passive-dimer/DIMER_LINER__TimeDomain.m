@@ -17,7 +17,7 @@ fprintf("### COMPUTING SPECIFIC ACOUSTIC IMPEDANCE FOR EACH FREQUENCY...\n")
 %%% FREQ SWEEP RANGE
 fi = 100; % initial frequency
 ff = 1000; % final frequency
-Df = 10; % frequency step
+Df = 100; % frequency step
 
 %%% SAMPLING 
 fs = 5E5;%Hz 

@@ -17,20 +17,20 @@ ff = 1000; % final frequency
 Df = 100; % frequency step
 
 global N %number of unit cells cells
-N = 2; 
+N = 1; 
 mat_size = 9*N-(N-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
-fs = 5E5;
+fs = 1E5;
 ts = 1/fs;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive step size)
-tf = 0.4; %simulation time in seconds (SHOULD adapt in loop)
+tf = 0.5; %simulation time in seconds (SHOULD adapt in loop)
 tspan_vec =  0:ts:tf; %This time vector used to interpolate before performing the FFT 
 
 %%% INITIALISATION
 y0 = zeros(1,2*mat_size);% solver initial condition %[x1,...,xN,v1,...vN]
-
+y0 = zeros(1,6);%
     
 F = [];
 R = []; 
@@ -54,19 +54,22 @@ for f = fi:Df:ff %Hz
     %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %tf = 20/f %20 cycles
     tic
-    [t_out,y_out] = ode15s(@(t,y) odecrystal(t,y,f),[0 tf],y0);%dynamically adjusts sampling time
+    [t_out,y_out] = ode45(@(t,y) oderes(t,y,f),[0 tf],y0);%dynamically adjusts sampling time
     toc
     %y_out = [x1,...,xN,v1,...vN]
     
     tic
     %%% OUTPUT AND PROCESSING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    q_i = y_out(:,mat_size+1);
-    q_o = y_out(:,2*mat_size);
+    %q_i = y_out(:,mat_size+1);
+    %q_o = y_out(:,2*mat_size);
     
+    q_i = y_out(:,4);
+    q_o = y_out(:,6);
+
     %%% COMPUTE PRESSURES
     psrc = source(A_pinc,f,t_out);
-    pref = psrc - rho0*c0*q_i;
-    ptra = rho0*c0*q_o;
+    pref = psrc - rho0*c0*q_i/S;
+    ptra = rho0*c0*(q_o/S);
 
     %INTERPOLATION (JUST BEFORE FFT)
     psrc = interp1(t_out,psrc,tspan_vec);
@@ -85,10 +88,10 @@ for f = fi:Df:ff %Hz
     [F3,Ptra] = onesideft(ptra,fs,2);
     
     %%% FIND FUNDAMENTAL AMPLITUDE
-    Pinc_idx = find(abs(Pinc) == max(abs(Pinc)));
-    Pref_idx = find(abs(Pref) == max(abs(Pref)));
-    Ptra_idx = find(abs(Ptra) == max(abs(Ptra)));
-     
+    Pinc_idx = find(Pinc == max(Pinc));%abs necessary??
+    Pref_idx = find(Pref == max(Pref));
+    Ptra_idx = find(Ptra == max(Ptra));
+    
     Pinc_f0 = Pinc(Pinc_idx);
     Pref_f0 = Pref(Pref_idx);
     Ptra_f0 = Ptra(Ptra_idx);
@@ -294,7 +297,7 @@ function dydt = odecrystal(t,y,f)
     
     %RMK M(1:9,1:9) =  M_cell(:,:)% first block
    
-    for nn = [1:N] 
+    for nn = [1:N] %make huge matrices
         nn = nn-1;
         mat_seg = [1+nn*8:9+nn*8];   
         M(mat_seg, mat_seg) = M(mat_seg, mat_seg)+  M_cell(:,:);
@@ -305,11 +308,11 @@ function dydt = odecrystal(t,y,f)
     pinc = source(A_pinc,f,t); %source pressure
 
     x = y(1:mat_size); %acoustic displacement
-    v = y(mat_size+1:mat_size*2); %acoustic velocity
+    q = y(mat_size+1:mat_size*2); %acoustic velocity
     
     % pressure in and out
-    p_i = 2*pinc - Zc*v(1); %-Zc*v(1);
-    p_o = Zc*v(end);
+    p_i = 2*pinc - Zc*q(1)/S; %-Zc*v(1);
+    p_o = Zc*q(end)/S;
     P = zeros(mat_size,1);
     
     P(1) = - p_i; % RMK: opposite sign to aid with building the cell matrix
@@ -341,10 +344,10 @@ function dydt = odecrystal(t,y,f)
            0,      1/Caa,     -1/Caa   ,  -1/Caa;
         ];
     %}
-    a = inv(M)*(P - R*v - K*x);%acoustic acceleration
+    a = inv(M)*(P - R*q - K*x);%acoustic acceleration
     
     dydt = zeros(2*mat_size,1);
-    dydt(1:mat_size) = v; %[v_i, v_s, v_o]
+    dydt(1:mat_size) = q; %[v_i, v_s, v_o]
     dydt(mat_size+1:2*mat_size) = a; %[a_i, a_s, a_o]
   
 end
