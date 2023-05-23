@@ -2,7 +2,7 @@ function dydt = odecrystal(t,y,f)
     run('params.m');
     %%% UNIT CELL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% BETWEEN RESONATORS
-    M_b = [% mass term
+    M_b = [% specific acoustic mass term
        -Mab/2,    0  ;  % RMK: opposite sign to aid with building the cell matrix (first line only)c.f.__20230515__theory
          0  , -Mab/2;
         ];
@@ -10,28 +10,28 @@ function dydt = odecrystal(t,y,f)
          0 , 0;% RMK:
          0 , 0;
         ];
-    K_b = [% complicance term
+    K_b = [% specific acoustic  complicance term
          -1/Cab,  1/Cab ;
          1/Cab,  -1/Cab;
         ];
 
     %%% AT RESONATORS 
-    M_a = [% mass term
+    M_a = [% specific acoustic  mass term
        -Maa/2, 0,    0  ;
          0 ,  Mas,    0  ;
          0 ,   0 , -Maa/2;
         ];
-    R_a = [% resistance term
+    R_a = [%  specific acoustic resistance term
         0,  0, 0;% RMK:
         0, Ras, 0;
         0,  0  ,0;
          ];
-    K_a = [% complicance term
-         -1/Caa,    +1/Caa   , +1/Caa  ;% RMK:
-        -1/Caa,  1/Cac+1/Caa,  1/Caa;
-         1/Caa,    -1/Caa   , -1/Caa;
-        ];
-
+    K_a = [%  specific acoustic complicance term
+         -1/Caa,     1/Caa   , +1/Caa  ;% RMK:
+         -1/Caa,  1/Cas+1/Caa,  1/Caa;
+          1/Caa,    -1/Caa   , -1/Caa;
+         ];
+  
     %%% BUILD UNITCELL 9x9 matrix (--> [_b_a_b_b_a_b_] 2+3+2+2+3+2 - (6-1) = 9)
     M_cell = zeros(9,9); % Cell mass matrix
     R_cell = M_cell;     % Cell resistance matrix
@@ -74,43 +74,46 @@ function dydt = odecrystal(t,y,f)
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%y = [x1,...,xn,q1,...qn]
-    x = y(1:mat_size);            %acoustic flow displacement
-    q = y(mat_size+1:mat_size*2); %acoustic flow velocity
-    
+    x = y(1:mat_size);            % acoustic charge
+    q = y(mat_size+1:mat_size*2); % acoustic flow
+   
     %%% SOURCE AND BOUNDARY CONDITIONS
-    %pinc = source(A_pinc,f,t); %source pressure
+    %p_src = 50*rand(1)+0*sin(2*pi*422*t);  %source pressure
+    %dirac
     %{
     if t == 0
-        p_i = 1;
-        fprintf("### test")  
+        p_src = 0;
+        q(1) = 1e-3; 
+        fprintf(sprintf("%f Pa Dirac \n",p_src))  
     else
-        p_i = -Zc*q(3);%2*pinc - Zc*v(1);
+        p_src = 0;
     end
     %} 
     
-    % source parameters
-    freq_src = 10; %Limit
+    % pulse 
+    %
+    freq_src = 1200/2; %centre
     omega_src = 2*pi*freq_src;
     T_src = 1/freq_src; %1/freq
-
-    % pulse parameters
     t0 = 3*T_src;% delay
-    tau = 1*T_src;% width
-    p_src = real(0.5*exp(1i*(omega_src*t))*exp(-(t-t0)^2/tau^2)); %% PULSE. physicist time convention!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    tau = 0.05*T_src;% width
+    p_src = real(100*exp(1i*(omega_src*t))*exp(-(t-t0)^2/tau^2)); %% 1000 Pa PULSE. physicist time convention!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
 
     %}
     % boundary condition
-    p_i = 2*p_src - Zc*(q(1)/S);
-    p_o = Zc*(q(end)/S);
+    p_i = 2*p_src - Zc*q(1)/S; %hard wall *0
+    p_o = Zc*q(end)/S;%;
     
     P = zeros(mat_size,1); %P vector
     P(1) = - p_i; % RMK: opposite sign to aid with building the cell matrix
     P(end) = p_o;  
     
     %%% SPEAKER FLOW, PRESSURE AND CONTROL CURRENT --> c.f. 20230516__
-    q_s = q(3:4:end); %the third node is where the first speaker is located and then every 4th node that follows until the end.
-    p_s = 1/Caa*(q(2:4:end) - q(3:4:end) - q(4:4:end)); 
+    %q_s = q(3:4:end); %the third node is where the first speaker is located and then every 4th node that follows until the end.
+    p_s = 1/Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); 
     
+    % coupling parameters
     v_cpl = 0; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     w_cpl = 0;
     
@@ -118,8 +121,8 @@ function dydt = odecrystal(t,y,f)
     p_s_2 = p_s(2:2:end); %pressure at speaker 2
     
     %coupling pressure vector
-    p_v_cpl = 0*p_s; % initialize intra cell matrix of zeros
-    p_w_cpl = 0*p_s; % initialize inter cell matrix of zeros
+    p_v_cpl = p_s*0; % initialize intra cell matrix of zeros
+    p_w_cpl = p_s*0; % initialize inter cell matrix of zeros
     
     p_v_cpl(1:2:end) = p_s_2;
     p_v_cpl(2:2:end) = p_s_1;
@@ -131,12 +134,12 @@ function dydt = odecrystal(t,y,f)
     
     % Active control A
     A = zeros(mat_size,1);
-    A(3:4:end) = -Bl*i_s; %
+    A(3:4:end) = -Bl*i_s/Sd; %
     
     % Acoustic volumetric acceleration
-    a = inv(M)*(P + A - R*q - K*x); %acoustic acceleration
+    a = inv(M)*(P + A - R*q - K*x); %acceleration
     
     dydt = zeros(2*mat_size,1); % initialize
-    dydt(1:mat_size) = q;            %[q1,q2,...,qn]
+    dydt(1:mat_size) = q;            %[v1,v2,...,vn]
     dydt(mat_size+1:2*mat_size) = a; %[a1,a2,...,an]
 end

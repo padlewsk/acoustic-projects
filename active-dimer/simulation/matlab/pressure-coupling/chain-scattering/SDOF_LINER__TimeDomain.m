@@ -14,7 +14,7 @@ fprintf("### COMPUTING SPECIFIC ACOUSTIC IMPEDANCE FOR EACH FREQUENCY...\n")
 %%% FREQ SWEEP RANGE
 fi = 100; % initial frequency
 ff = 1000; % final frequency
-Df = 100; % frequency step
+Df = 50; % frequency step
 
 global N %number of unit cells cells
 N = 1; 
@@ -25,7 +25,7 @@ fs = 1E5;
 ts = 1/fs;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive step size)
-tf = 0.5; %simulation time in seconds (SHOULD adapt in loop)
+tf = 0.4; %simulation time in seconds (SHOULD adapt in loop)
 tspan_vec =  0:ts:tf; %This time vector used to interpolate before performing the FFT 
 
 %%% INITIALISATION
@@ -54,22 +54,24 @@ for f = fi:Df:ff %Hz
     %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %tf = 20/f %20 cycles
     tic
-    [t_out,y_out] = ode45(@(t,y) oderes(t,y,f),[0 tf],y0);%dynamically adjusts sampling time
+    [t_out,y_out] = ode78(@(t,y) oderes(t,y,f),[0 tf], y0);%dynamically adjusts sampling time
     toc
-    %y_out = [x1,...,xN,v1,...vN]
+    %y_out = [x1,...,xN,q1,...qN]
     
     tic
     %%% OUTPUT AND PROCESSING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %q_i = y_out(:,mat_size+1);
     %q_o = y_out(:,2*mat_size);
     
-    q_i = y_out(:,4);
-    q_o = y_out(:,6);
+    v_i = y_out(:,4)/S;
+    v_o = y_out(:,6)/S;
+
+    p_s = 1/Caa*(y_out(:,1) - y_out(:,2) - y_out(:,3)); %(xi-xs-xo)
 
     %%% COMPUTE PRESSURES
     psrc = source(A_pinc,f,t_out);
-    pref = psrc - rho0*c0*q_i/S;
-    ptra = rho0*c0*(q_o/S);
+    pref = psrc - rho0*c0*(v_i);%/S
+    ptra = rho0*c0*(v_o);%/S
 
     %INTERPOLATION (JUST BEFORE FFT)
     psrc = interp1(t_out,psrc,tspan_vec);
@@ -114,7 +116,6 @@ for f = fi:Df:ff %Hz
     
     
     %%% FIGURE LOOP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
     set(gcf, 'Position',  [100, 100, 1600, 1000])
    
     %%% DIAPHRAGM DISPL.
@@ -311,8 +312,8 @@ function dydt = odecrystal(t,y,f)
     q = y(mat_size+1:mat_size*2); %acoustic velocity
     
     % pressure in and out
-    p_i = 2*pinc - Zc*q(1)/S; %-Zc*v(1);
-    p_o = Zc*q(end)/S;
+    p_i = 2*pinc - Zc*q(1); %-Zc*v(1);/S??
+    p_o = Zc*q(end);
     P = zeros(mat_size,1);
     
     P(1) = - p_i; % RMK: opposite sign to aid with building the cell matrix
@@ -401,10 +402,10 @@ function dydt = oderes(t,y,f)
     run('params.m');
     
     x = y(1:3); % [x_i, x_s, x_o] = [y(1), y(2), y(3)]; %acoustic displacement
-    v = y(4:6); % [v_i, v_s, v_o] = [y(3), y(4), y(5)]; %acoustic velocity
+    q = y(4:6); % [v_i, v_s, v_o] = [y(3), y(4), y(5)]; %acoustic velocity
    
         pinc = source(A_pinc,f,t); %source pressure
-        P = [2*pinc - Zc*v(1);  0;  Zc*v(3)];
+        P = [2*pinc - Zc*q(1)/S;  0;  Zc*q(3)/S]; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         %mass term
         M = [
@@ -420,15 +421,16 @@ function dydt = oderes(t,y,f)
             ];
         %complicance term
         K = [
-             1/Caa,    -1/Caa   , -1/Caa  ;
-            -1/Caa,  1/Cac+1/Caa,  1/Caa;
+             1/Caa,    -1/Caa   , -1/Caa;
+            -1/Caa,  1/Cas+1/Caa,  1/Caa;
              1/Caa,    -1/Caa   , -1/Caa;
             ];
+     
     
-    a = inv(M)*(P - R*v - K*x);%acoustic acceleration
+    a = inv(M)*(P - R*q - K*x); % acoustic acceleration
     
     dydt = zeros(6,1);
-    dydt(1:3) = v; %[v_i, v_s, v_o]
+    dydt(1:3) = q; %[q_i, q_s, q_o] % acoustic flow
     dydt(4:6) = a; %[a_i, a_s, a_o]
 end
 

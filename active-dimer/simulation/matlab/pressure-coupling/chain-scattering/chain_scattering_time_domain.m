@@ -15,7 +15,7 @@ freq_fin = 1000; % final frequency
 Df = 100; % frequency step
 
 global N_cell %number of unit cells (= half the number of sites)
-N_cell = 2; 
+N_cell = 40; 
 mat_size = 9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -23,11 +23,12 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive step size)
-t_fin = 0.5; %simulation time in seconds (SHOULD adapt in loop)
+t_fin = 0.2; %simulation time in seconds (SHOULD adapt in loop)
 tspan_vec =  0:t_samp:t_fin; %This time vector used to interpolate before performing the FFT 
 
 %%% INITIALISATION
 y0 = zeros(1,2*mat_size);% solver initial condition %y = [x1,...,xn,q1,...qn]
+%y0 = zeros(1,6)%RES 
 %y0(mat_size + 3) = Caa*Sd;
     
 F = [];     %frequency
@@ -52,14 +53,15 @@ fprintf("### f = "+ string(freq)+ " Hz \n")
 %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %tf = 20/f %20 cycles
 tic
-[t_out,y_out] = ode78(@(t,y) odecrystal(t,y,freq),[0, t_fin],y0);%dynamically adjusts sampling time
+[t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0, t_fin],y0);%dynamically adjusts sampling time
 toc
-%y_out = [x1,...,xn,q1,...qn]
+%y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
 tic
-q = y_out(:,mat_size+1:end);
-q_s = q(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
-p_s = 1/Caa*(q(:,2:4:end) - q(:,3:4:end) - q(:,4:4:end)); %(qi-qs-qo)
+x = y_out(:,1:mat_size);   % acoustic charge
+q = y_out(:,mat_size+1:end);% acoustic flow
+x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
+p_s = 1/(Caa)*(x(:,2:4:end) - x(:,3:4:end) - x(:,4:4:end)); %(xi-xs-xo)
 
 %% FIGURES
 close all
@@ -82,7 +84,8 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %surface plot
-[X,Y] = meshgrid(1:2*N_cell,t_out*f_samp);
+%[X,Y] = meshgrid(1:2*N_cell,t_out*f_samp);
+[X,Y] = meshgrid(1:2*N_cell,t_out*1000);
 Z = abs(p_s(:,:));
 
 figure(2) % \Delta t simulation time step
@@ -90,10 +93,12 @@ figure(2) % \Delta t simulation time step
 set(gca,'FontSize',20)
 surface(X,Y,Z,'EdgeColor','none')
 xlim([0.5,2*N_cell+0.5])
-ylim([t_out(1),t_out(end)]*f_samp)
+%ylim([t_out(1),t_out(end)]*f_samp)%t/\Delta t
+ylim([t_out(1),t_out(end)]*1000)%
+zlim([0,40])
 xlabel("site",'Interpreter','latex')
-ylabel("$t/\Delta t$",'Interpreter','latex')
-zlabel("$|\psi_n|$",'Interpreter','latex')
+ylabel("$t (ms)$",'Interpreter','latex')
+zlabel("$|p_n| (Pa)$",'Interpreter','latex')
 box on
 grid on
 view(45,60)
@@ -101,24 +106,26 @@ view(45,60)
 %%% FRENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % omit first data points
-p_seg = p_s(:,:);%p_s(:,:);%p_raw(100:end,1+11:end-12);% segment p_raw(10:end,5:2*N);
-t_seg = t_out(:);%t_out;%t_raw(100:end);
+%t_seg = t_out(:) ;
+%p_seg =  p_s(:,:);
+t_seg = t_out(t_out>10e-3);
+p_seg = p_s(t_out>10e-3,:);
 
-Y = fft2(p_seg);
-%Y = min(max(abs(Y), 0), 100); %%%%%% CONTRAST ADJUST! 
+Y = fft2(p_seg); %2D FFT
+%Y = min(max(abs(Y), 0), 20); %%%%%% CONTRAST ADJUST! 
 
 NFFT_f = length(t_seg); % signal lengh
-omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)) + pi*c0/a; %- 0.5/NFFT_f is to center the plot! minus because waves are propagating left to right?
+omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)) + 0*pi*c0/a; %- 0.5/NFFT_f is to center the plot! minus because waves are propagating left to right?
 %omega = 2*pi*freq_samp/2*((0:(NFFT_f-1))/(NFFT_f-1));% 0*(2*pi*c0/a/2)/2; 
 
 NFFT_qa = length(p_seg);
-qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1)); % q*a*N)
+qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
 
 figure(3)
 set(gca,'FontSize',20)
 set(gcf,'position',[0, 0, 800, 1000]);
 hold on
-imagesc(qa/pi,omega/(2*pi),abs(fftshift(Y)));% all resonators
+imagesc(qa/pi,omega/(2*pi),abs(fftshift(Y))); 
 
 %yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
 
@@ -128,11 +135,10 @@ c.Label.String = 'Amplitude';
 xlabel("$q/\pi$",'Interpreter','latex')
 %ylabel("$(\omega-\omega_0)/(2\pi)$",'Interpreter','latex')
 ylabel("$\omega/(2\pi)$",'Interpreter','latex')
-xlim([-1,1])
-ylim([-f_samp/2+ c0/a/2 f_samp/2+ c0/a/2])
-
-
-%ylim([0 c0/a/2])
+xlim([0,1])% Band folding due to doubling of unit cell
+%ylim([-f_samp/2+ c0/a/2 f_samp/2+ c0/a/2])
+ylim([0 22000])
+%ylim([0 c0/a])
 %title("Transmission peak as a function of local disorder")
 
 
@@ -294,56 +300,55 @@ function S = source(amp,freq,time)
 S = amp*sin(2*pi*freq*time); 
 end
 
-
-%{
+%
 function dydt = oderes(t,y,f)
     run('params.m');
     
-    x = y(1:3); % [x_i, x_s, x_o] = [y(1), y(2), y(3)]; %acoustic displacement
-    q = y(4:6); % [v_i, v_s, v_o] = [y(3), y(4), y(5)]; %acoustic velocity
+    x = y(1:3); % [x_i, x_s, x_o] = [y(1), y(2), y(3)]; % displacement
+    v = y(4:6); % [v_i, v_s, v_o] = [y(3), y(4), y(5)]; % velocity
    
         pinc = source(A_pinc,f,t); %source pressure
-        P = [2*pinc - Zc*q(1);  0;  Zc*q(3)];
+        P = [2*pinc - Zc*v(1);  0;  Zc*v(3)];
 
         %mass term
         M = [
-           Maa/2, 0,    0  ;
-             0 ,  Mas,    0  ;
-             0 ,   0 , -Maa/2;
+           Msa/2, 0,    0  ;
+             0 ,  Mss,    0  ;
+             0 ,   0 , -Msa/2;
             ];
         %resistance term
         R = [
             0,  0, 0;
-            0, Ras, 0;
+            0, Rss, 0;
             0,  0  ,0;
             ];
         %complicance term
         K = [
-             1/Caa,    -1/Caa   , -1/Caa  ;
-            -1/Caa,  1/Cac+1/Caa,  1/Caa;
-             1/Caa,    -1/Caa   , -1/Caa;
+             1/Csa,    -1/Csa   , -1/Csa  ;
+            -1/Csa,  1/Csc+1/Csa,  1/Csa;
+             1/Csa,    -1/Csa   , -1/Csa;
             ];
     
-    a = inv(M)*(P - R*q - K*x);%acoustic acceleration
+    a = inv(M)*(P - R*v - K*x);%acceleration
     
     dydt = zeros(6,1);
-    dydt(1:3) = q; %[v_i, v_s, v_o]
+    dydt(1:3) = v; %[v_i, v_s, v_o]
     dydt(4:6) = a; %[a_i, a_s, a_o]
 end
 
 function dydt = odetube(t,y,f)
     run('params.m');
     
-    x = y(1:2); % [x_i, x_o] = [y(1), y(2)]; %acoustic flow displacement
-    q = y(3:4); % [v_i, v_o] = [y(3), y(4)]; %acoustic flow velocity
+    x = y(1:2); % [x_i, x_o] = [y(1), y(2)]; % displacement
+    v = y(3:4); % [v_i, v_o] = [y(3), y(4)]; % velocity
    
     pinc = source(A_pinc,f,t); %source pressure
-    P = [2*pinc - Zc*q(1); Zc*q(2)];
+    P = [2*pinc - Zc*v(1); Zc*v(2)];
 
-    %mass term
+    %specific mass term
     M = [
-       Mab/2,    0  ;
-         0  , -Mab/2;
+       Msb/2,    0  ;
+         0  , -Msb/2;
         ];
 
     %resistance term
@@ -354,14 +359,14 @@ function dydt = odetube(t,y,f)
 
     %complicance term
     K = [
-         1/Cab,  -1/Cab ;
-         1/Cab,  -1/Cab;
+         1/Csb,  -1/Csb ;
+         1/Csb,  -1/Csb;
         ];
     
-    a = inv(M)*(P - R*q - K*x);%acoustic acceleration
+    a = inv(M)*(P - R*v - K*x);% specific acoustic acceleration
     
     dydt = zeros(4,1);
-    dydt(1:2) = q; %[v_i, v_s, v_o]
+    dydt(1:2) = v; %[v_i, v_s, v_o]
     dydt(3:4) = a; %[a_i, a_s, a_o]
 end
 
