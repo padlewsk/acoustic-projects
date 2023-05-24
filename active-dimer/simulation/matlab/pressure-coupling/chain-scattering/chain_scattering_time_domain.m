@@ -10,12 +10,14 @@ run('params.m');
 
 %% SETTINGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FREQ SWEEP RANGE
+%{
 freq_ini = 100; % initial frequency
 freq_fin = 1000; % final frequency
 Df = 100; % frequency step
+%}
 
 global N_cell %number of unit cells (= half the number of sites)
-N_cell = 40; 
+N_cell = 50; 
 mat_size = 9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -23,19 +25,20 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive step size)
-t_fin = 0.2; %simulation time in seconds (SHOULD adapt in loop)
+t_fin = 2*N_cell*a/c0; %simulation time in seconds (time for sound to go from source to end of crystal)
 tspan_vec =  0:t_samp:t_fin; %This time vector used to interpolate before performing the FFT 
 
 %%% INITIALISATION
 y0 = zeros(1,2*mat_size);% solver initial condition %y = [x1,...,xn,q1,...qn]
 %y0 = zeros(1,6)%RES 
 %y0(mat_size + 3) = Caa*Sd;
-    
+ 
+%{
 F = [];     %frequency
 R = [];     %reflection
 T = [];     %transmission
 alpha = []; %absorption
-
+%}
 %% SIMULATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf("### COMPUTING SPECIFIC ACOUSTIC IMPEDANCE FOR EACH FREQUENCY...\n")
 fig1 = figure(1);
@@ -53,7 +56,7 @@ fprintf("### f = "+ string(freq)+ " Hz \n")
 %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %tf = 20/f %20 cycles
 tic
-[t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0, t_fin],y0);%dynamically adjusts sampling time
+[t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0,t_fin],y0);%dynamically adjusts sampling time
 toc
 %y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
@@ -95,8 +98,8 @@ surface(X,Y,Z,'EdgeColor','none')
 xlim([0.5,2*N_cell+0.5])
 %ylim([t_out(1),t_out(end)]*f_samp)%t/\Delta t
 ylim([t_out(1),t_out(end)]*1000)%
-zlim([0,40])
-xlabel("site",'Interpreter','latex')
+%zlim([0,40])
+xlabel("site n",'Interpreter','latex')
 ylabel("$t (ms)$",'Interpreter','latex')
 zlabel("$|p_n| (Pa)$",'Interpreter','latex')
 box on
@@ -104,19 +107,17 @@ grid on
 view(45,60)
 
 %%% FRENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % omit first data points
-%t_seg = t_out(:) ;
-%p_seg =  p_s(:,:);
-t_seg = t_out(t_out>10e-3);
-p_seg = p_s(t_out>10e-3,:);
+t_seg = t_out(:) ;
+p_seg =  p_s(:,:);
+%t_seg = t_out(t_out>10e-3);
+%p_seg = p_s(t_out>10e-3,:);
 
 Y = fft2(p_seg); %2D FFT
 %Y = min(max(abs(Y), 0), 20); %%%%%% CONTRAST ADJUST! 
 
 NFFT_f = length(t_seg); % signal lengh
-omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)) + 0*pi*c0/a; %- 0.5/NFFT_f is to center the plot! minus because waves are propagating left to right?
-%omega = 2*pi*freq_samp/2*((0:(NFFT_f-1))/(NFFT_f-1));% 0*(2*pi*c0/a/2)/2; 
+omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
 
 NFFT_qa = length(p_seg);
 qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
@@ -125,10 +126,8 @@ figure(3)
 set(gca,'FontSize',20)
 set(gcf,'position',[0, 0, 800, 1000]);
 hold on
-imagesc(qa/pi,omega/(2*pi),abs(fftshift(Y))); 
-
+imagesc(qa/pi,omega/(2*pi)/10,abs(fftshift(Y))); 
 %yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
-
 hold off
 c = colorbar;
 c.Label.String = 'Amplitude';
@@ -137,8 +136,8 @@ xlabel("$q/\pi$",'Interpreter','latex')
 ylabel("$\omega/(2\pi)$",'Interpreter','latex')
 xlim([0,1])% Band folding due to doubling of unit cell
 %ylim([-f_samp/2+ c0/a/2 f_samp/2+ c0/a/2])
-ylim([0 22000])
-%ylim([0 c0/a])
+ylim([0 c0/a])
+
 %title("Transmission peak as a function of local disorder")
 
 

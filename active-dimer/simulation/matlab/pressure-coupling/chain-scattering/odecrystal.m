@@ -91,15 +91,13 @@ function dydt = odecrystal(t,y,f)
     %} 
     
     % pulse 
-    %
-    freq_src = 1200/2; %centre
+    freq_src = c0/a/2; %centre
     omega_src = 2*pi*freq_src;
     T_src = 1/freq_src; %1/freq
-    t0 = 3*T_src;% delay
-    tau = 0.05*T_src;% width
-    p_src = real(100*exp(1i*(omega_src*t))*exp(-(t-t0)^2/tau^2)); %% 1000 Pa PULSE. physicist time convention!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %
-
+    t0 = 0*T_src;% delay
+    tau = 0.001*T_src;% width
+    p_src = (1e3*exp(1i*(omega_src*t))*exp(-(t-t0)^2/tau^2)); %% 1e3 Pa PULSE: unphysical but matlab ode doesn't cope with small numbers. physicist time convention!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     %}
     % boundary condition
     p_i = 2*p_src - Zc*q(1)/S; %hard wall *0
@@ -114,7 +112,7 @@ function dydt = odecrystal(t,y,f)
     p_s = 1/Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); 
     
     % coupling parameters
-    v_cpl = 0; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    v_cpl = 1; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     w_cpl = 0;
     
     p_s_1 = p_s(1:2:end); %pressure at speaker 1

@@ -5,7 +5,7 @@ rho0 = 1.1965; %kg/m^3
 c0 = 344.5389; % m/s
 Zc = rho0*c0; % Impedance of the air (p/v)
 %nu = 18.5E-6; %Coef de viscosité dynamique du fluide
-f0  = 422; % Hz speaker + enclosure res freq
+f0  = 422.3734; % Hz speaker + enclosure res freq
 
 %%% FREQ SWEEP
 fi = 100; %% initial frequency
@@ -14,7 +14,7 @@ A_pinc = 50; %%% incident pressure amplitude (Pa)
 
 %%% IDENTICAL LINER SPEAKERS
 %%% Mechanical
-Rms = 0.261*0.2;  %% mechanical resistance %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Rms = 0.261*0.2*0;  %% mechanical resistance %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Mms = 6.671e-04; %% moving mass
 
 %Cms = 1/((2*pi*f0)^2*Mms);
