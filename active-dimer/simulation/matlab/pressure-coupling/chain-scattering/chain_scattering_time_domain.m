@@ -1,13 +1,13 @@
 %%% SCATTERING THROUGH AN ACOUSTIC LINER IN TIME DOMAIN %%%%%%%%%%%%%%%%%%
-clear all
-close all
-clc
-
+%RMK: SAVE PARAMS FILE BEFORE RUNNING SIMULATION
+%rng(1);%specifies the seed for the MATLAB® random number generator TEST
+close all; pause(0); 
+clear all; 
+clc;
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));%
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 run('params.m');
-
 %% SETTINGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FREQ SWEEP RANGE
 %{
@@ -17,7 +17,7 @@ Df = 100; % frequency step
 %}
 
 global N_cell %number of unit cells (= half the number of sites)
-N_cell = 50; 
+N_cell = 40; 
 mat_size = 9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -25,8 +25,8 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive step size)
-t_fin = 2*N_cell*a/c0; %simulation time in seconds (time for sound to go from source to end of crystal)
-tspan_vec =  0:t_samp:t_fin; %This time vector used to interpolate before performing the FFT 
+t_fin = 4*N_cell*a/c0; %simulation time in seconds (time for sound to go from source to end of crystal)
+t_vec =  0:t_samp:t_fin; %This time vector used to interpolate before performing the FFT 
 
 %%% INITIALISATION
 y0 = zeros(1,2*mat_size);% solver initial condition %y = [x1,...,xn,q1,...qn]
@@ -40,14 +40,15 @@ T = [];     %transmission
 alpha = []; %absorption
 %}
 %% SIMULATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-fprintf("### COMPUTING SPECIFIC ACOUSTIC IMPEDANCE FOR EACH FREQUENCY...\n")
+fprintf("### SIMULATING PULSE DYNAMICS ON METACRYSTAL...\n")
 fig1 = figure(1);
 set(gca,'FontSize',18) % Creates an axes and sets its FontSize to 18
 hold on
 freq = 0;
 %for f = fi:Df:ff %Hz
-    
-fprintf("### f = "+ string(freq)+ " Hz \n")
+%fprintf("### f = "+ string(freq)+ " Hz \n")
+
+
 %%% ADAPTATIVE SIMULATION TIME TEST
 %tf = 40/f; 
 %%%ts = 0.1*(1/f);%10 samples per period
@@ -56,7 +57,9 @@ fprintf("### f = "+ string(freq)+ " Hz \n")
 %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %tf = 20/f %20 cycles
 tic
-[t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0,t_fin],y0);%dynamically adjusts sampling time
+%'NormControl','on'
+opts = odeset('InitialStep',1e-6,'Refine', 8,'Stats','on'); % should depend on the pulse
+[t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0,t_fin],y0,opts);%dynamically adjusts sampling time
 toc
 %y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
@@ -98,7 +101,7 @@ surface(X,Y,Z,'EdgeColor','none')
 xlim([0.5,2*N_cell+0.5])
 %ylim([t_out(1),t_out(end)]*f_samp)%t/\Delta t
 ylim([t_out(1),t_out(end)]*1000)%
-%zlim([0,40])
+%zlim([0,5])
 xlabel("site n",'Interpreter','latex')
 ylabel("$t (ms)$",'Interpreter','latex')
 zlabel("$|p_n| (Pa)$",'Interpreter','latex')
@@ -107,41 +110,41 @@ grid on
 view(45,60)
 
 %%% FRENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% omit first data points
-t_seg = t_out(:) ;
-p_seg =  p_s(:,:);
+p_seg = interp1(t_out,p_s,t_vec); % Interpolate data 
+
+t_seg = t_vec(t_vec>10e-3); %omit first data points
+p_seg = p_seg(t_vec>10e-3,:); 
 %t_seg = t_out(t_out>10e-3);
 %p_seg = p_s(t_out>10e-3,:);
 
 Y = fft2(p_seg); %2D FFT
-%Y = min(max(abs(Y), 0), 20); %%%%%% CONTRAST ADJUST! 
+Y = min(max(abs(Y), 0), 100000); %%%%%% CONTRAST ADJUST! 
 
 NFFT_f = length(t_seg); % signal lengh
 omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
 
-NFFT_qa = length(p_seg);
+NFFT_qa = length(p_seg); % signal lengh
 qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
 
 figure(3)
 set(gca,'FontSize',20)
 set(gcf,'position',[0, 0, 800, 1000]);
 hold on
-imagesc(qa/pi,omega/(2*pi)/10,abs(fftshift(Y))); 
-%yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
+imagesc(qa/pi,omega/(2*pi),abs(fftshift(Y))); 
+yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
 hold off
+colormap('hot');
 c = colorbar;
 c.Label.String = 'Amplitude';
-xlabel("$q/\pi$",'Interpreter','latex')
+xlabel("$qa/\pi$",'Interpreter','latex')
 %ylabel("$(\omega-\omega_0)/(2\pi)$",'Interpreter','latex')
 ylabel("$\omega/(2\pi)$",'Interpreter','latex')
-xlim([0,1])% Band folding due to doubling of unit cell
-%ylim([-f_samp/2+ c0/a/2 f_samp/2+ c0/a/2])
-ylim([0 c0/a])
+%xlim([0,1])% Band folding due to doubling of unit cell
+%ylim([0 c0/a])
+xlim([-1,1])
+ylim([-2*c0/a 2*c0/a])
 
 %title("Transmission peak as a function of local disorder")
-
-
-
 
 %{
 %%% OUTPUT AND PROCESSING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -271,6 +274,9 @@ toc
 
 %end
 hold off
+
+figure (4)
+plot(t_out(2:end)-t_out(1:end-1))
 
 %% FIGURES
 %{

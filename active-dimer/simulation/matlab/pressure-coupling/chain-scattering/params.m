@@ -14,7 +14,7 @@ A_pinc = 50; %%% incident pressure amplitude (Pa)
 
 %%% IDENTICAL LINER SPEAKERS
 %%% Mechanical
-Rms = 0.261*0.2*0;  %% mechanical resistance %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Rms = 0.261*0.2;  %% mechanical resistance %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Mms = 6.671e-04; %% moving mass
 
 %Cms = 1/((2*pi*f0)^2*Mms);

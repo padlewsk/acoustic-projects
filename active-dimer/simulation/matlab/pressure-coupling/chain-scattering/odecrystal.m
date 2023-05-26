@@ -1,3 +1,5 @@
+%RMK: SAVE PARAMS FILE BEFORE RUNNING SIMULATION
+
 function dydt = odecrystal(t,y,f)
     run('params.m');
     %%% UNIT CELL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -96,18 +98,22 @@ function dydt = odecrystal(t,y,f)
     T_src = 1/freq_src; %1/freq
     t0 = 0*T_src;% delay
     tau = 0.001*T_src;% width
-    p_src = (1e3*exp(1i*(omega_src*t))*exp(-(t-t0)^2/tau^2)); %% 1e3 Pa PULSE: unphysical but matlab ode doesn't cope with small numbers. physicist time convention!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+    p_src = 1e3*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); %gaussian pulse centered at omega_src
+    %P_src \propto  *exp(-(omega-omega_src)^2*(tau^2)) 
     %}
-    % boundary condition
-    p_i = 2*p_src - Zc*q(1)/S; %hard wall *0
-    p_o = Zc*q(end)/S;%;
+    % boundary condition %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %q(1) = 0;% hard wall q = 0 
+    %q(end) = 0;
+    p_i = 2*p_src - Zc*q(1)/S; 
+    p_o = 2*p_src + Zc*q(end)/S;
+
+    %x(floor(mat_size/2)) = p_src*1e-8;
     
     P = zeros(mat_size,1); %P vector
-    P(1) = - p_i; % RMK: opposite sign to aid with building the cell matrix
+    P(1)   = - p_i; % RMK: opposite sign to aid with building the cell matrix
     P(end) = p_o;  
     
-    %%% SPEAKER FLOW, PRESSURE AND CONTROL CURRENT --> c.f. 20230516__
+    %%% SPEAKER PRESSURE AND CONTROL CURRENT --> c.f. 20230516__
     %q_s = q(3:4:end); %the third node is where the first speaker is located and then every 4th node that follows until the end.
     p_s = 1/Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); 
     
@@ -132,10 +138,10 @@ function dydt = odecrystal(t,y,f)
     
     % Active control A
     A = zeros(mat_size,1);
-    A(3:4:end) = -Bl*i_s/Sd; %
+    A(3:4:end) = +Bl*i_s/Sd; %
     
     % Acoustic volumetric acceleration
-    a = inv(M)*(P + A - R*q - K*x); %acceleration
+    a = inv(M)*(P - A - R*q - K*x); %acceleration
     
     dydt = zeros(2*mat_size,1); % initialize
     dydt(1:mat_size) = q;            %[v1,v2,...,vn]
