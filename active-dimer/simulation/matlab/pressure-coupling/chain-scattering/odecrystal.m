@@ -1,6 +1,7 @@
 %RMK: SAVE PARAMS FILE BEFORE RUNNING SIMULATION
 
 function dydt = odecrystal(t,y,f)
+    %%% TEST y = zeros(1,2*mat_size);
     run('params.m');
     %%% UNIT CELL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% BETWEEN RESONATORS
@@ -76,8 +77,8 @@ function dydt = odecrystal(t,y,f)
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%y = [x1,...,xn,q1,...qn]
-    x = y(1:mat_size);            % acoustic charge
-    q = y(mat_size+1:mat_size*2); % acoustic flow
+    x = y(1:mat_size);            % acoustic charge at each node
+    q = y(mat_size+1:mat_size*2); % acoustic flow at each node
    
     %%% SOURCE AND BOUNDARY CONDITIONS
     %p_src = 50*rand(1)+0*sin(2*pi*422*t);  %source pressure
@@ -97,15 +98,15 @@ function dydt = odecrystal(t,y,f)
     omega_src = 2*pi*freq_src;
     T_src = 1/freq_src; %1/freq
     t0 = 0*T_src;% delay
-    tau = 0.001*T_src;% width
-    p_src = 1e3*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); %gaussian pulse centered at omega_src
+    tau = T_src;% width
+    p_src = 1e2*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); %gaussian pulse centered at omega_src
     %P_src \propto  *exp(-(omega-omega_src)^2*(tau^2)) 
     %}
     % boundary condition %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %q(1) = 0;% hard wall q = 0 
     %q(end) = 0;
     p_i = 2*p_src - Zc*q(1)/S; 
-    p_o = 2*p_src + Zc*q(end)/S;
+    p_o = - (2*p_src - Zc*q(end)/S);
 
     %x(floor(mat_size/2)) = p_src*1e-8;
     
@@ -113,15 +114,48 @@ function dydt = odecrystal(t,y,f)
     P(1)   = - p_i; % RMK: opposite sign to aid with building the cell matrix
     P(end) = p_o;  
     
-    %%% SPEAKER PRESSURE AND CONTROL CURRENT --> c.f. 20230516__
+    %% SPEAKER PRESSURE AND CONTROL CURRENT --> c.f. 20230516__
     %q_s = q(3:4:end); %the third node is where the first speaker is located and then every 4th node that follows until the end.
     p_s = 1/Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); 
     
-    % coupling parameters
-    v_cpl = 1; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    w_cpl = 0;
+    %{
+    % coupling parameters(spkr vector size) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    v_cpl_A = 0; %segment A
+    w_cpl_A = 0;
+
+    v_B_cpl = 0; %segment B
+    w_B_cpl = 0;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    p_s_1 = p_s(1:2:end); %pressure at speaker 1 (speaker vector)
+    p_s_2 = p_s(2:2:end); %pressure at speaker 2
     
-    p_s_1 = p_s(1:2:end); %pressure at speaker 1
+    % N_spkrs = 2*N_cell 
+    %coupling pressure vector A
+    p_v_cpl_A = p_s*0; % initialize intra cell matrix of zeros
+    p_v_cpl_A(1:2:N_cell) = p_s_2(1:N_cell/2); %first half cells
+    p_v_cpl_A(2:2:N_cell) = p_s_1(1:N_cell/2);
+
+    p_w_cpl_A = p_s*0; % initialize inter cell matrix of zeros
+    p_w_cpl_A(1:2:N_cell) = [0, p_s_1(2:N_cell/2)];
+    p_w_cpl_A(2:2:N_cell) = [0, p_s_2(1:N_cell/2-1)];
+    
+    %coupling pressure vector B
+    p_v_cpl_B = p_s*0; % initialize intra cell matrix of zeros
+    p_v_cpl_B(N_cell+1:2:2*N_cell) = p_s_2(N_cell/2+2:end); %second half cells
+    p_v_cpl_B(N_cell+2:2:2*N_cell) = p_s_1(N_cell/2+1:end);
+
+    p_w_cpl_B = p_s*0; % initialize inter cell matrix of zeros
+    p_w_cpl_B(N_cell+1:2:2*N_cell) = [0, p_s_1(N_cell+2:N_cell)];
+    p_w_cpl_B(N_cell+2:2:2*N_cell) = [0, p_s_2(N_cell+1:N_cell-1)];
+    i_s = Sd/Bl*(v_cpl_A*p_v_cpl_A + w_cpl_A*p_w_cpl_A);
+    %}
+
+   
+    % coupling parameters (spkr vector size)
+    v_cpl = 0; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    w_cpl = 1;
+    
+    p_s_1 = p_s(1:2:end); %pressure at speaker 1 (speaker vector)
     p_s_2 = p_s(2:2:end); %pressure at speaker 2
     
     %coupling pressure vector
@@ -131,14 +165,16 @@ function dydt = odecrystal(t,y,f)
     p_v_cpl(1:2:end) = p_s_2;
     p_v_cpl(2:2:end) = p_s_1;
     
-    p_w_cpl(2:2:end) = p_s_2;
-    p_w_cpl(3:2:end) = p_s_1(1:numel(p_w_cpl(3:2:end)));
-    
+    %p_w_cpl(2:2:end) = p_s_2;
+    %p_w_cpl(3:2:end) = p_s_1(1:numel(p_w_cpl(3:2:end)));
+   
+    p_w_cpl(2:2:end-1) = p_s_1(2:end);
+    p_w_cpl(3:2:end-1) = p_s_2(1:end-1);
     i_s = Sd/Bl*(v_cpl*p_v_cpl + w_cpl*p_w_cpl);
     
     % Active control A
     A = zeros(mat_size,1);
-    A(3:4:end) = +Bl*i_s/Sd; %
+    A(3:4:end) = +Bl*i_s/Sd; % 3rd node is speaker node
     
     % Acoustic volumetric acceleration
     a = inv(M)*(P - A - R*q - K*x); %acceleration

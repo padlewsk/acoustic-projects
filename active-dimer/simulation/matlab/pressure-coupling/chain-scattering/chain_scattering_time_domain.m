@@ -17,7 +17,7 @@ Df = 100; % frequency step
 %}
 
 global N_cell %number of unit cells (= half the number of sites)
-N_cell = 40; 
+N_cell = 30; 
 mat_size = 9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -59,7 +59,7 @@ freq = 0;
 tic
 %'NormControl','on'
 opts = odeset('InitialStep',1e-6,'Refine', 8,'Stats','on'); % should depend on the pulse
-[t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0,t_fin],y0,opts);%dynamically adjusts sampling time
+[t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0,t_fin], y0, opts);%dynamically adjusts sampling time
 toc
 %y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
@@ -117,8 +117,8 @@ p_seg = p_seg(t_vec>10e-3,:);
 %t_seg = t_out(t_out>10e-3);
 %p_seg = p_s(t_out>10e-3,:);
 
-Y = fft2(p_seg); %2D FFT
-Y = min(max(abs(Y), 0), 100000); %%%%%% CONTRAST ADJUST! 
+Y = fft2(p_seg)/length(t_seg); %2D FFT --> normalized to get amplitude in (Pa)
+Y = min(max(abs(Y), 0), 100); %%%%%% CONTRAST ADJUST! 
 
 NFFT_f = length(t_seg); % signal lengh
 omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
@@ -135,7 +135,7 @@ yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
 hold off
 colormap('hot');
 c = colorbar;
-c.Label.String = 'Amplitude';
+c.Label.String = 'Amplitude (Pa)';
 xlabel("$qa/\pi$",'Interpreter','latex')
 %ylabel("$(\omega-\omega_0)/(2\pi)$",'Interpreter','latex')
 ylabel("$\omega/(2\pi)$",'Interpreter','latex')
