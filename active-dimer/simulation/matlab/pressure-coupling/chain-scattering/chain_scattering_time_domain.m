@@ -17,7 +17,7 @@ Df = 100; % frequency step
 %}
 
 global N_cell %number of unit cells (= half the number of sites)
-N_cell = 30; 
+N_cell = 32; %2^5%N_cell/2 needs to be even?
 mat_size = 9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -25,11 +25,10 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive step size)
-t_fin = 4*N_cell*a/c0; %simulation time in seconds (time for sound to go from source to end of crystal)
-t_vec =  0:t_samp:t_fin; %This time vector used to interpolate before performing the FFT 
+t_fin = 10*N_cell*a/c0; %simulation time in seconds (time for sound to go from source to end of crystal)
 
 %%% INITIALISATION
-y0 = zeros(1,2*mat_size);% solver initial condition %y = [x1,...,xn,q1,...qn]
+y0 = zeros(2*mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
 %y0 = zeros(1,6)%RES 
 %y0(mat_size + 3) = Caa*Sd;
  
@@ -58,7 +57,7 @@ freq = 0;
 %tf = 20/f %20 cycles
 tic
 %'NormControl','on'
-opts = odeset('InitialStep',1e-6,'Refine', 8,'Stats','on'); % should depend on the pulse
+opts = odeset('InitialStep', 1e-4, 'Refine', 1,'Stats','on'); % ruse refine to compute additional points
 [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0,t_fin], y0, opts);%dynamically adjusts sampling time
 toc
 %y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
@@ -97,6 +96,7 @@ Z = abs(p_s(:,:));
 figure(2) % \Delta t simulation time step
 %colormap hot
 set(gca,'FontSize',20)
+set(gcf,'position',[900,50,800,600]);
 surface(X,Y,Z,'EdgeColor','none')
 xlim([0.5,2*N_cell+0.5])
 %ylim([t_out(1),t_out(end)]*f_samp)%t/\Delta t
@@ -107,18 +107,27 @@ ylabel("$t (ms)$",'Interpreter','latex')
 zlabel("$|p_n| (Pa)$",'Interpreter','latex')
 box on
 grid on
-view(45,60)
+%view(45,60)
+view(135,45)
 
 %%% FRENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+t_vec =  0:t_samp:t_fin; 
+%t_vec = linspace(0,t_fin,2^nextpow2(numel(t_out)));%This time vector used to interpolate before performing the FFT. 
 p_seg = interp1(t_out,p_s,t_vec); % Interpolate data 
 
-t_seg = t_vec(t_vec>10e-3); %omit first data points
-p_seg = p_seg(t_vec>10e-3,:); 
+
+t0 = 3/(2*pi*c0/a/2);% pulse delay
+
+t_seg = t_vec(t_vec>t0*2); %omit first data points
+p_seg = p_seg(t_vec>t0*2,:); 
 %t_seg = t_out(t_out>10e-3);
 %p_seg = p_s(t_out>10e-3,:);
 
-Y = fft2(p_seg)/length(t_seg); %2D FFT --> normalized to get amplitude in (Pa)
-Y = min(max(abs(Y), 0), 100); %%%%%% CONTRAST ADJUST! 
+morezeropad = 1; % zero padding factor
+Y = fft2(p_seg,2^(morezeropad+nextpow2(size(p_seg,1))),2^(morezeropad+nextpow2(size(p_seg,2))))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)% extra entries will correspond to zero padding
+%Y = fft2(p_seg)/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)
 
 NFFT_f = length(t_seg); % signal lengh
 omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
@@ -128,7 +137,7 @@ qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
 
 figure(3)
 set(gca,'FontSize',20)
-set(gcf,'position',[0, 0, 800, 1000]);
+set(gcf,'position',[50, 50, 800, 1000]);
 hold on
 imagesc(qa/pi,omega/(2*pi),abs(fftshift(Y))); 
 yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
@@ -142,7 +151,7 @@ ylabel("$\omega/(2\pi)$",'Interpreter','latex')
 %xlim([0,1])% Band folding due to doubling of unit cell
 %ylim([0 c0/a])
 xlim([-1,1])
-ylim([-2*c0/a 2*c0/a])
+ylim([-2*c0/a*0 c0/a])
 
 %title("Transmission peak as a function of local disorder")
 
@@ -277,6 +286,7 @@ hold off
 
 figure (4)
 plot(t_out(2:end)-t_out(1:end-1))
+title("step size (s)")
 
 %% FIGURES
 %{
