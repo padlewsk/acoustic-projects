@@ -5,12 +5,12 @@ rho0 = 1.1965; %kg/m^3
 c0 = 344.5389; % m/s
 Zc = rho0*c0; % Impedance of the air (p/v)
 %nu = 18.5E-6; %Coef de viscosité dynamique du fluide
-f0  = 422.3734; % Hz speaker + enclosure res freq
+f_src  = 644.50; % Hz speaker + enclosure res freq 644.5
 
 %%% FREQ SWEEP
 fi = 100; %% initial frequency
 ff = 1000; %% final frequency
-A_pinc = 50; %%% incident pressure amplitude (Pa)
+A_src = 2; %%% incident pressure amplitude (Pa)
 
 %%% IDENTICAL LINER SPEAKERS
 %%% Mechanical
@@ -21,7 +21,7 @@ Mms = 6.671e-04; %% moving mass
 %Cmb = sqrt(Sd)/(rho0*c0^2*Sd)
 %Cmc = Cmb*Cms/(Cmb+Cms) %% mechanical overall compliance (loudspeaker with enclosure)
 
-Cms = 2.128414e-04;%1/((2*pi*f0)^2*Mms); Acounts for the cabinet "Cmc"
+Cms = 2.13e-04;%1/((2*pi*f0)^2*Mms); Acounts for the cabinet "Cmc"
 Sd  = 12e-4; %% m effective surface area
 Bl  = 1.4351; %% force factor
 

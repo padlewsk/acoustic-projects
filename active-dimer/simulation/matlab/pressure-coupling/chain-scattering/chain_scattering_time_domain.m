@@ -24,8 +24,8 @@ mat_size = 9*N_cell-(N_cell-1);
 f_samp = 5E5;
 t_samp = 1/f_samp;
 
-%%% SIMULATION TIME (MATLAB odes use adaptive step size)
-t_fin = 10*N_cell*a/c0; %simulation time in seconds (time for sound to go from source to end of crystal)
+%%% SIMULATION TIME (MATLAB odes use adaptive ste1p size)
+t_fin = 12*N_cell*a/c0; %simulation time in seconds (time for sound to go from source to end of crystal)
 
 %%% INITIALISATION
 y0 = zeros(2*mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
@@ -57,7 +57,7 @@ freq = 0;
 %tf = 20/f %20 cycles
 tic
 %'NormControl','on'
-opts = odeset('InitialStep', 1e-4, 'Refine', 1,'Stats','on'); % ruse refine to compute additional points
+opts = odeset('InitialStep', 1e-5, 'Refine', 8,'Stats','on'); % ruse refine to compute additional points
 [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0,t_fin], y0, opts);%dynamically adjusts sampling time
 toc
 %y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
@@ -89,27 +89,47 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %surface plot
-%[X,Y] = meshgrid(1:2*N_cell,t_out*f_samp);
 [X,Y] = meshgrid(1:2*N_cell,t_out*1000);
-Z = abs(p_s(:,:));
+Z = abs(p_s);
+%{
+for nn = 1:2*N_cell
+    Z(:,nn) = abs(envelope(p_s(:,nn)));
+end
+%}
 
 figure(2) % \Delta t simulation time step
-%colormap hot
-set(gca,'FontSize',20)
-set(gcf,'position',[900,50,800,600]);
 surface(X,Y,Z,'EdgeColor','none')
-xlim([0.5,2*N_cell+0.5])
-%ylim([t_out(1),t_out(end)]*f_samp)%t/\Delta t
-ylim([t_out(1),t_out(end)]*1000)%
-%zlim([0,5])
+%{
+c = imagesc(t_out*1000,1:2*N_cell,abs(p_s)'); %clims = [4 18];
+c = colorbar;
+c.Label.String = "AER pressure (Pa)";
+c.Label.Interpreter = 'latex';
+%}
+%set(h, 'EdgeColor', 'none');
+%{
+for nn = 1:2*N_cell
+plot3(nn*ones(numel(t_out)),t_out*1000,Z(:,nn))
+hold on
+end
+hold off
+%}
+%xlim([0.5,2*N_cell-0.5])
+%ylim([t_out(1),t_out(end)]*1000)%
+%zlim([0,A_src*1.5])
 xlabel("site n",'Interpreter','latex')
 ylabel("$t (ms)$",'Interpreter','latex')
-zlabel("$|p_n| (Pa)$",'Interpreter','latex')
+%zlabel("$|p_n| (Pa)$",'Interpreter','latex')
 box on
 grid on
-%view(45,60)
-view(135,45)
+%colormap(jet(50))
+c = colorbar;
+c.Label.String = 'Amplitude (Pa)';
+caxis([0, A_src*1.5]);
 
+set(gca,'FontSize',20,'YDir','normal')
+%set(gca,'YTick', 0:1:80)
+set(gcf,'position',[900,50,800,600]);
+view(135,60)
 %%% FRENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -125,9 +145,12 @@ p_seg = p_seg(t_vec>t0*2,:);
 %t_seg = t_out(t_out>10e-3);
 %p_seg = p_s(t_out>10e-3,:);
 
+%{
+%ZEROPADDING
 morezeropad = 1; % zero padding factor
 Y = fft2(p_seg,2^(morezeropad+nextpow2(size(p_seg,1))),2^(morezeropad+nextpow2(size(p_seg,2))))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)% extra entries will correspond to zero padding
-%Y = fft2(p_seg)/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)
+%}
+Y = fft2(p_seg)/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)
 
 NFFT_f = length(t_seg); % signal lengh
 omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
@@ -140,7 +163,7 @@ set(gca,'FontSize',20)
 set(gcf,'position',[50, 50, 800, 1000]);
 hold on
 imagesc(qa/pi,omega/(2*pi),abs(fftshift(Y))); 
-yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
+%yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
 hold off
 colormap('hot');
 c = colorbar;

@@ -81,19 +81,18 @@ function dydt = odecrystal(t,y,f)
     q = y(mat_size+1:mat_size*2); % acoustic flow at each node
    
     %%% SOURCE AND BOUNDARY CONDITIONS
-    %p_src = 10*sin(2*pi*c0/a/2*t);% 
-    p_src = 10*sin(2*pi*640*t);  %source pressure
+    %p_src = A_src*sin(2*pi*f_src*t);
     %dirac
-    %{
-    if t < 10/644.5
-        p_src = 1*sin(2*pi*644.5*t); 
+    %
+    if t < 0.15
+        p_src = A_src*sin(2*pi*f_src*t); 
     else
         p_src = 0;
     end
     %} 
     
-    %{
     % pulse 
+    %{
     freq_src = c0/a/2; %centre
     omega_src = 2*pi*freq_src;
     T_src = 1/freq_src; %1/freq
@@ -117,48 +116,16 @@ function dydt = odecrystal(t,y,f)
     P(end) = + p_o;  
     
     %% SPEAKER PRESSURE AND CONTROL CURRENT --> c.f. 20230516__
-    %q_s = q(3:4:end); %the third node is where the first speaker is located and then every 4th node that follows until the end.
     p_s = 1/Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); %size = 2*N_cell
-    
-    %{
-    % coupling parameters(spkr vector size) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    v_cpl_A = 0; %segment A
-    w_cpl_A = 0;
-
-    v_cpl_B = 0; %segment B
-    w_cpl_B = 0;
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    p_s_1 = p_s(1:2:end); %pressure at speaker 1 (speaker vector)
-    p_s_2 = p_s(2:2:end); %pressure at speaker 2
-    
-    % N_spkrs = 2*N_cell 
-    %coupling pressure vector A
-    p_v_cpl_A = p_s*0; % initialize intra cell matrix of zeros
-    p_v_cpl_A(1:2:N_cell) = p_s_2(1:N_cell/2); %first half cells
-    p_v_cpl_A(2:2:N_cell) = p_s_1(1:N_cell/2);
-
-    p_w_cpl_A = p_s*0; % initialize inter cell matrix of zeros
-    p_w_cpl_A(2:2:N_cell) = p_s_1(2:N_cell/2+1);
-    p_w_cpl_A(3:2:N_cell) = p_s_2(1:N_cell/2-1);
-    
-    %coupling pressure vector B
-    
-    p_v_cpl_B = p_s*0; % initialize intra cell matrix of zeros
-    p_v_cpl_B(N_cell+1:2:2*N_cell) = p_s_2(N_cell/2+1:end); %second half cells
-    p_v_cpl_B(N_cell+2:2:2*N_cell) = p_s_1(N_cell/2+1:end);
-
-    p_w_cpl_B = p_s*0; % initialize inter cell matrix of zeros
-    p_w_cpl_B(N_cell+1:2:2*N_cell)   = [p_s_2(N_cell/2:N_cell-1)];
-    p_w_cpl_B(N_cell+2:2:2*N_cell-1) = [p_s_1(N_cell/2+1:N_cell-1)];
-   
-    i_s = Sd/Bl*(v_cpl_A*p_v_cpl_A + w_cpl_A*p_w_cpl_A + v_cpl_B*p_v_cpl_B + w_cpl_B*p_w_cpl_B);
-    %}
+    %dp_s = 1/Caa*(q(2:4:end) - q(3:4:end) - q(4:4:end)); %%% TEST
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %
-    v_cpl_A = 1; 
+    %{
+    v_cpl_A = 1;  %segment A
     w_cpl_A = 0;
-    v_cpl_B = 0; 
-    w_cpl_B = 1;
+
+    v_cpl_B = 1;  %segment B
+    w_cpl_B = 0;
+
     v_cpl = zeros(2*N_cell,1);
     w_cpl = zeros(2*N_cell,1);
     
@@ -167,10 +134,10 @@ function dydt = odecrystal(t,y,f)
    
     v_cpl(N_cell+1:2*N_cell) = v_cpl_B*ones(N_cell,1);
     w_cpl(N_cell+2:2*N_cell) = w_cpl_B*ones(N_cell-1,1);
+    
     p_s_1 = p_s(1:2:end); %pressure at speaker 1 (speaker vector)
     p_s_2 = p_s(2:2:end); %pressure at speaker 2
 
-    
     %coupling pressure vector
     p_v_cpl = p_s*0; % initialize intra cell matrix of zeros
     p_w_cpl = p_s*0; % initialize inter cell matrix of zeros
@@ -183,6 +150,52 @@ function dydt = odecrystal(t,y,f)
 
     i_s = Sd/Bl*(v_cpl.*p_v_cpl + w_cpl.*p_w_cpl);
     %}
+    %linear coupling
+    v_L_A  = 0.8;  %segment A
+    w_L_A  = 0;
+    v_L_B  = 0;  %segment B
+    w_L_B  = 0.8;
+
+    %non linear coupling
+    v_NL_A = 1E-3; %segment A
+    w_NL_A = 0;
+    v_NL_B = 0;  %segment B
+    w_NL_B = 1E-3;
+
+    v_L = zeros(2*N_cell,1);
+    w_L = zeros(2*N_cell,1);
+    
+    v_L(1:N_cell)          = v_L_A*ones(N_cell,1);
+    w_L(1:N_cell+1)        = w_L_A*ones(N_cell+1,1); 
+   
+    v_L(N_cell+1:2*N_cell) = v_L_B*ones(N_cell,1);
+    w_L(N_cell+2:2*N_cell) = w_L_B*ones(N_cell-1,1);
+
+    v_NL = zeros(2*N_cell,1);
+    w_NL = zeros(2*N_cell,1);
+    
+    v_NL(1:N_cell)          = v_NL_A*ones(N_cell,1);
+    w_NL(1:N_cell+1)        = w_NL_A*ones(N_cell+1,1); 
+   
+    v_NL(N_cell+1:2*N_cell) = v_NL_B*ones(N_cell,1);
+    w_NL(N_cell+2:2*N_cell) = w_NL_B*ones(N_cell-1,1);
+    
+    %%%
+    p_s_1 = p_s(1:2:end); %pressure at speaker 1 (speaker vector)
+    p_s_2 = p_s(2:2:end); %pressure at speaker 2
+
+    %coupling pressure vector
+    p_v_cpl = p_s*0; % initialize intra cell matrix of zeros
+    p_w_cpl = p_s*0; % initialize inter cell matrix of zeros
+    
+    p_v_cpl(1:2:end) = p_s_2;
+    p_v_cpl(2:2:end) = p_s_1;
+   
+    p_w_cpl(2:2:end-1) = p_s_1(2:end);   %p_{n,1}
+    p_w_cpl(3:2:end-1) = p_s_2(1:end-1); %p_{n,2}
+
+    i_s = Sd/Bl*(v_L.*p_v_cpl     + w_L.*p_w_cpl     + ...
+                 v_NL.*p_v_cpl.^3 + w_NL.*p_w_cpl.^3);
 
     %{
     % coupling parameters (spkr vector size)
