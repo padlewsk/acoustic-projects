@@ -10,13 +10,8 @@ addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));%
 run('params.m');
 %% SETTINGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FREQ SWEEP RANGE
-%{
-freq_ini = 100; % initial frequency
-freq_fin = 1000; % final frequency
-Df = 100; % frequency step
-%}
 
-global N_cell %number of unit cells (= half the number of sites)
+global N_cell t_fin %number of unit cells (= half the number of sites)
 N_cell = 32; %2^5%N_cell/2 needs to be even?
 mat_size = 9*N_cell-(N_cell-1);
 
@@ -25,7 +20,7 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive ste1p size)
-t_fin = 12*N_cell*a/c0; %simulation time in seconds (time for sound to go from source to end of crystal)
+t_fin = 8*N_cell*param.a/param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
 
 %%% INITIALISATION
 y0 = zeros(2*mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
@@ -66,7 +61,7 @@ tic
 x = y_out(:,1:mat_size);   % acoustic charge
 q = y_out(:,mat_size+1:end);% acoustic flow
 x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
-p_s = 1/(Caa)*(x(:,2:4:end) - x(:,3:4:end) - x(:,4:4:end)); %(xi-xs-xo)
+p_s = 1/(param.Caa)*(x(:,2:4:end) - x(:,3:4:end) - x(:,4:4:end)); %(xi-xs-xo)
 
 %% FIGURES
 close all
@@ -124,7 +119,7 @@ grid on
 %colormap(jet(50))
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
-caxis([0, A_src*1.5]);
+caxis([0, param.A_src*1.5]);
 
 set(gca,'FontSize',20,'YDir','normal')
 %set(gca,'YTick', 0:1:80)
@@ -138,7 +133,7 @@ t_vec =  0:t_samp:t_fin;
 p_seg = interp1(t_out,p_s,t_vec); % Interpolate data 
 
 
-t0 = 3/(2*pi*c0/a/2);% pulse delay
+t0 = 3/(2*pi*param.c0/param.a/2);% pulse delay
 
 t_seg = t_vec(t_vec>t0*2); %omit first data points
 p_seg = p_seg(t_vec>t0*2,:); 
@@ -174,7 +169,7 @@ ylabel("$\omega/(2\pi)$",'Interpreter','latex')
 %xlim([0,1])% Band folding due to doubling of unit cell
 %ylim([0 c0/a])
 xlim([-1,1])
-ylim([-2*c0/a*0 c0/a])
+ylim([-2*param.c0/param.a*0 param.c0/param.a])
 
 %title("Transmission peak as a function of local disorder")
 
