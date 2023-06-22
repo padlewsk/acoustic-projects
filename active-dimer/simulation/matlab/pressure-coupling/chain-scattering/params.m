@@ -7,10 +7,12 @@ param.Zc = param.rho0*param.c0; % Impedance of the air (p/v)
 %nu = 18.5E-6; %Coef de viscosité dynamique du fluide
 param.f_src  = 644.50; % Hz speaker + enclosure res freq 644.5
 
+
+
 %%% FREQ SWEEP
 param.fi = 100; %% initial frequency
-param.ff = 1000; %% final frequency
-param.A_src = 10; %%% incident pressure amplitude (Pa) %%% H
+param.ff =1300; %% final frequency
+param.A_src = 10; %%% incident pressure amplitude (Pa) %%% H 17.2
 
 %%% IDENTICAL LINER SPEAKERS
 %%% Mechanical

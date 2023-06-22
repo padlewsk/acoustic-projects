@@ -83,7 +83,7 @@ function dydt = odecrystal(t,y,f)
     %% SOURCE AND BOUNDARY CONDITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% SRC
     %%%%%% SINE 
-    %
+    %{
     if t < t_fin/2
         p_src = param.A_src*sin(2*pi*param.f_src*t); 
     else
@@ -93,13 +93,13 @@ function dydt = odecrystal(t,y,f)
     
     %%%%%% PULSE 
     % gaussian pulse centered at omega_src: P_src \propto  *exp(-(omega-omega_src)^2*(tau^2)) 
-    %{
+    %
     freq_src = param.c0/param.a/2; %centre
     omega_src = 2*pi*freq_src;
     T_src = 1/freq_src; %1/freq
     t0 = 3*T_src;% delay %%%%%%%%%%%%%%%%%
     tau = T_src/sqrt(2);% width
-    p_src = 10*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); 
+    p_src = param.A_src*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); 
     %}
 
     %%% BOUNDARY CONDITIONS 
@@ -107,6 +107,21 @@ function dydt = odecrystal(t,y,f)
     %q(1) = 0;% hard wall q = 0 
     %q(end) = 0;
     
+    %%%%%% sweep
+     %{
+    if t < t_fin/2
+        %p_src = param.A_src*sin(2*pi*param.f_src*t); 
+            % logarithmic %%% https://en.wikipedia.org/wiki/Chirp
+        k = log((param.ff/param.fi)^(1/(t_fin/2)));
+        phi = 2*pi*param.fi*(exp(k*t) - 1)/k;
+        f_src = param.fi*exp(k*t);
+        p_src = param.A_src*sin(2*pi*f_src*t); 
+    else
+        p_src = 0;
+    end
+    %} 
+
+
     %%%%%% ANECHOIC TERMINALS
     P = zeros(mat_size,1); %P vector
     P(1)   =  param.Zc*q(1)/param.S;  % RMK: opposite sign 
@@ -124,7 +139,7 @@ function dydt = odecrystal(t,y,f)
     
     %% SPEAKER PRESSURE AND CONTROL CURRENT --> c.f. 20230516__
     p_s = 1/param.Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); %size = 2*N_cell
-    %dp_s = 1/Caa*(q(2:4:end) - q(3:4:end) - q(4:4:end)); %%% TEST
+  
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %{
     v_cpl_A = 1;  %segment A
@@ -164,19 +179,22 @@ function dydt = odecrystal(t,y,f)
     w.B.L  = 0.8;
 
     %non linear coupling
-    v.A.NL = 0E-3; %segment A
+    v.A.NL = 0E-2; %segment A %1E-3 in hybrid
     w.A.NL = 0;
     v.B.NL = 0;  %segment B
-    w.B.NL = 0E-3;
+    w.B.NL = 0E-2;
 
-    %asymmetrical intra cell coupling parameter
-    g.A = 0;
-    g.B = 0;
+    %asymmetrical intra cell coupling parameter g % +/- increase/decrease
+    %toward right %%% FIX!!!
+    g.v.A = +0*0.5; % --> non-linear non-Hermitian skin effect
+    g.w.A = 0;
+    g.v.B = -0*0.5;
+    g.w.B = 0;
 
     v_L = zeros(2*N_cell,1);
     w_L = zeros(2*N_cell,1);
     
-    v_L(1:N_cell)          = v.A.L*ones(N_cell,1);
+    v_L(1:N_cell)          = v.A.L*ones(N_cell,1); 
     w_L(1:N_cell+1)        = w.A.L*ones(N_cell+1,1); 
    
     v_L(N_cell+1:2*N_cell) = v.B.L*ones(N_cell,1);
@@ -199,12 +217,32 @@ function dydt = odecrystal(t,y,f)
     p_v_cpl = p_s*0; % initialize intra cell matrix of zeros
     p_w_cpl = p_s*0; % initialize inter cell matrix of zeros
     
-    p_v_cpl(1:2:end) = (1-g.A)*p_s_2;
-    p_v_cpl(2:2:end) = (1+g.A)*p_s_1;
-   
+    %reciprocal
+   %
+    p_v_cpl(1:2:end) = p_s_2; 
+    p_v_cpl(2:2:end) = p_s_1;
+
     p_w_cpl(2:2:end-1) = p_s_1(2:end);   %p_{n,1}
     p_w_cpl(3:2:end-1) = p_s_2(1:end-1); %p_{n,2}
+   %}
 
+    % non-recirpocal
+    %{
+    p_v_cpl(1:2:end/2)       = (1 - g.v.A)*p_s_2(1:end/2);% first half
+    p_v_cpl(2:2:end/2)       = (1 + g.v.A)*p_s_1(1:end/2);
+    p_v_cpl(end/2+1:2:end)   = (1 - g.v.B)*p_s_2(end/2+1:end);%second half
+    p_v_cpl(end/2+2:2:end)   = (1 + g.v.B)*p_s_1(end/2+1:end);
+    
+    p_w_cpl(2:2:end-1) = p_s_1(2:end);   %p_{n,1}
+    p_w_cpl(3:2:end-1) = p_s_2(1:end-1); %p_{n,2}
+    %}
+
+    %{
+    p_w_cpl(2:2:end/2-1)     = (1 - g.w.A)*p_s_1(2:end/2);   
+    p_w_cpl(3:2:end/2-1)     = (1 + g.w.A)*p_s_2(1:end/2-1); 
+    p_w_cpl(end/2+2:2:end-1) = (1 - g.w.B)*p_s_1(end/2+2:end);   
+    p_w_cpl(end/2+3:2:end-1) = (1 + g.w.B)*p_s_2(end/2+1:end-1); 
+    %}
     i_s = param.Sd/param.Bl*(v_L.*p_v_cpl     + w_L.*p_w_cpl     + ...
                  v_NL.*p_v_cpl.^3 + w_NL.*p_w_cpl.^3);
 

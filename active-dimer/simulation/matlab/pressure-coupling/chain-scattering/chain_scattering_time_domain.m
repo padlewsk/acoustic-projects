@@ -12,7 +12,7 @@ run('params.m');
 %%% FREQ SWEEP RANGE
 
 global N_cell t_fin %number of unit cells (= half the number of sites)
-N_cell = 32; %2^5%N_cell/2 needs to be even?
+N_cell = 64; %2^5%N_cell/2 needs to be even?
 mat_size = 9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -20,7 +20,7 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive ste1p size)
-t_fin = 8*N_cell*param.a/param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
+t_fin = 12*N_cell*param.a/param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
 
 %%% INITIALISATION
 y0 = zeros(2*mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
@@ -110,7 +110,7 @@ hold off
 %}
 %xlim([0.5,2*N_cell-0.5])
 %ylim([t_out(1),t_out(end)]*1000)%
-%zlim([0,A_src*1.5])
+%zlim([0,param.A_src*2])
 xlabel("site n",'Interpreter','latex')
 ylabel("$t (ms)$",'Interpreter','latex')
 %zlabel("$|p_n| (Pa)$",'Interpreter','latex')
@@ -119,7 +119,7 @@ grid on
 %colormap(jet(50))
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
-caxis([0, param.A_src*1.5]);
+clim([0, param.A_src*1.5]);
 
 set(gca,'FontSize',20,'YDir','normal')
 %set(gca,'YTick', 0:1:80)
@@ -141,33 +141,62 @@ p_seg = p_seg(t_vec>t0*2,:);
 %p_seg = p_s(t_out>10e-3,:);
 
 %{
-%ZEROPADDING
+%ZEROPADDING (for figures only!)
 morezeropad = 1; % zero padding factor
 Y = fft2(p_seg,2^(morezeropad+nextpow2(size(p_seg,1))),2^(morezeropad+nextpow2(size(p_seg,2))))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)% extra entries will correspond to zero padding
 %}
-Y = fft2(p_seg)/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)
 
-NFFT_f = length(t_seg); % signal lengh
+Y = fft2(p_seg)/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)
+Y = fftshift(Y); %filters out DC component
+
+NFFT_f = length(t_seg); % signal length
 omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
 
-NFFT_qa = length(p_seg); % signal lengh
+NFFT_qa = length(p_seg); % signal length
 qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
+
+%%% BAND FOLDING
+%mask = [zeros(NFFT_f,N_cell/2) ones(NFFT_f,N_cell) zeros(NFFT_f,N_cell/2)];
+%Y_inner = Y.*mask;
+%Y_outer = Y.*mod(mask+1,2);
+Y_inner = [Y(:,N_cell/2+1:3*N_cell/2)];
+Y_outer = flip([Y(:,3*N_cell/2+1:2*N_cell) Y(:,1:N_cell/2)],2);
+
+Y_fold = (Y_inner+Y_outer);
+
+%omega_inner = omega(abs(qa/pi)<0.5);
+%omega_outer = omega(abs(qa/pi)>0.5);
+%qa_inner    = qa(abs(qa/pi)<0.5);
+%qa_outer    = qa(abs(qa/pi)>0.5);
+    
+
+
+
+%qa_outer = interp1(x,qa_outer,xq)
+%qa_outer = flip(qa_outer);
+
+
+
+
+
+
 
 figure(3)
 set(gca,'FontSize',20)
 set(gcf,'position',[50, 50, 800, 1000]);
 hold on
-imagesc(qa/pi,omega/(2*pi),abs(fftshift(Y))); 
+%imagesc(qa/pi,omega/(2*pi),abs(Y)); 
+%imagesc(abs(Y_fold));
+imagesc(qa/(pi),omega/(2*pi),abs(Y_fold));
 %yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
 hold off
 colormap('hot');
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
-xlabel("$qa/\pi$",'Interpreter','latex')
+%xlabel("$qa/\pi$",'Interpreter','latex')% full unitcell
 %ylabel("$(\omega-\omega_0)/(2\pi)$",'Interpreter','latex')
+xlabel("$qa/(2\pi)$",'Interpreter','latex')% halved unitcell
 ylabel("$\omega/(2\pi)$",'Interpreter','latex')
-%xlim([0,1])% Band folding due to doubling of unit cell
-%ylim([0 c0/a])
 xlim([-1,1])
 ylim([-2*param.c0/param.a*0 param.c0/param.a])
 
@@ -306,28 +335,9 @@ figure (4)
 plot(t_out(2:end)-t_out(1:end-1))
 title("step size (s)")
 
-%% FIGURES
-%{
-%close all
-%%% Figure 2
-%clf
-fig2 = figure(2);
-set(gca,'FontSize',18,'LineWidth',1) 
-hold on
-%plot(F, Zs)
-plot(F,alpha,'LineWidth',2)%xi
-plot(F,abs(R),'LineWidth',2)%xi
-plot(F,abs(T),'LineWidth',2)%xi
-xlabel("Frequency (Hz)")
-hold off
-box on
-grid on
-str = {'$\alpha$','R','T'};
-legend(str, 'Interpreter','latex', 'Location','NW')
-%}
 
 %% FUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%{
 %%% PRESSURE SOURCE (sin) 
 function S = source(amp,freq,time)
 S = amp*sin(2*pi*freq*time); 
@@ -403,4 +413,5 @@ function dydt = odetube(t,y,f)
     dydt(3:4) = a; %[a_i, a_s, a_o]
 end
 
+%}
 %}
