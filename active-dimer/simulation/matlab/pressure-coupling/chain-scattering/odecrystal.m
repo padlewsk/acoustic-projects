@@ -82,15 +82,9 @@ function dydt = odecrystal(t,y,f)
    
     %% SOURCE AND BOUNDARY CONDITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% SRC
-    %%%%%% SINE 
-    %{
-    if t < t_fin/2
-        p_src = param.A_src*sin(2*pi*param.f_src*t); 
-    else
-        p_src = 0;
-    end
-    %} 
-    
+    %%%%%% SINE*SIGMOIDE 
+    %p_src = 1/(1+exp(1000*(-t)))*param.A_src*sin(2*pi*param.f_src*t)*1/(1+exp(1000*(t-t_fin/2)));
+
     %%%%%% PULSE 
     % gaussian pulse centered at omega_src: P_src \propto  *exp(-(omega-omega_src)^2*(tau^2)) 
     %
@@ -98,7 +92,7 @@ function dydt = odecrystal(t,y,f)
     omega_src = 2*pi*freq_src;
     T_src = 1/freq_src; %1/freq
     t0 = 3*T_src;% delay %%%%%%%%%%%%%%%%%
-    tau = T_src/sqrt(2);% width
+    tau = 0.1*T_src/sqrt(2);% width
     p_src = param.A_src*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); 
     %}
 
@@ -122,13 +116,14 @@ function dydt = odecrystal(t,y,f)
     %} 
 
 
+
     %%%%%% ANECHOIC TERMINALS
     P = zeros(mat_size,1); %P vector
     P(1)   =  param.Zc*q(1)/param.S;  % RMK: opposite sign 
     P(end) =  param.Zc*q(end)/param.S;  
-    
+
     %%% SOURCE LOCATION(s)
-    src_loc = [1];% [round(mat_size/2)]; %%%%%%%
+    src_loc = [1 mat_size];% [round(mat_size/2)]; %%%%%%%
     for nn = src_loc
         if nn == 1 || mod(nn,10) == 0 % RMK: opposite sign on every first pressure node to aid with building the cell matrix
             P(nn) = P(nn) -  2*p_src;
@@ -136,7 +131,6 @@ function dydt = odecrystal(t,y,f)
             P(nn) = P(nn) +  2*p_src;
         end
     end
-    
     %% SPEAKER PRESSURE AND CONTROL CURRENT --> c.f. 20230516__
     p_s = 1/param.Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); %size = 2*N_cell
   
@@ -173,22 +167,22 @@ function dydt = odecrystal(t,y,f)
     i_s = Sd/Bl*(v_cpl.*p_v_cpl + w_cpl.*p_w_cpl);
     %}
     %linear coupling
-    v.A.L  = 0.8;  %segment A
+    v.A.L  = 0;  %segment A
     w.A.L  = 0;
     v.B.L  = 0;  %segment B
-    w.B.L  = 0.8;
-
+    w.B.L  = 0;
+%1E-3 in hybrid
     %non linear coupling
-    v.A.NL = 0E-2; %segment A %1E-3 in hybrid
-    w.A.NL = 0;
-    v.B.NL = 0;  %segment B
-    w.B.NL = 0E-2;
+    v.A.NL = 0E-3; %segment A 
+    w.A.NL = 0E-3;
+    v.B.NL = 0E-3;  %segment B
+    w.B.NL = 0E-3;
 
-    %asymmetrical intra cell coupling parameter g % +/- increase/decrease
+    %asymmetrica coupling parameter g % +/- increase/decrease
     %toward right %%% FIX!!!
-    g.v.A = +0*0.5; % --> non-linear non-Hermitian skin effect
+    g.v.A = 0; % --> non-linear non-Hermitian skin effect
     g.w.A = 0;
-    g.v.B = -0*0.5;
+    g.v.B = 0;
     g.w.B = 0;
 
     v_L = zeros(2*N_cell,1);
@@ -218,7 +212,7 @@ function dydt = odecrystal(t,y,f)
     p_w_cpl = p_s*0; % initialize inter cell matrix of zeros
     
     %reciprocal
-   %
+   %{
     p_v_cpl(1:2:end) = p_s_2; 
     p_v_cpl(2:2:end) = p_s_1;
 
@@ -227,17 +221,18 @@ function dydt = odecrystal(t,y,f)
    %}
 
     % non-recirpocal
-    %{
+    %
     p_v_cpl(1:2:end/2)       = (1 - g.v.A)*p_s_2(1:end/2);% first half
     p_v_cpl(2:2:end/2)       = (1 + g.v.A)*p_s_1(1:end/2);
     p_v_cpl(end/2+1:2:end)   = (1 - g.v.B)*p_s_2(end/2+1:end);%second half
     p_v_cpl(end/2+2:2:end)   = (1 + g.v.B)*p_s_1(end/2+1:end);
     
+    %{
     p_w_cpl(2:2:end-1) = p_s_1(2:end);   %p_{n,1}
     p_w_cpl(3:2:end-1) = p_s_2(1:end-1); %p_{n,2}
     %}
 
-    %{
+    %
     p_w_cpl(2:2:end/2-1)     = (1 - g.w.A)*p_s_1(2:end/2);   
     p_w_cpl(3:2:end/2-1)     = (1 + g.w.A)*p_s_2(1:end/2-1); 
     p_w_cpl(end/2+2:2:end-1) = (1 - g.w.B)*p_s_1(end/2+2:end);   
@@ -279,4 +274,14 @@ function dydt = odecrystal(t,y,f)
     dydt = zeros(2*mat_size,1); % initialize
     dydt(1:mat_size) = q;            %[v1,v2,...,vn]
     dydt(mat_size+1:2*mat_size) = a; %[a1,a2,...,an]
+  
+    %{
+    if t < t_fin/100
+        nn = 1;
+    elseif t > t_fin/100*nn
+        textprogressbar(t/t_fin*100);
+        pause(0.05);
+        nn = nn + 1
+    end
+    %}
 end

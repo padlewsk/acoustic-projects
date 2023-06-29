@@ -5,15 +5,16 @@ close all; pause(0);
 clear all; 
 clc;
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));%
+%addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));
+addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));%
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 run('params.m');
 %% SETTINGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FREQ SWEEP RANGE
 
 global N_cell t_fin %number of unit cells (= half the number of sites)
-N_cell = 64; %2^5%N_cell/2 needs to be even?
-mat_size = 9*N_cell-(N_cell-1);
+N_cell = 32; %2^5%N_cell/2 needs to be even?
+mat_size = N_cell*8+1 ;%9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
 f_samp = 5E5;
@@ -53,8 +54,10 @@ freq = 0;
 tic
 %'NormControl','on'
 opts = odeset('InitialStep', 1e-5, 'Refine', 8,'Stats','on'); % ruse refine to compute additional points
+textprogressbar('Simulation in progress... ');
 [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0,t_fin], y0, opts);%dynamically adjusts sampling time
 toc
+textprogressbar('Done.');
 %y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
 tic
@@ -93,6 +96,7 @@ end
 %}
 
 figure(2) % \Delta t simulation time step
+%colormap("pink");
 surface(X,Y,Z,'EdgeColor','none')
 %{
 c = imagesc(t_out*1000,1:2*N_cell,abs(p_s)'); %clims = [4 18];
@@ -190,7 +194,8 @@ hold on
 imagesc(qa/(pi),omega/(2*pi),abs(Y_fold));
 %yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
 hold off
-colormap('hot');
+%colormap('hot');
+colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 %xlabel("$qa/\pi$",'Interpreter','latex')% full unitcell
@@ -335,6 +340,7 @@ figure (4)
 plot(t_out(2:end)-t_out(1:end-1))
 title("step size (s)")
 
+autoArrangeFigures
 
 %% FUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
