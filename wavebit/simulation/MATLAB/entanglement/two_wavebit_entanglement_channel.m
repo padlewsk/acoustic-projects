@@ -2,6 +2,7 @@ close all
 clear all
 clc
 addpath('./__fun')  
+addpath('./__fun') 
 
 
 N = 2; %2 qubits
@@ -10,22 +11,22 @@ freq = 500; %Hz
 omega_0 = 2 * pi * freq; % osc res freq
 omega_1 = 2 * omega_0; %osc harmonic
 
-%quantum freq
-omega_0_q = sqrt(2)*5*omega_0; %quantum res freq must be larger than twice envolope freq
-omega_1_q = 2 * omega_0_q; %first quantum harmonic
+%quantum entanglement channel
+Omega_0 = sqrt(2)*5*omega_0; %quantum res freq must be larger than twice envolope freq
+Omega_1 = 2 * Omega_0; %first quantum harmonic
 
 %time span
-tspan = [0 10*(2*pi)/omega_1]; %[ti tf]
+tspan = [0 5*(2*pi)/omega_1]; %[ti tf]
 
 %time scale <-------------------------------------------------------
-t_s = 0.001*(2*pi)/omega_1_q; %avoid integer multiples --> non separable solutions? 
+t_s = 0.001*(2*pi)/Omega_1; %avoid integer multiples --> non separable solutions? 
 f_s = 1/t_s;
 t = tspan(1):t_s:tspan(2); %ts must be smaller or equal to (2*pi)/omega_1_q (quantum time step) in order to observe mixed state
 
 %%% ENTANGLEMENT CHANNELS (carrier)
 ch_0 = 1; %DC "local entanglement" ??????????????????
-ch_1 = exp(-1i*omega_0_q*t); 
-ch_2 = exp(-1i*omega_1_q*t);
+ch_1 = exp(-1i*Omega_0*t); 
+ch_2 = exp(-1i*Omega_1*t);
 
 %%% TEMPORAL STATE REPRESENTAION (signal to transmit)
 st_0 = exp(-1i*omega_0*t);
@@ -79,37 +80,46 @@ norm_psi_2 =  1/tspan(end)*trapz(t,psi_2_t.*conj(psi_2_t))/nrm^2% NOT NORMALIZED
 
 %[F, Psi_1_t] = onesideft(psi_1_t,f_s,2);
 %%
+fig_param = fig_params;
 close all
+
+%%% FIGURE 1 %%%
 % Plot the results
-figure(1)
+
+fig1 = figure(1)
+cmap = colormap('magma')
+set(gcf,'position',fig_param.window_size);
 tiledlayout(2,1)
 nexttile 
 hold on
-plot(t*(freq), real(psi_1_t),'--')
-plot(t*(freq), imag(psi_1_t),'--')
-plot(t*(freq), abs(psi_1_t),'-')
+plot(t*(freq), real(psi_1_t),'--','LineWidth', 2)
+plot(t*(freq), imag(psi_1_t),'--','LineWidth', 2)
+plot(t*(freq), abs(psi_1_t),'-','LineWidth', 2)
 hold off
-xlabel('Moments (s \cdot f_0)');
+%xlabel('Cycles (s \cdot f_0)');
 ylabel('\psi_1');
 ylim([-2 2])
 grid on
 box on
-title('Qubit 1');
+%title('Qubit 1');
+set(gca,fig_param.fig_prop{:},'YGrid','off','GridLineStyle', '--');
 
 % Plot the results
 nexttile
 hold on
-plot(t*(freq), real(psi_2_t),'--')
-plot(t*(freq), imag(psi_2_t),'--')
-plot(t*(freq), abs(psi_2_t),'-')
+plot(t*(freq), real(psi_2_t),'--','LineWidth', 2)
+plot(t*(freq), imag(psi_2_t),'--','LineWidth', 2)
+plot(t*(freq), abs(psi_2_t),'-','LineWidth', 2)
 hold off
-xlabel('Moments (s \cdot f_0)');
+xlabel('Cycles (2\pi/\omega_0)');
 ylabel('\psi_2');
 ylim([-2 2])
 grid on
 box on
-title('Qubit 2');
+%title('Qubit 2');
+set(gca,fig_param.fig_prop{:},'YGrid','off','GridLineStyle', '--');
 
+%%% FIGURE 2 %%%
 [F, raw_env] = onesideft(real(1/sqrt(2)*(st_0 + st_1)),f_s,2);
 [F, raw_ch1] = onesideft(real(ch_1),f_s,2);
 [F, raw_ch2] = onesideft(real(ch_2),f_s,2);
@@ -120,35 +130,43 @@ title('Qubit 2');
 %[F, A1] = onesideft(ch_1.*conj(st_0).*psi_2_t,f_s,2);
 %[F, A2] = onesideft(ch_2.*conj(st_0).*psi_2_t,f_s,2);
 
-figure(2)
+fig2 = figure(2)
+set(gcf,'position',fig_param.window_size);
+set(gca,fig_param.fig_prop{:},'YGrid','off','GridLineStyle', '--');
 hold on
-plot(F, abs(raw_env)) 
-plot(F, abs(raw_ch1)) 
-plot(F, abs(raw_ch2)) 
-plot(F, abs(env_ch0)) 
-plot(F, abs(env_ch1)) 
-plot(F, abs(env_ch2)) 
+plot(F, abs(raw_env),'LineWidth', 2) 
+plot(F, abs(raw_ch1),'LineWidth', 2) 
+plot(F, abs(raw_ch2),'LineWidth', 2) 
+plot(F, abs(env_ch0),'LineWidth', 2) 
+plot(F, abs(env_ch1),'LineWidth', 2) 
+plot(F, abs(env_ch2),'LineWidth', 2) 
 hold off
-xlim([0 1.2*omega_1_q/(2*pi)])
+xlim([0 10000])
 ylim([0 1])
 legend('raw env', 'raw ch1', 'raw ch2', 'env ch0 ', 'env ch1 ', 'envch2 ')
 box on
 grid on
 
 
+%%% FIGURE 3 %%%
 [F, Psi_1_t] = onesideft(real(psi_1_t),f_s,2);
 [F, Psi_2_t] = onesideft(real(psi_2_t),f_s,2);
 figure(3)
 hold on
-plot(F, abs(Psi_1_t)) 
-plot(F, abs(Psi_2_t)) 
+plot(F, abs(Psi_1_t),'LineWidth', 2) 
+plot(F, abs(Psi_2_t),'LineWidth', 2) 
 hold off
-xlim([0 1.2*omega_1_q/(2*pi)])
+xlim([0 10000])
 %xlim([-1.2*omega_1_q/(2*pi) 1.2*omega_1_q/(2*pi)]) %onesided
 ylim([0 1])
-legend('psi_1', 'psi_2')
+xline(omega_0/(2*pi),'-','LineWidth', 1,'Label','\langlet|0\rangle')
+xline(omega_1/(2*pi),'-','LineWidth', 1,'Label','\langlet|1\rangle')
+xline(Omega_0/(2*pi),'-','LineWidth', 1,'Label','QEC_1')
+xline(Omega_1/(2*pi),'-','LineWidth', 1,'Label','QEC_2')
+legend('\psi_1', '\psi_2')
 box on
-grid on
+set(gcf,'position',fig_param.window_size);
+set(gca,fig_param.fig_prop{:},'YGrid','off','GridLineStyle', '--');
 
 %{
 figure(2)
