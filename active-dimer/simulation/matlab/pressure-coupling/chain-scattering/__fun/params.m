@@ -5,14 +5,12 @@ param.rho0 = 1.1965; %kg/m^3
 param.c0 = 344.5389; % m/s
 param.Zc = param.rho0*param.c0; % Impedance of the air (p/v)
 %nu = 18.5E-6; %Coef de viscosité dynamique du fluide
-param.f_src  = 644.5; % Hz speaker + enclosure res freq 644.5
-
-
+param.f_src  = 644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse
 
 %%% FREQ SWEEP
 param.fi = 100; %% initial frequency
 param.ff = 1300; %% final frequency
-param.A_src = 14; %%% incident pressure amplitude (Pa) %%% H 17.2
+param.A_src = 10; %%% incident pressure amplitude (Pa) %%% H 17.2
 
 %%% IDENTICAL LINER SPEAKERS
 %%% Mechanical
@@ -32,11 +30,9 @@ param.Ras = param.Rms/param.Sd^2;
 param.Mas = param.Mms/param.Sd^2;
 param.Cas = param.Cms*param.Sd^2;
 
-
 %Rss = Rms/Sd;%%% Specific acoustic 
 %Mss = Mms/Sd;
 %Css = Cms*Sd; 
-
 
 %
 %%% DUCT
@@ -61,5 +57,3 @@ param.Cab = param.V_b/(param.rho0*param.c0^2); % acoustic compliance between spe
 
 %%% CRYSTAL PARAM
 param.a = (param.L_a*2+param.L_b*4); %208.6[mm]
-
-

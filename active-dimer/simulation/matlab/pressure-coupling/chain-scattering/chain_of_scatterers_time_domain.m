@@ -7,13 +7,15 @@ clc;
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));
 addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));%
-%% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-run('params.m');
+%% PARAMETERS AND FUNCTIONS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath('./__fun')
+
+sim_name = "raw_data__L_TIS";
 %% SETTINGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FREQ SWEEP RANGE
 
 global N_cell t_fin %number of unit cells (= half the number of sites)
-N_cell = 32; %2^5%N_cell/2 needs to be even?
+N_cell = 50; %2^5%N_cell/2 needs to be even?
 mat_size = N_cell*8+1 ;%9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -21,7 +23,7 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive ste1p size)
-t_fin = 12*N_cell*param.a/param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
+t_fin = 500E-3 + 0*4*N_cell*param.a/param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
 
 %%% INITIALISATION
 y0 = zeros(2*mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
@@ -54,13 +56,24 @@ freq = 0;
 tic
 %'NormControl','on'
 opts = odeset('InitialStep', 1e-5, 'Refine', 8,'Stats','on'); % ruse refine to compute additional points
-textprogressbar('Simulation in progress... ');
+
 [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,freq),[0,t_fin], y0, opts);%dynamically adjusts sampling time
 toc
-textprogressbar('Done.');
 %y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
+%% SAVE DATA
 tic
+if ~exist("__data", 'dir')
+   mkdir("__data")
+end
+if ~isfile(string("./__data/" + sim_name + ".mat"))
+    save(string("./__data/" + sim_name + ".mat"),"t_out","y_out")
+else
+    fprintf("### FILE NOT SAVED: FILE NAME ALREADY EXISTS\n")
+end
+%}
+
+%% EXCTRACT DATA
 x = y_out(:,1:mat_size);   % acoustic charge
 q = y_out(:,mat_size+1:end);% acoustic flow
 x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
@@ -113,7 +126,7 @@ end
 hold off
 %}
 %xlim([0.5,2*N_cell-0.5])
-%ylim([t_out(1),t_out(end)]*1000)%
+ylim([t_out(1),t_out(end)]*1000)%
 %zlim([0,param.A_src*2])
 xlabel("site n",'Interpreter','latex')
 ylabel("$t (ms)$",'Interpreter','latex')
@@ -129,20 +142,19 @@ set(gca,'FontSize',20,'YDir','normal')
 %set(gca,'YTick', 0:1:80)
 set(gcf,'position',[900,50,800,600]);
 view(135,60)
-%%% FRENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+%%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 t_vec =  0:t_samp:t_fin; 
-%t_vec = linspace(0,t_fin,2^nextpow2(numel(t_out)));%This time vector used to interpolate before performing the FFT. 
+
+%%% ZERO PADDING
+%t_vec = linspace(0,t_fin,2^(nextpow2(numel(t_out))+3));%This time vector used to interpolate before performing the FFT. 
 p_seg = interp1(t_out,p_s,t_vec); % Interpolate data 
 
+t0 = 3/(param.f_src); %3/(2*pi*param.c0/param.a/2);% pulse delay
 
-t0 = 3/(2*pi*param.c0/param.a/2);% pulse delay
+t_seg = t_vec(t_vec>2*t0); %omit first data points
+p_seg = p_seg(t_vec>2*t0,:); 
 
-t_seg = t_vec(t_vec>t0*2); %omit first data points
-p_seg = p_seg(t_vec>t0*2,:); 
-%t_seg = t_out(t_out>10e-3);
-%p_seg = p_s(t_out>10e-3,:);
 
 %{
 %ZEROPADDING (for figures only!)
@@ -159,51 +171,36 @@ omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
 NFFT_qa = length(p_seg); % signal length
 qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
 
-%%% BAND FOLDING
-%mask = [zeros(NFFT_f,N_cell/2) ones(NFFT_f,N_cell) zeros(NFFT_f,N_cell/2)];
-%Y_inner = Y.*mask;
-%Y_outer = Y.*mod(mask+1,2);
+%%% BAND FOLDING %%% FIX
 Y_inner = [Y(:,N_cell/2+1:3*N_cell/2)];
 Y_outer = flip([Y(:,3*N_cell/2+1:2*N_cell) Y(:,1:N_cell/2)],2);
-
 Y_fold = (Y_inner+Y_outer);
+Y_fold = Y; %Bypass
 
-%omega_inner = omega(abs(qa/pi)<0.5);
-%omega_outer = omega(abs(qa/pi)>0.5);
-%qa_inner    = qa(abs(qa/pi)<0.5);
-%qa_outer    = qa(abs(qa/pi)>0.5);
-    
-
-
-
-%qa_outer = interp1(x,qa_outer,xq)
-%qa_outer = flip(qa_outer);
-
-
-
-
-
-
-
+%%% CUT OFF HIGH FREQUENCIES
 figure(3)
 set(gca,'FontSize',20)
 set(gcf,'position',[50, 50, 800, 1000]);
 hold on
 %imagesc(qa/pi,omega/(2*pi),abs(Y)); 
 %imagesc(abs(Y_fold));
-imagesc(qa/(pi),omega/(2*pi),abs(Y_fold));
-%yline([422.380 c0/a/2],'r--',{'Local','Bragg'},'LineWidth',2);
+imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
+%yline([422.380/1000 param.c0/param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
+yline([415/1000 644.5/1000],'r--',{'Local','Bragg'},'LineWidth',2);
 hold off
 %colormap('hot');
 colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
-%xlabel("$qa/\pi$",'Interpreter','latex')% full unitcell
+%clim([0, param.A_src*1.5]);
+clim([0, 1.5]);
+xlabel("$qa/\pi$",'Interpreter','latex')% full unitcell
 %ylabel("$(\omega-\omega_0)/(2\pi)$",'Interpreter','latex')
-xlabel("$qa/(2\pi)$",'Interpreter','latex')% halved unitcell
-ylabel("$\omega/(2\pi)$",'Interpreter','latex')
+%xlabel("$qa/(2\pi)$",'Interpreter','latex')% halved unitcell
+%ylabel("$\omega/(2\pi)$",'Interpreter','latex')
+ylabel("$f$ (kHz)",'Interpreter','latex')
 xlim([-1,1])
-ylim([-2*param.c0/param.a*0 param.c0/param.a])
+ylim([-2*param.c0/param.a*0 param.c0/param.a]/1000)
 
 %title("Transmission peak as a function of local disorder")
 
@@ -336,7 +333,7 @@ toc
 %end
 hold off
 
-figure (4)
+figure(4)
 plot(t_out(2:end)-t_out(1:end-1))
 title("step size (s)")
 

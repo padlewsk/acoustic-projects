@@ -85,14 +85,14 @@ function dydt = odecrystal(t,y,f)
     %%%%%% SINE*SIGMOIDE 
     %p_src = 1/(1+exp(1000*(-t)))*param.A_src*sin(2*pi*param.f_src*t)*1/(1+exp(1000*(t-t_fin/2)));
 
-    %%%%%% PULSE 
+    %%%%%% CENTER PULSE 
     % gaussian pulse centered at omega_src: P_src \propto  *exp(-(omega-omega_src)^2*(tau^2)) 
     %
-    freq_src = param.c0/param.a/2; %centre
+    freq_src = param.f_src; %param.c0/param.a/2; %centre
     omega_src = 2*pi*freq_src;
     T_src = 1/freq_src; %1/freq
     t0 = 3*T_src;% delay %%%%%%%%%%%%%%%%%
-    tau = 0.1*T_src/sqrt(2);% width
+    tau = 0.5*T_src/sqrt(2);% width
     p_src = param.A_src*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); 
     %}
 
@@ -114,7 +114,6 @@ function dydt = odecrystal(t,y,f)
         p_src = 0;
     end
     %} 
-
 
 
     %%%%%% ANECHOIC TERMINALS
@@ -168,8 +167,8 @@ function dydt = odecrystal(t,y,f)
     %}
     %linear coupling
     v.A.L  = 0;  %segment A
-    w.A.L  = 0;
-    v.B.L  = 0;  %segment B
+    w.A.L  = 0.8;
+    v.B.L  = 0.8;  %segment B
     w.B.L  = 0;
 %1E-3 in hybrid
     %non linear coupling
@@ -184,22 +183,18 @@ function dydt = odecrystal(t,y,f)
     g.w.A = 0;
     g.v.B = 0;
     g.w.B = 0;
-
+    
     v_L = zeros(2*N_cell,1);
     w_L = zeros(2*N_cell,1);
-    
     v_L(1:N_cell)          = v.A.L*ones(N_cell,1); 
     w_L(1:N_cell+1)        = w.A.L*ones(N_cell+1,1); 
-   
     v_L(N_cell+1:2*N_cell) = v.B.L*ones(N_cell,1);
     w_L(N_cell+2:2*N_cell) = w.B.L*ones(N_cell-1,1);
 
     v_NL = zeros(2*N_cell,1);
     w_NL = zeros(2*N_cell,1);
-    
     v_NL(1:N_cell)          = v.A.NL*ones(N_cell,1);
-    w_NL(1:N_cell+1)        = w.A.NL*ones(N_cell+1,1); 
-   
+    w_NL(1:N_cell+1)        = w.A.NL*ones(N_cell+1,1);  
     v_NL(N_cell+1:2*N_cell) = v.B.NL*ones(N_cell,1);
     w_NL(N_cell+2:2*N_cell) = w.B.NL*ones(N_cell-1,1);
     
@@ -212,7 +207,7 @@ function dydt = odecrystal(t,y,f)
     p_w_cpl = p_s*0; % initialize inter cell matrix of zeros
     
     %reciprocal
-   %{
+   %
     p_v_cpl(1:2:end) = p_s_2; 
     p_v_cpl(2:2:end) = p_s_1;
 
@@ -220,24 +215,19 @@ function dydt = odecrystal(t,y,f)
     p_w_cpl(3:2:end-1) = p_s_2(1:end-1); %p_{n,2}
    %}
 
-    % non-recirpocal
-    %
+    % non-recirpocal % DOESNT WORK
+    %{
     p_v_cpl(1:2:end/2)       = (1 - g.v.A)*p_s_2(1:end/2);% first half
     p_v_cpl(2:2:end/2)       = (1 + g.v.A)*p_s_1(1:end/2);
     p_v_cpl(end/2+1:2:end)   = (1 - g.v.B)*p_s_2(end/2+1:end);%second half
     p_v_cpl(end/2+2:2:end)   = (1 + g.v.B)*p_s_1(end/2+1:end);
     
-    %{
-    p_w_cpl(2:2:end-1) = p_s_1(2:end);   %p_{n,1}
-    p_w_cpl(3:2:end-1) = p_s_2(1:end-1); %p_{n,2}
-    %}
-
-    %
     p_w_cpl(2:2:end/2-1)     = (1 - g.w.A)*p_s_1(2:end/2);   
     p_w_cpl(3:2:end/2-1)     = (1 + g.w.A)*p_s_2(1:end/2-1); 
     p_w_cpl(end/2+2:2:end-1) = (1 - g.w.B)*p_s_1(end/2+2:end);   
     p_w_cpl(end/2+3:2:end-1) = (1 + g.w.B)*p_s_2(end/2+1:end-1); 
     %}
+
     i_s = param.Sd/param.Bl*(v_L.*p_v_cpl     + w_L.*p_w_cpl     + ...
                  v_NL.*p_v_cpl.^3 + w_NL.*p_w_cpl.^3);
 
