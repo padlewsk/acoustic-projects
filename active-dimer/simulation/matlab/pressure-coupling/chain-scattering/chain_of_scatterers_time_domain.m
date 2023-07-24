@@ -8,14 +8,14 @@ clc;
 %addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));
 addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));%
 %% PARAMETERS AND FUNCTIONS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath('./__fun')
-
+addpath('./__fun/')
+run params.m
 sim_name = "raw_data__L_TIS";
 %% SETTINGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FREQ SWEEP RANGE
 
 global N_cell t_fin %number of unit cells (= half the number of sites)
-N_cell = 50; %2^5%N_cell/2 needs to be even?
+N_cell = 5; %2^5%N_cell/2 needs to be even?
 mat_size = N_cell*8+1 ;%9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -171,10 +171,12 @@ omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
 NFFT_qa = length(p_seg); % signal length
 qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
 
-%%% BAND FOLDING %%% FIX
+%%% BAND FOLDING %%% RMK: N_cell must be EVEN
+%{
 Y_inner = [Y(:,N_cell/2+1:3*N_cell/2)];
 Y_outer = flip([Y(:,3*N_cell/2+1:2*N_cell) Y(:,1:N_cell/2)],2);
 Y_fold = (Y_inner+Y_outer);
+%}
 Y_fold = Y; %Bypass
 
 %%% CUT OFF HIGH FREQUENCIES
