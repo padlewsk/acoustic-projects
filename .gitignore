@@ -1,6 +1,9 @@
 # Exported data
 *.mat
 *.zip
+*.png
+*.pdf
+*.svg
 
 # OS files
 Thumbs.db
