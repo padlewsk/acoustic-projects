@@ -1,5 +1,5 @@
 function param = fig_params()
-param = struct;
+%param = struct;
 
 %%% LIST OF PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% RMK: Manually update the asterixed parameters after running either

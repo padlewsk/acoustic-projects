@@ -84,7 +84,7 @@ function dydt = odecrystal(t,y,temp)
     %% SOURCE AND BOUNDARY CONDITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% SRC
     %%%%%% SINE*SIGMOIDE 
-    %p_src = 1/(1+exp(1000*(-t)))*param.A_src*sin(2*pi*param.f_src*t)*1/(1+exp(1000*(t-t_fin/2)));
+    %p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*sin(2*pi*sys_param.f_src*t)*1/(1+exp(1000*(t-t_fin/2)));
 
     %%%%%% CENTER PULSE 
     % gaussian pulse centered at omega_src: P_src \propto  *exp(-(omega-omega_src)^2*(tau^2)) 
@@ -265,14 +265,4 @@ function dydt = odecrystal(t,y,temp)
     dydt = zeros(2*mat_size,1); % initialize
     dydt(1:mat_size) = q;            %[v1,v2,...,vn]
     dydt(mat_size+1:2*mat_size) = a; %[a1,a2,...,an]
-  
-    %{
-    if t < t_fin/100
-        nn = 1;
-    elseif t > t_fin/100*nn
-        textprogressbar(t/t_fin*100);
-        pause(0.05);
-        nn = nn + 1
-    end
-    %}
 end

@@ -6,12 +6,12 @@ function param = sys_params()
     param.c0 = 344.5389; % m/s
     param.Zc = param.rho0*param.c0; % Impedance of the air (p/v)
     %nu = 18.5E-6; %Coef de viscosité dynamique du fluide
-    param.f_src  = 644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse
+    param.f_src  = 650; % Hz speaker + enclosure res freq 644.5 for sin and pulse
     
     %%% FREQ SWEEP
     param.fi = 100; %% initial frequency
     param.ff = 1300; %% final frequency
-    param.A_src = 10; %%% incident pressure amplitude (Pa) %%% H 17.2
+    param.A_src = 5; %%% incident pressure amplitude (Pa) %%% H 17.2
     
     %%% IDENTICAL LINER SPEAKERS
     %%% Mechanical

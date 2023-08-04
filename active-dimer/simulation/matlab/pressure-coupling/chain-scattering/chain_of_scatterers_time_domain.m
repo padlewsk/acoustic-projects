@@ -16,16 +16,17 @@ sys_param = sys_params();
 sim_name = "L_ref";
 
 %%% LOAD DATA FOR PLOTS
-%{
+% loads t_out and y_out from a saved simulation and skips current simulation
+%
 fprintf("### LOADING PARAMETERS, FUNCTION AND DATA...\n")
 addpath('./__data/')
-load raw_data__L_topo.mat % loads t_out and y_out from a saved simulation and skips current simulation
+load raw_data__L_ref.mat 
 fprintf("### DONE.\n")
 %}
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FREQ SWEEP RANGE
 global N_cell t_fin %number of unit cells (= half the number of sites)
-N_cell = 50; %2^5%N_cell/2 needs to be even?
+N_cell = 32; %2^5%N_cell/2 needs to be even?
 mat_size = N_cell*8+1 ;%9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -33,7 +34,7 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive ste1p size)
-t_fin = 500E-3 + 0*4*N_cell*sys_param.a/sys_param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
+t_fin = 300E-3 + 0*4*N_cell*sys_param.a/sys_param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
 
 %%% INITIALISATION
 y0 = zeros(2*mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
@@ -93,7 +94,7 @@ close all
 fig1 = figure(1);
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:});
-
+hold on
 plot(t_out,real(p_s(:,1)),'-')
 plot(t_out,real(p_s(:,2)),'-')
 plot(t_out,real(p_s(:,3)),'-.')
@@ -105,7 +106,6 @@ grid on
 xlabel('Time t/T');
 ylabel('Solution p');
 legend('p_{11}','p_{12}','p_{21}','p_{22}')
-what is fi
 %ylim([-1,1])
 %}
 
@@ -205,7 +205,7 @@ hold off
 colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
-%clim([0, param.A_src*1.5]);
+%clim([0, sys_param.A_src*0.5]);
 clim([0, 1.5]);
 xlabel("qa/\pi")% full unitcell
 %ylabel("$(\omega-\omega_0)/(2\pi)$",'Interpreter','latex')
@@ -354,8 +354,7 @@ toc
 
 %% SAVE FIGURES
 %
-%exportgraphics(fig2, string("./__figures/fig__" + sim_name + "_ST" + ".pdf"), 'ContentType', 'image');
-%exportgraphics(fig3, string("./__figures/fig__" + sim_name + "_ST" + ".pdf"), 'ContentType', 'vector')
+
 %{
 tic
 if ~exist("__figures", 'dir')
