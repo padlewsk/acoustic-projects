@@ -6,7 +6,7 @@ clc
 clf
 
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));%
+addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox'));%
 addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
@@ -29,7 +29,7 @@ s2 = abs(p.x4-p.x3);%mic separation
 %% SYMMETRIC CASE
 %
 %%% CORRECTION DATA
-fstruct = dir('./__data/*100us*.mat');
+fstruct = dir('./__data/*50us*.mat'); %% watch out for cal data name
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
@@ -57,7 +57,9 @@ s21 = s12;
 %% ASYMMETRIC CASE
 %{
 %%% CORRECTION DATA
-load('./__data/cal.mat'); %
+fstruct = dir('./__data/*50us*.mat'); %% watch out for cal data name
+load(strcat(fstruct.folder,'\',fstruct.name));
+
 
 %%% TRANSFER FUNCTION DATA
 load('C:/Speedgoat/temp/processed_data_a.mat');

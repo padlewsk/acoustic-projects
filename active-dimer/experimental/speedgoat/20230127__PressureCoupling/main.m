@@ -27,7 +27,7 @@ s1 = abs(p.x2-p.x1); %mic  separation
 s2 = abs(p.x4-p.x3);%mic separation
 
 %% SYMMETRIC + RECIPROCAL CASE
-%
+%{
 %%% CORRECTION DATA
 fstruct = dir('./__data/*50us*.mat');
 load(strcat(fstruct.folder,'\',fstruct.name));
@@ -55,7 +55,7 @@ s21 = s12;
 %}
 
 %% ASYMMETRIC + CASE
-%{
+%
 %%% CORRECTION DATA
 fstruct = dir('./__data/*50us*.mat');
 load(strcat(fstruct.folder,'\',fstruct.name));
@@ -153,13 +153,13 @@ legend("Re(q_{F})","Im(q_{F})","q_F = 2\pif/a ")
 %%% S-MATRIX
 figure(2);
 
-semilogy(p.freq, abs(s11), 'DisplayName', 's11');
+plot(p.freq, abs(s11), 'DisplayName', 's11');
 hold on;
-semilogy(p.freq, abs(s21), 'DisplayName', 's21');
-semilogy(p.freq, abs(s12), 'DisplayName', 's12');
-semilogy(p.freq, abs(s22), 'DisplayName', 's22');
+plot(p.freq, abs(s21), 'DisplayName', 's21');
+plot(p.freq, abs(s12), 'DisplayName', 's12');
+plot(p.freq, abs(s22), 'DisplayName', 's22');
 legend show
-%ylim([1e-4,10])
+ylim([0,1])
 xlabel("Frequency (Hz)")
 title("Transmission/reflection")
 box on

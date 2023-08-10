@@ -27,20 +27,20 @@ function params = param_struct();
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.src_select = 1; %source A or B
     
-    params.A = 0.2; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    params.A = 0.1; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.tmax = 10; %%20 sweep up measurement time (s) 
     params.fi = 150;%150; %% initial frequency
     params.ff = 1200;%1200;%1500; %% final frequency
     %% CALIBRATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Mic Positions (wtr centre)
     
-    params.x1 = -0.34; %m
-    params.x2 = -0.29; %m
-    params.x3 = +0.29; %m
-    params.x4 = +0.34; %m
+    params.x1 = -0.38; %m
+    params.x2 = -0.33; %m
+    params.x3 = +0.33; %m
+    params.x4 = +0.38; %m
     
     %%% Unit Cell 
-    params.a = 0.2806; %m 0.12;
+    params.a = 0.280; %m 0.12;
     
     params.offset = -params.a/2; %m %shift of centre of unit cell wrt centre ( it doesn't matter...)
     %a = 0.055; %m
@@ -50,9 +50,9 @@ function params = param_struct();
     
     %% CONTROL SENSITIVITY
     %%% MIC    (SWAPPED!!!)
-    params.sens_p_m =  -1/43.6E-3;% 1/(V/Pa) SN65608
-    params.sens_p_c =  -1/20.00E-3;% 1/(V/Pa) SN6969 NOT IN USE!
-    params.sens_p_p =  -1/41.2E-3;% 1/(V/Pa) SN65606
+    params.sens_p_m =  -1/37.6E-3;% 1/(V/Pa) SN65606 %%%%%%%%%%%%%%%%%%%%%
+    %params.sens_p_c =  -1/20.00E-3;% 1/(V/Pa) SN6969 NOT IN USE!
+    params.sens_p_p =  -1/38.9E-3;% 1/(V/Pa) SN65608
  
     %sens_v= 1/(10E-3);% Vibrometer sensitivity V/(m/s) 
     %%%  CURRENT TO VOLTAGE
@@ -79,19 +79,19 @@ function params = param_struct();
     
     %%% speaker 1: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % %Re_m = 7.43;
-    params.Bl_m  =  1.5017;
-    params.Rms_m =  2.606526e-01;
-    params.Mms_m =  6.670769e-04;
-    params.Cmc_m =  2.128414e-04;%
+    params.Bl_m  =  1.58e+00;%1.58e+00;
+    params.Rms_m =  3.54e-01;%3.54e-01;
+    params.Mms_m =  7.22e-04; %%% WHY!??!?!?6e-04
+    params.Cmc_m =  2.14e-04; %%% WHY!??!?!?2e-04
     
     params.f0_m = 1/(2*pi*sqrt(params.Mms_m*params.Cmc_m)); % Resonnance frequency (Hz)
     
     %%% speaker 2: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % Re_p =  3.57;
-    params.Bl_p  =  1.1064;%1.3803;
-    params.Rms_p =  2.791510e-01;% 0.3005;
-    params.Mms_p =  5.691003e-04;%6.1805e-04;
-    params.Cmc_p =  2.511373e-04;%1.705e-04;%1.7219e-04;%
+    params.Bl_p  =  1.50e+00;
+    params.Rms_p =  2.81e-01;
+    params.Mms_p =  6.62e-04;
+    params.Cmc_p =  2.30e-04;
     
     params.f0_p = 1/(2*pi*sqrt(params.Mms_p*params.Cmc_p)); % Resonnance frequency (Hz)
     % *  measured with ms_estimate.m 
@@ -155,8 +155,8 @@ function params = param_struct();
 
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %params.t_ssh = 0; % SSH hopping parameter -1<0<1
-    params.kappa    = 0*(-params.Sd); % coupling (front pressure) MAX 1
-    params.kappa_nl = -4e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
+    params.kappa    = 1.5*(-params.Sd); % coupling (front pressure) MAX 1
+    params.kappa_nl = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
     params.kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
 end
 

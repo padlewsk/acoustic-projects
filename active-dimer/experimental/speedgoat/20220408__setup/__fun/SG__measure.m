@@ -1,7 +1,8 @@
     %%% 2022.09.06 4 channel measurement.
 
 function sigData = SG__measure(params)
-
+    
+    addpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller');
     %%% DEFAULT PARAMETERS
     if nargin < 1
     addpath('__fun');
@@ -88,7 +89,7 @@ function sigData = SG__measure(params)
     fprintf('Fetching data from target...\n');
     
     tg.FileLog.import(p.MDL); % import the file log in the SDI
-    sigData = get_last_acquisition(tg, {'data.freq', 'data.sig1', 'data.sig2', 'data.sig3'}); % c.f. function
+    sigData = get_signals(tg, {'data.freq', 'data.sig1', 'data.sig2', 'data.sig3'}); % c.f. function
     
     fprintf('\t[DONE]\n');
     

@@ -10,7 +10,7 @@ function SG__build()
     
     
     %% ADD SG LIB PATH %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    addpath('\\files7\data\padlewsk\My Documents\MATLAB\control-schemes\MATLAB\Speedgoat');
+    addpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller');
     addpath('__fun');
     %%% UPLOAD PARAMETERS 
     p = param_struct(); % in case some parameters are overwritten

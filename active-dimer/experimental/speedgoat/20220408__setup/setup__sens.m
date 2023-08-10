@@ -5,7 +5,7 @@
 %%% UPDATE params.m with the correct values.
 
 %%% add toolbox library
-addpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox');
+addpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox');
 addpath('__fun');
 
 
@@ -13,7 +13,7 @@ addpath('__fun');
 p = param_struct(); 
 p.tmax = 2;  %integration time is 4 seconds
 p.A = 0;
-
+p_channel = 1;
 
 %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('\n### Measurement started...\n\n');
@@ -23,8 +23,8 @@ Data = sigData.Variables;
  %% OUTPUT DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all
 %t_scope = sc.Time;
-t = seconds(sigData.Time);%time in seconds
-p = Data(:,2); %ai1
+t = seconds(sigData.Time);%time in secondsè
+p = Data(:,p_channel+1); %ai1
 
 
 %%% Proportionality factor between displacement and back-pressure (within a
