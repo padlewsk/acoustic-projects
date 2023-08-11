@@ -10,7 +10,8 @@ function SG__build()
     
     
     %% ADD SG LIB PATH %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\control-schemes\MATLAB\Speedgoat'));
+    %addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\control-schemes\MATLAB\Speedgoat'));
+    addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller'));
     addpath('__fun');
     %%% UPLOAD PARAMETERS 
     p = param_struct(); % in case some parameters are overwritten
@@ -65,14 +66,14 @@ function SG__build()
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
     mdlWks = get_param(p.MDL,'ModelWorkspace'); % workspace of the model (can be removed???)
     
-    %%% INITIALIZE EACH TF (RMK: INITIALISATION WITH NON-ZERO VALUES IS ESSENTIAL!)
-    %%% unitcell 1:
+    %%% INITIALIZE EACH TF (RMK: DO NOT INITIALIZE WITH ZEROS!)
+    %%% unitcell i and atom j:
     for ii = 1:8
         for jj = 1:2
         set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator',  ['[', num2str([0.5 0.5 0.5]), ']']);
         set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator',['[', num2str([1 1 1]), ']']);
+        end
     end
-    
     
     %% BUILD APPLICATION FOR SG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     fprintf('Building the application...\n');
@@ -86,8 +87,6 @@ function SG__build()
     end
     
     fprintf('\t[DONE]\n');
-   
-    
     %% LOAD TARGET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %{
     % Multiple applications can be uploaded on a single target. Each time the

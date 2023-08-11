@@ -42,26 +42,19 @@ function Data = SG__measure(p, dlg)
     fprintf('\t[DONE]\n');
     
     %% SET PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % UPLOAD SOURCE PARAMETERS 
+    % SOURCE PARAMETERS 
     tg.setparam([p.MDL, '/src_select'], 'Value', p.src_select); %src 0 and src 1
     tg.setparam([p.MDL, '/enable_source'], 'Value', true); %turn source on
     tg.setparam([p.MDL, '/source/sweep_gain'], 'Gain', p.A);%
     tg.setparam([p.MDL, '/source/tmax'], 'Value', p.tmax);%
     tg.setparam([p.MDL, '/source/fi'], 'Value', p.fi);%
     tg.setparam([p.MDL, '/source/ff'], 'Value', p.ff);%
+    tg.setparam([p.MDL, '/Triggered Pulse'], 'N', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% CONTROL PARAMETERS% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
 
-    % SET ACQUISITION TIME 
-    tg.setparam([p.MDL, '/Triggered Pulse'], 'N', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
-    % UPLOAD CONTROL PARAMETERS 
-    % (defaut is 0 control)
-    
-    % CONTROL 
+    % CONTROL PARAMETERS
     for ii = 1:8
         for jj = 1:2
-
-        %turn control on
-        tg.setparam([p.MDL, char("/enable_uc_"+ii)], 'Value', true);
-    
+        tg.setparam([p.MDL, char("/enable_uc_"+ii)], 'Value', true); %turn control on
         % coupling
         if ii <= 4 %specify coupling for first 4 cells 
             kappa = p.kappa_A;
@@ -72,7 +65,6 @@ function Data = SG__measure(p, dlg)
             kappa_nl = p.kappa_nl_B;
             kerr_nl = p.kerr_nl_B;
         end
-        
         % linear coupling coupling   
         tg.setparam([p.MDL, char("/uc_"+ii+"/kappa_"+jj)], 'Gain', kappa/p.Bl(ii,jj));%
     
@@ -86,7 +78,7 @@ function Data = SG__measure(p, dlg)
         tg.setparam([p.MDL, char("/uc_"+ii+"/sens_p_"+jj)], 'Gain', p.sens_p(ii,jj));%
         
         % back pressure to displacement transfer function
-        tg.setparam([p.MDL, char("/uc_"+ii+"/pb2disp_"+jj)], 'Gain', p.pb2disp(ii,jj) );%
+        tg.setparam([p.MDL, char("/uc_"+ii+"/pb2disp_"+jj)], 'Gain', p.pb2disp(ii,jj));%
     
         % Onsite nonlinearity
         %{
@@ -100,6 +92,7 @@ function Data = SG__measure(p, dlg)
         n = [n, zeros(1, 3-numel(n))]; 
         d = [d, zeros(1, 3-numel(d))];
         tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator', n); %Block tf
+        tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator', d); 
         
         %{
         n = p.Phi_d_p.num{1};
@@ -115,10 +108,9 @@ function Data = SG__measure(p, dlg)
         end
     end
 
-    Simulink.sdi.view
+    Simulink.sdi.view; % view the data
     pause(0.05);
- 
- 
+
     %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %     if tg.FileLog.LoggingService ~= 'STOPPED' %#ok<BDSCA>
@@ -134,7 +126,7 @@ function Data = SG__measure(p, dlg)
     % record data from start
     % make a short pulse of the Constant block 'rec'
     tg.setparam([p.MDL, '/rec'], 'Value', true);
-    tg.start('AutoImportFileLog', false);
+    tg.start('AutoImportFileLog', false); %starts the system and omits the log data file
     tg.setparam([p.MDL, '/rec'], 'Value', false);
     % wait until the signal 'acq' is false, meaning the acquisition is over
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
@@ -142,8 +134,15 @@ function Data = SG__measure(p, dlg)
         if dlg.CancelRequested %%% Check if cancel button is pressed
             dlg.Message = 'Measurement aborted.'
             tg.stop;% stops target
-            Data = nan(1,16);
+            Data = nan(1,4);
             return
+        %{ 
+        % DOESN'T WORK         
+        elseif tg.status == 'targetError'
+            dlg.Message = 'CPU OVERLOAD. RESTARTING...'
+            tg.update;% reboots target
+            return
+        %}
         end
     end
 
@@ -158,23 +157,7 @@ function Data = SG__measure(p, dlg)
     fprintf('Fetching data from target...\n');
     
     %tg.FileLog.import(p.MDL); % import the file log in the SDI
-    signal_data_raw = get_signals(tg, { ...
-        'data.p1', ...
-        'data.p2', ...
-        'data.p3', ...
-        'data.p4', ...
-        'data.p5', ...
-        'data.p6', ...
-        'data.p7', ...
-        'data.p8', ...
-        'data.p9', ...
-        'data.p10', ...
-        'data.p11', ...
-        'data.p12', ...
-        'data.p13', ...
-        'data.p14', ...
-        'data.p15', ...
-        'data.p16'}); % c.f. function in acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller
+    signal_data_raw = get_signals(tg, {'data.p1', 'data.p2', 'data.p3', 'data.p4'}); % c.f. function in acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller
 
     %preprocessing
     %signal_data.Variables = movmean(signal_data_raw.Variables,seconds(signal_data_raw.Time),p.ds_acq);
@@ -204,6 +187,8 @@ function Data = SG__measure(p, dlg)
     %}
     
     Data = signal_data_raw.Variables; % store data in data array
+    fprintf('\t[DONE]\n');
+
     
     
     %run('suuu.m');

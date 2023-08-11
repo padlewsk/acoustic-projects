@@ -28,7 +28,7 @@ function params = param_struct();
     params.src_select = 1; %source A or B
     
     params.A = 0.1; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
-    params.tmax = 10; %%20 sweep up measurement time (s) 
+    params.tmax = 10; %%10 sweep up measurement time (s) 
     params.fi = 150;%150; %% initial frequency
     params.ff = 1200;%1200;%1500; %% final frequency
     %% CALIBRATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -155,7 +155,7 @@ function params = param_struct();
 
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %params.t_ssh = 0; % SSH hopping parameter -1<0<1
-    params.kappa    = 1.5*(-params.Sd); % coupling (front pressure) MAX 1
+    params.kappa    = 1*(-params.Sd); % coupling (front pressure) MAX 1
     params.kappa_nl = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
     params.kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
 end

@@ -1,4 +1,4 @@
-%%% UPDATED: 21.11.2022
+%%% UPDATED: 11.08.2023
 %%% DISPERSION VIA TRANSFER MATRIX METHOD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
@@ -29,7 +29,7 @@ s2 = abs(p.x4-p.x3);%mic separation
 %% SYMMETRIC + RECIPROCAL CASE
 %{
 %%% CORRECTION DATA
-fstruct = dir('./__data/*50us*.mat');
+fstruct = dir('./__data/*90us*.mat');% change manually!!!
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
@@ -57,7 +57,7 @@ s21 = s12;
 %% ASYMMETRIC + CASE
 %
 %%% CORRECTION DATA
-fstruct = dir('./__data/*50us*.mat');
+fstruct = dir('./__data/*90us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA

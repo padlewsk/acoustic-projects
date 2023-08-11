@@ -57,7 +57,7 @@ s21 = s12;
 %% ASYMMETRIC + CASE
 %
 %%% CORRECTION DATA
-fstruct = dir('./__data/*50us*.mat');
+fstruct = dir('./__data/*50us*.mat'); %%% UPDATE MANUALLY
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
