@@ -18,10 +18,10 @@ function params = param_struct();
     params.MDL = 'SG__MDL_IO104_IO135'; % name of the slx model (performance)
    
     %%% Sample time: CANNOT CHANGE ONCE FLASHED  
-    params.ts_rec = 91e-06;   %%% recording sampling time (s) 
+    params.ts_rec = 90e-06; %%% recording sampling time (s) for control? 
     params.fs_rec = 1/params.ts_rec ; 
 
-    params.ts_acq = 91e-06; %%% acquisition sampling time - this defines the new sampling when computing the tf and saved on the HD
+    params.ts_acq = 90e-06; %%% acquisition sampling time - this defines the new sampling when computing the tf and saved on the HD
     params.fs_acq = 1/params.ts_acq; 
   
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
