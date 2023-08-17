@@ -1,34 +1,40 @@
 %%% Estimates mechanical parameters from the measured specific acoustic
 %%% impedances for the Open Circuit and Close Circuit case
-%%% INPUT PARAMETERS
+
+
+%%% BEFORE MEASUREMENT: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%% - CHANGE THE VALUE OF Re IN THE PARAMS FOR EACH SPEAKER
+%%% - CHANGE THE SENSITIVITY pf the mic
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
 close all
 clear all
-%%% REMINDER: CHANGE THE VALUE OF Re IN THE PARAMS FOR EACH SPEAKER
-
+%%% INPUT PARAMETERS
 %%% add toolbox library
-addpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox');
+addpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox');
 addpath('__fun');
 p = param_struct();
 
 %%% INPUTS: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pf_channel = 2;
+pf_channel = 1;
 v_channel = 3;
 
 %%% SPKR PARAM: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p.Re = 3.57;%7.43;%3.57;%%%% !!!!!!!!!!!!!!!!!!!!!! CHANGE FOR EACH SPEAKER
+p.Re = 8.34 ; %%%%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CHANGE FOR EACH SPEAKER
 p.Sd = 12e-4; % Same diaphragm area for both
+p.sens_pf = 1/-35.586805E-3;% 1/(V/Pa) SN65603%OVERWRITES params !!!!!!!!!!! CHANGE FOR EACH SPEAKER
 
-p.sens_pf = -1/40.3E-3; %SN65603
 %%% SRC PARAM: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p.A = 0.02;
+p.A = 0.04;
+
 %%% SPKR NAME AND FILE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-spkrName = "spkr2";
+spkrName = "atm1";
 ocFile = strcat('oc_',spkrName,'.mat'); 
 ccFile = strcat('cc_',spkrName,'.mat'); 
-
-
-
-
 
 %% BUILD MODEL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -37,7 +43,7 @@ ccFile = strcat('cc_',spkrName,'.mat');
 %% DIALOG BOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 while 1
     case_select = 0; %default
-    str = {'Mechanical Parameter Estimator.'; 'Select Measurement Step:'};
+    str = {'Mechanical Parameter Estimator.';'Select Measurement Step:'};
     S = {'Open Circuit'; 'Closed Circuit'; 'Estimate parameters'};
     case_select = listdlg('PromptString', str, 'ListSize', [300 50] , 'ListString', S, 'SelectionMode', 'single');
    
@@ -144,7 +150,9 @@ while 1
             
             %Facteur qualité
             Q_est = 1/Rms_est*sqrt(Mms_est/Cmc_est);
-              
+            
+
+            fprintf('Re = %.2f;\n', p.Re);
             fprintf('Bl = %e;\n', Bl_est);
             fprintf('Rms = %e;\n', Rms_est);
             fprintf('Mms = %e;\n', Mms_est);

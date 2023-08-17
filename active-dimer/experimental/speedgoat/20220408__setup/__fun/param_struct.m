@@ -20,7 +20,7 @@ function params = param_struct()
     params.fs_acq = 1/params.ts_acq;
     
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.A = 0.02; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    params.A = 0.05; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.tmax = 15; %%20 sweep up measurement time (s) 
     params.fi = 150; %% initial frequency
     params.ff = 1200;%1500; %% final frequency
@@ -34,7 +34,7 @@ function params = param_struct()
     %params.sens_p_f =  -1/22.39E-3;% 1/(V/Pa) SN6993
     %params.sens_p_f =  -1/29.86E-3;% 1/(V/Pa) SN5673 
     %params.sens_pf =  -1/51.659363E-3;% 1/(V/Pa) SN29799
-    params.sens_pf =  -1/39.6E-3;% 1/(V/Pa) SN65602
+    params.sens_pf =  -1/-35.586805E-3;% 1/(V/Pa) SN65603
 
 
     params.sens_v = 0.01; %(m/s)/V 

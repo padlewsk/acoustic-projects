@@ -1,7 +1,7 @@
 %%% Back Pressure and Displacement transfer function meausrement 
 %%% Generate frequency sweep and measure velocity v,front pressure pf and
 %%% back pressure pb.
-%%% OPEN CIRCUIT CONFIGURATION
+%%% OPEN CIRCUIT CONFIGURATION !!!!
 %%% ai1 = v
 %%% ai2 = pb
 
@@ -12,7 +12,7 @@ addpath('__fun');
 p = param_struct();
 
 %% INPUTS: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pb_channel = 1;
+pb_channel = 2;
 v_channel = 3;
 
 %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,20 +21,15 @@ sigData = SG__measure;
 %% PROCESS DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Data = sigData.Variables; %freq;sig1;sig2;sig3;
 
-
 f = Data(:,1);
 v  = Data(:,v_channel + 1)*p.sens_v;  %velocity (m/s)
 pb = Data(:,pb_channel + 1); %front pressure signal (V)
-
-
 
 %%% tf_Pb_Xi: Relation between displacement Xi and backpressure Pb
 %[tf_Pb_V,F] = tfestimate(v,pb,hamming(N/8),'',N);% If you specify noverlap as empty, then tfestimate uses a number that produces 50% overlap between segments. 
 [tf_pb_v,F] = tfestimate(pb,v,hamming(p.N/8),[],p.freq,p.fs_acq);
 
 tf_pb_xi = tf_pb_v./(1i*2*pi*F);
-
-
 
 [fit,delta] = polyfit(F(F>200 & F<900),tf_pb_xi(F>200 & F<900),0);
 
@@ -81,8 +76,7 @@ tile.TileSpacing = 'compact';
 %%%
 figure(1);
 
- plot(F,abs(tf_pb_xi),'LineWidth',2)
-
+plot(F,abs(tf_pb_xi),'LineWidth',2)
 hold on
 plot(F,abs(polyval(fit,F)),'LineWidth',2)
 hold off
@@ -98,7 +92,7 @@ legend("data","fit",'Location','northwest')
 
 autoArrangeFigures
 %% SAVE DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-save('spkr2.mat','sigData');
+save(['tf_pb_xi_atm1'],'sigData');
 %test = load('spkr1.mat','sigData')
 %{
 figure(3)

@@ -10,13 +10,13 @@ function SG__build()
     
     
     %% ADD SG LIB PATH %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    addpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller');
+    %addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\control-schemes\MATLAB\Speedgoat'));
+    addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller'));
     addpath('__fun');
     %%% UPLOAD PARAMETERS 
     p = param_struct(); % in case some parameters are overwritten
 
     %% CHECK IF CONNECTED
-       
     tg = slrealtime(p.tg_model); % target computer interface
 
     if tg.isConnected == 0
@@ -44,11 +44,37 @@ function SG__build()
     set_param(p.MDL, 'StopTime',num2str(Inf)) 
     
     %%% Set sample times 
-    %  data acquisition
-    set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_acq)); 
-    set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_acq));  
-    
+    if p.tg_model == "Mobile"
+        %104
+        set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_rec)); 
+        set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_rec));  
+        %135
+        set_param([p.MDL, '/ao_135'], 'parSampleTime', num2str(p.ts_rec)); 
+        set_param([p.MDL, '/ai_135'], 'parSampleTime', num2str(p.ts_rec)); 
+    elseif  p.tg_model == "Performance"
+        %334
+        set_param([p.MDL, '/IO334_IO'], 'ts', num2str(p.ts_rec));
+    end
    
+    
+    %%% FOR CHIRP remove?
+    %{
+    set_param([MDL, '/source/sweep'], 'Ts', num2str(ts));
+    set_param([MDL, '/source/random'], 'SampleTime', num2str(ts));
+    %}
+    
+    %%% UPLOAD PARAMETERS TO SL WORKSPACE
+    mdlWks = get_param(p.MDL,'ModelWorkspace'); % workspace of the model (can be removed???)
+    
+    %%% INITIALIZE EACH TF (RMK: DO NOT INITIALIZE WITH ZEROS!)
+    %%% unitcell i and atom j:
+    for ii = 1:8
+        for jj = 1:2
+        set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator',  ['[', num2str([0.5 0.5 0.5]), ']']);
+        set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator',['[', num2str([1 1 1]), ']']);
+        end
+    end
+    
     %% BUILD APPLICATION FOR SG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     fprintf('Building the application...\n');
     
@@ -61,8 +87,6 @@ function SG__build()
     end
     
     fprintf('\t[DONE]\n');
-   
-    
     %% LOAD TARGET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %{
     % Multiple applications can be uploaded on a single target. Each time the

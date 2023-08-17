@@ -1,4 +1,4 @@
-%%% UPDATED: 21.11.2022
+%%% UPDATED: 11.08.2023
 %%% DISPERSION VIA TRANSFER MATRIX METHOD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
@@ -6,7 +6,7 @@ clc
 clf
 
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox'));%
+addpath(genpath('\\files7\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));%
 addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
@@ -26,10 +26,10 @@ l2 = p.x3 - p.offset ; %distance between left edge of specimen and mic 3
 s1 = abs(p.x2-p.x1); %mic  separation
 s2 = abs(p.x4-p.x3);%mic separation
 
-%% SYMMETRIC CASE
-%
+%% SYMMETRIC + RECIPROCAL CASE
+%{
 %%% CORRECTION DATA
-fstruct = dir('./__data/*50us*.mat'); %% watch out for cal data name
+fstruct = dir('./__data/*90us*.mat');% change manually!!!
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
@@ -54,12 +54,11 @@ s22 = s11;
 s21 = s12;
 %}
 
-%% ASYMMETRIC CASE
-%{
+%% ASYMMETRIC + CASE
+%
 %%% CORRECTION DATA
-fstruct = dir('./__data/*50us*.mat'); %% watch out for cal data name
+fstruct = dir('./__data/*90us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT
 load(strcat(fstruct.folder,'\',fstruct.name));
-
 
 %%% TRANSFER FUNCTION DATA
 load('C:/Speedgoat/temp/processed_data_a.mat');
@@ -86,22 +85,23 @@ B_b = 1i*(H21_b.*exp(-1i*k*(l1-s1)) - H11_b.*exp(-1i*k* l1))./(2*sin(k*s1));
 C_b = 1i*(H31_b.*exp(+1i*k*(l2+s2)) - H41_b.*exp(+1i*k*l2))./(2*sin(k*s2));
 D_b = 1i*(H41_b.*exp(-1i*k*l2)      - H31_b.*exp(-1i*k*(l2+s2)))./(2*sin(k*s2));
 
-%%% COMPUTE SCATTERING MATRIX 
-
-%s11 = +(D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
-%s21 = +(D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
-%s12 = +(A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
-%s22 = +(A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
+%%% COMPUTE SCATTERING MATRIX --> RECHECK THIS!
+%{
+s11 = +(D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
+s21 = +(D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
+s12 = +(A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
+s22 = +(A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
+%}
 
 s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
-s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);
-s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
+s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be +!
+s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be -!
 s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 
 %}
 
 %%% COMPUTE TRANSFER MATRIX 
-t11 = s21-(s11.*s22./s12);
+t11 = 1./conj(s12);%s21-(s11.*s22./s12); ????????????????????????????????
 t12 = s22./s12;
 t21 = -s11./s12;
 t22 = 1./s12;
@@ -123,9 +123,7 @@ end
  %q_imag = imag(acos((t11+t22)/2)/p.a);
 
 %% GRAPHICS 
-
-%%% see https://link.springer.com/content/pdf/10.1007/978-3-030-84300-7.pdf
-%%% p 69
+%%% see https://link.springer.com/content/pdf/10.1007/978-3-030-84300-7.pdf, p 69
 close all
 %%% DISPERSION 
 figure(1);
@@ -152,23 +150,20 @@ legend("Re(q_{F})","Im(q_{F})","q_F = 2\pif/a ")
 %legend("\tau = " + string(tau_list*1000) + " ms",'Location','northwest')
 %}
 
-
-
-
 %%% S-MATRIX
 figure(2);
-%hold on;
-semilogy(p.freq, abs(s11), 'DisplayName', 's11');
+
+plot(p.freq, abs(s11), 'DisplayName', 's11');
 hold on;
-semilogy(p.freq, abs(s21), 'DisplayName', 's21');
-semilogy(p.freq, abs(s12), 'DisplayName', 's12');
-semilogy(p.freq, abs(s22), 'DisplayName', 's22');
-legend show;
+plot(p.freq, abs(s21), 'DisplayName', 's21');
+plot(p.freq, abs(s12), 'DisplayName', 's12');
+plot(p.freq, abs(s22), 'DisplayName', 's22');
+legend show
 ylim([0,1])
 xlabel("Frequency (Hz)")
+title("Transmission/reflection")
 box on
 grid on
-
 
 %Correlation (C-files)
 figure(3);
@@ -187,7 +182,7 @@ autoArrangeFigures
 
 %%% T-MATRIX
 %{
-figure(3);
+figure(4);
 %hold on;
 plot(f, abs(t11), 'DisplayName', 't11');
 hold on;
