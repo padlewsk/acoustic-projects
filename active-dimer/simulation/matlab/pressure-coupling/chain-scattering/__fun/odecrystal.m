@@ -97,12 +97,7 @@ function dydt = odecrystal(t,y,temp)
     p_src = sys_param.A_src*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); 
     %}
 
-    %%% BOUNDARY CONDITIONS 
-    %%%%%% HARD WALL
-    %q(1) = 0;% hard wall q = 0 
-    %q(end) = 0;
-    
-    %%%%%% sweep
+    %%%%%% SWEEP
      %{
     if t < t_fin/2
         %p_src = param.A_src*sin(2*pi*param.f_src*t); 
@@ -116,14 +111,21 @@ function dydt = odecrystal(t,y,temp)
     end
     %} 
 
-
-    %%%%%% ANECHOIC TERMINALS
+    %%% BOUNDARY CONDITIONS
     P = zeros(mat_size,1); %P vector
+
+    %%%%%% HARDWALL
+    % comment out anechoic.
+
+    %%%%%% ANECHOIC
+    %
     P(1)   =  sys_param.Zc*q(1)/sys_param.S;  % RMK: opposite sign 
     P(end) =  sys_param.Zc*q(end)/sys_param.S;  
-
+    %}
+    
     %%% SOURCE LOCATION(s)
     src_loc = [1 mat_size];% [round(mat_size/2)]; %%%%%%%
+    %src_loc = [1]; % atm 1 is source
     for nn = src_loc
         if nn == 1 || mod(nn,10) == 0 % RMK: opposite sign on every first pressure node to aid with building the cell matrix
             P(nn) = P(nn) -  2*p_src;
@@ -167,10 +169,10 @@ function dydt = odecrystal(t,y,temp)
     i_s = Sd/Bl*(v_cpl.*p_v_cpl + w_cpl.*p_w_cpl);
     %}
     %linear coupling
-    v.A.L  = 0;  %segment A
+    v.A.L  = 1;  %segment A
     w.A.L  = 0;
     v.B.L  = 0;  %segment B
-    w.B.L  = 0;
+    w.B.L  = 1;
 %1E-3 in hybrid
     %non linear coupling
     v.A.NL = 0E-3; %segment A 

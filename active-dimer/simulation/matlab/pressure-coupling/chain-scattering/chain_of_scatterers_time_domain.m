@@ -17,7 +17,7 @@ sim_name = "L_ref";
 
 %%% LOAD DATA FOR PLOTS
 % loads t_out and y_out from a saved simulation and skips current simulation
-%
+%{
 fprintf("### LOADING PARAMETERS, FUNCTION AND DATA...\n")
 addpath('./__data/')
 load raw_data__L_ref.mat 
@@ -26,7 +26,7 @@ fprintf("### DONE.\n")
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FREQ SWEEP RANGE
 global N_cell t_fin %number of unit cells (= half the number of sites)
-N_cell = 32; %2^5%N_cell/2 needs to be even?
+N_cell = 64; %2^5%N_cell/2 needs to be even?
 mat_size = N_cell*8+1 ;%9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
