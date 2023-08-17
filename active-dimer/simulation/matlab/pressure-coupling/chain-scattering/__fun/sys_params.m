@@ -11,11 +11,11 @@ function param = sys_params()
     %%% FREQ SWEEP
     param.fi = 100; %% initial frequency
     param.ff = 1300; %% final frequency
-    param.A_src = 5; %%% incident pressure amplitude (Pa) %%% H 17.2
+    param.A_src = 5; %%% incident pressure amplitude (Pa) %%% NL
     
     %%% IDENTICAL LINER SPEAKERS
     %%% Mechanical
-    param.Rms = 0.261*0.2;  %% mechanical resistance %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    param.Rms = 0.261*0.2*0;  %% mechanical resistance %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     param.Mms = 6.671e-04; %% moving mass
     
     %Cms = 1/((2*pi*f0)^2*Mms);
