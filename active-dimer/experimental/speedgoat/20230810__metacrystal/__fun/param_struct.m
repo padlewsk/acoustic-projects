@@ -18,10 +18,10 @@ function params = param_struct();
     params.MDL = 'SG__MDL_IO104_IO135'; % name of the slx model (performance)
    
     %%% Sample time: CANNOT CHANGE ONCE FLASHED  
-    params.ts_rec = 90e-06; %%% recording sampling time (s) for control? 
+    params.ts_rec = 100e-06; %%% recording sampling time (s) 
     params.fs_rec = 1/params.ts_rec ; 
 
-    params.ts_acq = 90e-06; %%% acquisition sampling time - this defines the new sampling when computing the tf and saved on the HD
+    params.ts_acq = 100e-06; %%% acquisition sampling time - this defines the new sampling when computing the tf and saved on the HD
     params.fs_acq = 1/params.ts_acq; 
   
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -29,8 +29,8 @@ function params = param_struct();
     
     params.A = 0.2; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.tmax = 5; %% sweep up measurement time (s) 10
-    params.fi = 150;%150; %% initial frequency
-    params.ff = 1200;%1200;%1500; %% final frequency
+    params.freq_ini = 150;%150; %% initial frequency
+    params.freq_fin = 1200;%1200;%1500; %% final frequency
     %% CALIBRATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Mic Positions (wtr centre)
     params.x1 = -0.38; %m
@@ -48,7 +48,7 @@ function params = param_struct();
     params.wind = []; %floor(N/20); %https://ch.mathworks.com/help/signal/ref/tfestimate.html#bvi01si-window
     
     %% CONTROL SENSITIVITY 
-    %%% MIC  (p_unitcell_atom)
+    %%% MIC  p(unitcell,atom)
     params.sens_p(1,1) =  -1/37.6E-3;% 1/(V/Pa) SN65606 %%%%%%%%%%%%%%%%%%%%%
     params.sens_p(1,2) =  -1/38.9E-3;% 1/(V/Pa) SN65608
 
@@ -256,7 +256,7 @@ function params = param_struct();
     % --> Used to estimate the transfer functions
     params.N = 2^nextpow2((2*params.tmax)*params.fs_acq); 
     t = linspace(0,params.tmax,params.N)';
-    params.freq = params.fi + ((params.ff - params.fi)/(params.tmax))*t; %%%linear frequency vector;
+    params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; %%%linear frequency vector;
 
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% DOMAIN A

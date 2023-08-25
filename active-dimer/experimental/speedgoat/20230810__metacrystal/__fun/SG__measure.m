@@ -32,7 +32,7 @@ function Data = SG__measure(p, dlg)
     app = slrealtime.Application(p.MDL); % reference to the built application
     % Find the signal 'acq' in the application which will later be polled.
     sigInfo = app.getSignals; % list of all the signals in the application
-    sigInfo = sigInfo(strcmp({sigInfo.SignalLabel}, 'acq')); % keep only one
+    sigInfo = sigInfo(strcmp({sigInfo.SignalLabel}, 'acq')); % keep only one with the acq signal
     
     fprintf('tg stop\n')
     tg.stop(); % make sure the target is stopped
@@ -43,15 +43,62 @@ function Data = SG__measure(p, dlg)
     
     %% SET PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % SOURCE PARAMETERS 
-    tg.setparam([p.MDL, '/src_select'], 'Value', p.src_select); %src 0 and src 1
-    tg.setparam([p.MDL, '/enable_source'], 'Value', true); %turn source on
+    tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
+    tg.setparam('', 'enable_source', true); %turn source on
+    tg.setparam('','sweep_gain', p.A);%
+    tg.setparam('', 'tmax', p.tmax);%
+    tg.setparam('', 'freq_ini',  p.freq_ini);%
+    tg.setparam('', 'freq_fin',  p.freq_fin);%
+
+    %SET ACQUISITION TIME 
+    tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
+    
+    %{
     tg.setparam([p.MDL, '/source/sweep_gain'], 'Gain', p.A);%
     tg.setparam([p.MDL, '/source/tmax'], 'Value', p.tmax);%
-    tg.setparam([p.MDL, '/source/fi'], 'Value', p.fi);%
-    tg.setparam([p.MDL, '/source/ff'], 'Value', p.ff);%
+    tg.setparam([p.MDL, '/source/freq_ini'], 'Value', p.fi);%
+    tg.setparam([p.MDL, '/source/freq_fin'], 'Value', p.ff);%
     tg.setparam([p.MDL, '/Triggered Pulse'], 'N', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% CONTROL PARAMETERS% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
+    %}
 
     % CONTROL PARAMETERS
+    %p(unitcell,atom) 
+    % A --> 1:4
+    % B --> 5:8
+
+    % coupling
+    tg.setparam('','k_1', [repmat([p.kappa_A, p.kappa_nl_A, p.kerr_nl_A],4,1);repmat([p.kappa_B, p.kappa_nl_B, p.kerr_nl_B],4,1)]);
+    tg.setparam('','k_2', [repmat([p.kappa_A, p.kappa_nl_A, p.kerr_nl_A],4,1);repmat([p.kappa_B, p.kappa_nl_B, p.kerr_nl_B],4,1)]);
+
+
+    % impedance synthesis
+    [b, a] = tfdata(p.Phi_d);
+    %num
+    b = cell2mat(b);
+    b_1 = b(:,1:3);
+    b_1 = [b_1, zeros(1, 3-numel(b_1))];
+    tg.setparam('','b_1',b_1);
+
+    b_2 = b(:,4:6);
+    b_2 = [b_2, zeros(1, 3-numel(b_2))];
+    tg.setparam('','b_2',b_2);
+
+    %den
+    a = cell2mat(a);
+    a_1 = a(:,1:3);
+    a_1 = [a_1, zeros(1, 3-numel(a_1))];
+    tg.setparam('','a_1',a_1);
+
+    a_2 = a(:,4:6);
+    a_2 = [a_2, zeros(1, 3-numel(a_2))];
+    tg.setparam('','a_2',a_2);
+    
+    %{
+    tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator', n); %Block tf
+    tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator', d); 
+    %}
+
+    %{
     for ii = 1:8
         for jj = 1:2
         tg.setparam([p.MDL, char("/enable_uc_"+ii)], 'Value', true); %turn control on
@@ -107,6 +154,7 @@ function Data = SG__measure(p, dlg)
         tg.setparam([p.MDL, char("/uc_"+ii+"/i2u_"+jj)], 'Gain', 1/p.u2i);%converts current to voltage (will be converted back with u2i)
         end
     end
+    %}
 
     Simulink.sdi.view; % view the data
     pause(0.05);
@@ -125,16 +173,16 @@ function Data = SG__measure(p, dlg)
     fprintf('Measuring...\n'); 
     % record data from start
     % make a short pulse of the Constant block 'rec'
-    tg.setparam([p.MDL, '/rec'], 'Value', true);
+    tg.setparam('', 'rec', true);
     tg.start('AutoImportFileLog', false); %starts the system and omits the log data file
-    tg.setparam([p.MDL, '/rec'], 'Value', false);
+    tg.setparam('', 'rec', false);
     % wait until the signal 'acq' is false, meaning the acquisition is over
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
         pause(0.1);
         if dlg.CancelRequested %%% Check if cancel button is pressed
             dlg.Message = 'Measurement aborted.'
             tg.stop;% stops target
-            Data = nan(1,4);
+            Data = nan(1,4+16);
             return
         %{ 
         % DOESN'T WORK         
@@ -146,9 +194,8 @@ function Data = SG__measure(p, dlg)
         end
     end
 
-    tg.setparam([p.MDL, '/enable_source'], 'Value', false); %turn source off
+    tg.setparam('', 'enable_source', false); %turn source off
     fprintf('\t[DONE]\n');
-
 
     tg.stopRecording();
 
@@ -205,8 +252,6 @@ function Data = SG__measure(p, dlg)
     
     Data = signal_measure_raw.Variables; % store data in data array
     fprintf('\t[DONE]\n');
-
-    
     
     %run('suuu.m');
     
@@ -215,3 +260,4 @@ function Data = SG__measure(p, dlg)
     
     %%% Frequency vector
     %f = fi+(ff-fi)*t/tmax; %frequency vector tmax is the time when the frequency reaches ff
+end

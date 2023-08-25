@@ -64,16 +64,29 @@ function SG__build()
     %}
     
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
-    mdlWks = get_param(p.MDL,'ModelWorkspace'); % workspace of the model (can be removed???)
+     % current to voltage
+    set_param([p.MDL, '/i2u_1'], 'Gain', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
+    set_param([p.MDL, '/i2u_2'], 'Gain', num2str(1/p.u2i));
+    
+    % mic sensitivity
+    set_param([p.MDL, '/sens_p_1'],'Value', mat2str(p.sens_p(:,1)));%
+    set_param([p.MDL, '/sens_p_2'],'Value', mat2str(p.sens_p(:,2)));%
+        
+    % back pressure to displacement transfer function
+    set_param([p.MDL, '/pb2disp_1'], 'Value', mat2str(p.pb2disp(:,1)));%
+    set_param([p.MDL, '/pb2disp_2'], 'Value', mat2str(p.pb2disp(:,2)));%
+
     
     %%% INITIALIZE EACH TF (RMK: DO NOT INITIALIZE WITH ZEROS!)
     %%% unitcell i and atom j:
+    %{
     for ii = 1:8
-        for jj = 1:2
-        set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator',  ['[', num2str([0.5 0.5 0.5]), ']']);
-        set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator',['[', num2str([1 1 1]), ']']);
-        end
+            for jj = 1:2
+            set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator',  ['[', num2str([0.5 0.5 0.5]), ']']);
+            set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator',['[', num2str([1 1 1]), ']']);
+            end
     end
+%}
     
     %% BUILD APPLICATION FOR SG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     fprintf('Building the application...\n');
