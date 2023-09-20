@@ -1,0 +1,57 @@
+%implements s7_b0_iymrm_Start "C"
+
+%function Start(block, system) Output
+%assign cfgTxt = ""
+%openfile cfgTxt
+%assign localVarDecl = ""
+%assign tlcSetupRuntimeResourcesFcnOfS4B1 = OpaqueTLCBlockFcn("SetupRuntimeResources", 4, 1, 1, 0, 0)
+%assign tlcSetupRuntimeResourcesFcnOfS4B3 = OpaqueTLCBlockFcn("SetupRuntimeResources", 4, 3, 1, 0, 1)
+%assign tlcSetupRuntimeResourcesFcnOfS4B5 = OpaqueTLCBlockFcn("SetupRuntimeResources", 4, 5, 1, 0, 2)
+%assign tlcSetupRuntimeResourcesFcnOfS4B7 = OpaqueTLCBlockFcn("SetupRuntimeResources", 4, 7, 1, 0, 3)
+%assign tlcStartFcnOfS4B1 = OpaqueTLCBlockFcn("Start", 4, 1, 1, 0, 4)
+%assign tlcStartFcnOfS4B3 = OpaqueTLCBlockFcn("Start", 4, 3, 1, 0, 5)
+%assign tlcStartFcnOfS4B5 = OpaqueTLCBlockFcn("Start", 4, 5, 1, 0, 6)
+%assign tlcStartFcnOfS4B7 = OpaqueTLCBlockFcn("Start", 4, 7, 1, 0, 7)
+/* SetupRuntimeResources for ToAsyncQueueBlock generated from: '<Root>/Subsystem1' */
+SESE_block_start_Ax3Zq9pEdy(3U);
+%<tlcSetupRuntimeResourcesFcnOfS4B1>\
+SESE_blk_end_Ax3Zq9pEdy(3U);
+/* SetupRuntimeResources for ToAsyncQueueBlock generated from: '<Root>/Subsystem2' */
+SESE_block_start_Ax3Zq9pEdy(4U);
+%<tlcSetupRuntimeResourcesFcnOfS4B3>\
+SESE_blk_end_Ax3Zq9pEdy(4U);
+/* SetupRuntimeResources for ToAsyncQueueBlock generated from: '<Root>/Subsystem3' */
+SESE_block_start_Ax3Zq9pEdy(5U);
+%<tlcSetupRuntimeResourcesFcnOfS4B5>\
+SESE_blk_end_Ax3Zq9pEdy(5U);
+/* SetupRuntimeResources for ToAsyncQueueBlock generated from: '<Root>/Subsystem' */
+SESE_block_start_Ax3Zq9pEdy(6U);
+%<tlcSetupRuntimeResourcesFcnOfS4B7>\
+SESE_blk_end_Ax3Zq9pEdy(6U);
+/* Start for ToAsyncQueueBlock generated from: '<Root>/Subsystem1' */
+SESE_block_start_Ax3Zq9pEdy(7U);
+%<tlcStartFcnOfS4B1>\
+SESE_blk_end_Ax3Zq9pEdy(7U);
+/* Start for ToAsyncQueueBlock generated from: '<Root>/Subsystem2' */
+SESE_block_start_Ax3Zq9pEdy(8U);
+%<tlcStartFcnOfS4B3>\
+SESE_blk_end_Ax3Zq9pEdy(8U);
+/* Start for ToAsyncQueueBlock generated from: '<Root>/Subsystem3' */
+SESE_block_start_Ax3Zq9pEdy(9U);
+%<tlcStartFcnOfS4B5>\
+SESE_blk_end_Ax3Zq9pEdy(9U);
+/* Start for ToAsyncQueueBlock generated from: '<Root>/Subsystem' */
+SESE_block_start_Ax3Zq9pEdy(10U);
+%<tlcStartFcnOfS4B7>\
+SESE_blk_end_Ax3Zq9pEdy(10U);
+%closefile cfgTxt
+%<cfgTxt>
+%endfunction
+%function StartFcnProtoType(block, system) Output
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void Start(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(1, 0, fcnProtoType)>
+%endfunction

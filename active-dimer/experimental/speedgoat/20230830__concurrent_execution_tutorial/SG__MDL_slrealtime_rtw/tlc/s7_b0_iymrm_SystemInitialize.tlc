@@ -1,0 +1,54 @@
+%implements s7_b0_iymrm_SystemInitialize "C"
+
+%function SystemInitialize(block, system) Output
+%assign cfgTxt = ""
+%openfile cfgTxt
+%assign localVarDecl = ""
+%assign tlcSystemInitializeFcnOfS4B9 = OpaqueTLCBlockFcnForMdlRef("SystemInitialize", 4, 9, 1, 1, 0)
+%<SLibInsertAsyncTaskInitializeCode(system)>
+%<SLibWriteMachineInitialize()>
+/* InitializeConditions for TaskTransBlk generated from: '<Root>/Subsystem1' */
+SESE_block_start_Ax3Zq9pEdy(11U);
+rtw_slrealtime_sem_init(&SG__MDL_DW.sw_buf_1, 0);
+SESE_blk_end_Ax3Zq9pEdy(11U);
+/* InitializeConditions for TaskTransBlk generated from: '<Root>/Subsystem2' */
+SESE_block_start_Ax3Zq9pEdy(12U);
+rtw_slrealtime_sem_init(&SG__MDL_DW.sw_buf_2, 0);
+SESE_blk_end_Ax3Zq9pEdy(12U);
+/* InitializeConditions for TaskTransBlk generated from: '<Root>/Subsystem3' */
+SESE_block_start_Ax3Zq9pEdy(13U);
+rtw_slrealtime_sem_init(&SG__MDL_DW.sw_buf_3, 0);
+SESE_blk_end_Ax3Zq9pEdy(13U);
+/* InitializeConditions for TaskTransBlk generated from: '<Root>/Subsystem5' */
+SESE_block_start_Ax3Zq9pEdy(14U);
+rtw_slrealtime_sem_init(&SG__MDL_DW.sw_buf_4, 0);
+SESE_blk_end_Ax3Zq9pEdy(14U);
+/* InitializeConditions for TaskTransBlk generated from: '<Root>/Subsystem5' */
+SESE_block_start_Ax3Zq9pEdy(15U);
+rtw_slrealtime_sem_init(&SG__MDL_DW.sw_buf_5, 0);
+SESE_blk_end_Ax3Zq9pEdy(15U);
+/* InitializeConditions for TaskTransBlk generated from: '<Root>/Subsystem5' */
+SESE_block_start_Ax3Zq9pEdy(16U);
+rtw_slrealtime_sem_init(&SG__MDL_DW.sw_buf_6, 0);
+SESE_blk_end_Ax3Zq9pEdy(16U);
+/* InitializeConditions for TaskTransBlk generated from: '<Root>/Subsystem5' */
+SESE_block_start_Ax3Zq9pEdy(17U);
+rtw_slrealtime_sem_init(&SG__MDL_DW.sw_buf_7, 0);
+SESE_blk_end_Ax3Zq9pEdy(17U);
+/* SystemInitialize for ModelReference: '<Root>/Subsystem4' */
+SESE_block_start_Ax3Zq9pEdy(18U);
+%<tlcSystemInitializeFcnOfS4B9>\
+SESE_blk_end_Ax3Zq9pEdy(18U);
+%<SLibInsertInitPeriodicCStatesFcn(system)>
+%closefile cfgTxt
+%<cfgTxt>
+%<LibSetSystemField(system, "CachedSystemInitializeLocalVars", localVarDecl)>
+%endfunction
+%function SystemInitializeFcnProtoType(block, system) Output
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void SystemInitialize(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(1, 1, fcnProtoType)>
+%endfunction

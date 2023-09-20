@@ -40,7 +40,7 @@ function Data = SG__measure(p, dlg)
     tg.load(p.MDL); % loads the application in the RT target
     %NECESSARY TO LOAD EVERY TIME?
     fprintf('\t[DONE]\n');
-    
+   
     %% SET PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % SOURCE PARAMETERS 
     tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
@@ -251,6 +251,7 @@ function Data = SG__measure(p, dlg)
     %}
     
     Data = signal_measure_raw.Variables; % store data in data array
+    tg.ModelStatus.TETInfo
     fprintf('\t[DONE]\n');
     
     %run('suuu.m');

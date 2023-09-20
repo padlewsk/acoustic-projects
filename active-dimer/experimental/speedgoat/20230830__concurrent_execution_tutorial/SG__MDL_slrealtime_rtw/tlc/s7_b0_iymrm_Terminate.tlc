@@ -1,0 +1,90 @@
+%implements s7_b0_iymrm_Terminate "C"
+
+%function Terminate(block, system) Output
+%assign cfgTxt = ""
+%openfile cfgTxt
+%assign localVarDecl = ""
+%assign tlcTerminateFcnOfS4B1 = OpaqueTLCBlockFcn("Terminate", 4, 1, 1, 8, 0)
+%assign tlcTerminateFcnOfS4B3 = OpaqueTLCBlockFcn("Terminate", 4, 3, 1, 8, 1)
+%assign tlcTerminateFcnOfS4B5 = OpaqueTLCBlockFcn("Terminate", 4, 5, 1, 8, 2)
+%assign tlcTerminateFcnOfS4B7 = OpaqueTLCBlockFcn("Terminate", 4, 7, 1, 8, 3)
+%assign tlcTerminateFcnOfS4B9 = OpaqueTLCBlockFcnForMdlRef("Terminate", 4, 9, 1, 8, 4)
+%assign tlcCleanupRuntimeResourcesFcnOfS4B1 = OpaqueTLCBlockFcn("CleanupRuntimeResources", 4, 1, 1, 8, 5)
+%assign tlcCleanupRuntimeResourcesFcnOfS4B3 = OpaqueTLCBlockFcn("CleanupRuntimeResources", 4, 3, 1, 8, 6)
+%assign tlcCleanupRuntimeResourcesFcnOfS4B5 = OpaqueTLCBlockFcn("CleanupRuntimeResources", 4, 5, 1, 8, 7)
+%assign tlcCleanupRuntimeResourcesFcnOfS4B7 = OpaqueTLCBlockFcn("CleanupRuntimeResources", 4, 7, 1, 8, 8)
+/* Terminate for ToAsyncQueueBlock generated from: '<Root>/Subsystem1' */
+SESE_block_start_Ax3Zq9pEdy(46U);
+%<tlcTerminateFcnOfS4B1>\
+SESE_blk_end_Ax3Zq9pEdy(46U);
+/* Terminate for ToAsyncQueueBlock generated from: '<Root>/Subsystem2' */
+SESE_block_start_Ax3Zq9pEdy(47U);
+%<tlcTerminateFcnOfS4B3>\
+SESE_blk_end_Ax3Zq9pEdy(47U);
+/* Terminate for ToAsyncQueueBlock generated from: '<Root>/Subsystem3' */
+SESE_block_start_Ax3Zq9pEdy(48U);
+%<tlcTerminateFcnOfS4B5>\
+SESE_blk_end_Ax3Zq9pEdy(48U);
+/* Terminate for ToAsyncQueueBlock generated from: '<Root>/Subsystem' */
+SESE_block_start_Ax3Zq9pEdy(49U);
+%<tlcTerminateFcnOfS4B7>\
+SESE_blk_end_Ax3Zq9pEdy(49U);
+/* Terminate for TaskTransBlk generated from: '<Root>/Subsystem1' */
+SESE_block_start_Ax3Zq9pEdy(50U);
+rtw_slrealtime_sem_destroy(SG__MDL_DW.sw_buf_1);
+SESE_blk_end_Ax3Zq9pEdy(50U);
+/* Terminate for TaskTransBlk generated from: '<Root>/Subsystem2' */
+SESE_block_start_Ax3Zq9pEdy(51U);
+rtw_slrealtime_sem_destroy(SG__MDL_DW.sw_buf_2);
+SESE_blk_end_Ax3Zq9pEdy(51U);
+/* Terminate for TaskTransBlk generated from: '<Root>/Subsystem3' */
+SESE_block_start_Ax3Zq9pEdy(52U);
+rtw_slrealtime_sem_destroy(SG__MDL_DW.sw_buf_3);
+SESE_blk_end_Ax3Zq9pEdy(52U);
+/* Terminate for TaskTransBlk generated from: '<Root>/Subsystem5' */
+SESE_block_start_Ax3Zq9pEdy(53U);
+rtw_slrealtime_sem_destroy(SG__MDL_DW.sw_buf_4);
+SESE_blk_end_Ax3Zq9pEdy(53U);
+/* Terminate for TaskTransBlk generated from: '<Root>/Subsystem5' */
+SESE_block_start_Ax3Zq9pEdy(54U);
+rtw_slrealtime_sem_destroy(SG__MDL_DW.sw_buf_5);
+SESE_blk_end_Ax3Zq9pEdy(54U);
+/* Terminate for TaskTransBlk generated from: '<Root>/Subsystem5' */
+SESE_block_start_Ax3Zq9pEdy(55U);
+rtw_slrealtime_sem_destroy(SG__MDL_DW.sw_buf_6);
+SESE_blk_end_Ax3Zq9pEdy(55U);
+/* Terminate for TaskTransBlk generated from: '<Root>/Subsystem5' */
+SESE_block_start_Ax3Zq9pEdy(56U);
+rtw_slrealtime_sem_destroy(SG__MDL_DW.sw_buf_7);
+SESE_blk_end_Ax3Zq9pEdy(56U);
+/* Terminate for ModelReference: '<Root>/Subsystem4' */
+SESE_block_start_Ax3Zq9pEdy(57U);
+%<tlcTerminateFcnOfS4B9>\
+SESE_blk_end_Ax3Zq9pEdy(57U);
+/* CleanupRuntimeResources for ToAsyncQueueBlock generated from: '<Root>/Subsystem1' */
+SESE_block_start_Ax3Zq9pEdy(58U);
+%<tlcCleanupRuntimeResourcesFcnOfS4B1>\
+SESE_blk_end_Ax3Zq9pEdy(58U);
+/* CleanupRuntimeResources for ToAsyncQueueBlock generated from: '<Root>/Subsystem2' */
+SESE_block_start_Ax3Zq9pEdy(59U);
+%<tlcCleanupRuntimeResourcesFcnOfS4B3>\
+SESE_blk_end_Ax3Zq9pEdy(59U);
+/* CleanupRuntimeResources for ToAsyncQueueBlock generated from: '<Root>/Subsystem3' */
+SESE_block_start_Ax3Zq9pEdy(60U);
+%<tlcCleanupRuntimeResourcesFcnOfS4B5>\
+SESE_blk_end_Ax3Zq9pEdy(60U);
+/* CleanupRuntimeResources for ToAsyncQueueBlock generated from: '<Root>/Subsystem' */
+SESE_block_start_Ax3Zq9pEdy(61U);
+%<tlcCleanupRuntimeResourcesFcnOfS4B7>\
+SESE_blk_end_Ax3Zq9pEdy(61U);
+%closefile cfgTxt
+%<cfgTxt>
+%endfunction
+%function TerminateFcnProtoType(block, system) Output
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void Terminate(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(1, 8, fcnProtoType)>
+%endfunction

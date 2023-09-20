@@ -1,0 +1,64 @@
+%implements s7_b0_iymrm_0_Outputs "C"
+
+%function Outputs(block, system) Output
+%assign cfgTxt = ""
+%openfile cfgTxt
+%assign localVarDecl = ""
+%openfile localVarDecl
+
+real_T lastSin_tmp;
+%closefile localVarDecl
+%<SLibGenerateExtModeOutput(system)>
+/* {S!d2}Sin: '<S1>/Sine Wave2' */
+if (localDW->systemEnable != 0) {
+    lastSin_tmp = SG__MDL_PageSwitching_arg->SineWave2_Freq * %<(SLibCG_SE(LibGetTaskTime(0)))>;
+    SESE_block_start_Ax3Zq9pEdy(1U);
+    localDW->lastSin = std::sin(lastSin_tmp);
+    SESE_blk_end_Ax3Zq9pEdy(1U);
+    SESE_block_start_Ax3Zq9pEdy(2U);
+    localDW->lastCos = std::cos(lastSin_tmp);
+    SESE_blk_end_Ax3Zq9pEdy(2U);
+    localDW->systemEnable = 0;
+}
+/* {S!d4}Gain: '<S1>/Multiply2' incorporates:
+ *  Sin: '<S1>/Sine Wave2'
+ */
+localB->Multiply2 = (((localDW->lastSin * SG__MDL_PageSwitching_arg->SineWave2_PCos + localDW->lastCos * SG__MDL_PageSwitching_arg->SineWave2_PSin) * SG__MDL_PageSwitching_arg->SineWave2_HCos + (localDW->lastCos * SG__MDL_PageSwitching_arg->SineWave2_PCos - localDW->lastSin * SG__MDL_PageSwitching_arg->SineWave2_PSin) * SG__MDL_PageSwitching_arg->SineWave2_Hsin) * SG__MDL_PageSwitching_arg->SineWave2_Amp + SG__MDL_PageSwitching_arg->SineWave2_Bias) * SG__MDL_PageSwitching_arg->Multiply2_Gain;
+/* {S!d6}Update for Sin: '<S1>/Sine Wave2' */
+lastSin_tmp = localDW->lastSin;
+localDW->lastSin = localDW->lastSin * SG__MDL_PageSwitching_arg->SineWave2_HCos + localDW->lastCos * SG__MDL_PageSwitching_arg->SineWave2_Hsin;
+localDW->lastCos = localDW->lastCos * SG__MDL_PageSwitching_arg->SineWave2_HCos - lastSin_tmp * SG__MDL_PageSwitching_arg->SineWave2_Hsin;
+%closefile cfgTxt
+%<cfgTxt>
+%assign rtmArgSys = ::CompiledModel.System[::CompiledModel.System[::CompiledModel.RTWCGModules.RTWCGModule[0].CGSystemIdx].NonInlinedParentSystemIdx]
+%if SysFcnArgNeeded("Output", rtmArgSys.Interface.RTMArgDef, rtmArgSys.CurrentTID, FcnSysModuleIsRateGrouping(rtmArgSys, "Output"))
+%<SLibCG_AccessArg(0, 0, 0)>
+%endif
+%if SLibCG_ArgAccessed(0, 0, 0)
+%<SLibAccessArg(rtmArgSys.Interface.RTMArgDef, "Output", rtmArgSys.CurrentTID, FcnSysModuleIsRateGrouping(rtmArgSys, "Output"))>
+%endif
+%if (IsModelReferenceBaseSys(rtmArgSys) && (IsModelRefScalableBuild() || GenerateClassInterface)) ||...
+(GenerateClassInterface && SLibIsMultiInstanceServer(rtmArgSys))
+%<SLibCG_UndoAccessArg(0, 0, 0)>
+%endif
+%<LibSetSystemField(system, "CachedOutputLocalVars", localVarDecl)>
+%endfunction
+%function OutputsFcnProtoType(block, system) Output
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void SG__MDL_Subsystem(\
+%assign comma = ""
+%if SLibCG_ArgAccessed(0, 0, 0)
+%<comma>%<::tSimStructType> * const %<::tSimStruct>\
+%assign comma = ", "
+%<SLibUpdateSymbolForFunction("SG__MDL_Subsystem", SLibGetFcnDefinitionRTMSymbolName(), TLC_FALSE)>\
+%endif
+%<comma>B_Subsystem_SG__MDL_T *localB\
+%assign comma = ", "
+%<comma>DW_Subsystem_SG__MDL_T *localDW\
+%assign comma = ", "
+%<comma>SG__MDL_Subsystem_cal_type *SG__MDL_PageSwitching_arg\
+%assign comma = ", "
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(0, 0, fcnProtoType)>
+%endfunction

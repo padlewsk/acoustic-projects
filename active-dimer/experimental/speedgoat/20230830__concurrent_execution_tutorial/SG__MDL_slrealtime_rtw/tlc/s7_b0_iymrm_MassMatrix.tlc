@@ -1,0 +1,106 @@
+%implements s7_b0_iymrm_MassMatrix "C"
+
+%function MassMatrixForPID(block, system, tid, pid) Output
+%if pid == 4
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 4
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%if pid == 3
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 3
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%if pid == 2
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 2
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%if pid == 1
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 1
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%if pid == 0
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 0
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%endfunction
+%function MassMatrixFcnProtoTypeForPID(block, system, tid, pid) Output
+%if pid == 4
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 4
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%if pid == 3
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 3
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%if pid == 2
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 2
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%if pid == 1
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 1
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%if pid == 0
+%assign ::GlobalCurrentTID = 0
+%assign ::GlobalCurrentPID = 0
+%assign ::SavedtSS = ::tSimStruct
+%assign ::tSimStruct = SLibPartitionGroupingGetRTMVarName(::GlobalCurrentPID, ::GlobalCurrentTID)
+%assign ::GlobalCurrentTID = []
+%assign ::GlobalCurrentPID = []
+%assign ::tSimStruct = ::SavedtSS
+%assign ::SavedtSS = []
+%endif
+%endfunction

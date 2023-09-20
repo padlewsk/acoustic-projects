@@ -1,0 +1,158 @@
+%implements s7_b0_iymrm_Enable "C"
+
+%function Enable(block, system) Output
+%assign cfgTxt = ""
+%openfile cfgTxt
+%assign localVarDecl = ""
+%assign _modelSS = ""
+
+%assign   Enable_open_Subsystem1_4_0 = ""
+%openfile Enable_open_Subsystem1_4_0
+
+/* Enable for Atomic SubSystem: '<Root>/Subsystem1' */
+%closefile Enable_open_Subsystem1_4_0
+
+%assign    Enable_body_Subsystem1_4_0 = ""
+%openfile  Enable_body_Subsystem1_4_0
+
+SESE_block_start_Ax3Zq9pEdy(42U);
+%if !SLibCGSysFcnIsEmptyForTid(CompiledModel.System[0], "Enable",0)
+%if SLibCG_SystemFcnArgAccessed("SG__MDL_Subsystem_Enable",0,0)
+%assign _modelSS = RTMGetModelSSFromIR()
+%endif
+
+%<SLibCGIRGenReusableSysCall("SG__MDL_Subsystem_Enable", ["%<_modelSS>", "&SG__MDL_DW.Subsystem1"], 0, 1, 13, 0, 13, 4)>\
+%assign ss = ::CompiledModel.System[0]
+%if !LibSystemIsInlined(ss)
+;
+%else
+\
+%endif
+%endif
+SESE_blk_end_Ax3Zq9pEdy(42U);
+
+%closefile Enable_body_Subsystem1_4_0
+
+%assign    Enable_close_Subsystem1_4_0 = ""
+%openfile  Enable_close_Subsystem1_4_0
+
+/* End of Enable for SubSystem: '<Root>/Subsystem1' */
+%closefile Enable_close_Subsystem1_4_0
+%<SLibCG_DumpSSCode(Enable_open_Subsystem1_4_0, Enable_body_Subsystem1_4_0, Enable_close_Subsystem1_4_0)>
+
+
+%assign   Enable_open_Subsystem2_4_2 = ""
+%openfile Enable_open_Subsystem2_4_2
+
+/* Enable for Atomic SubSystem: '<Root>/Subsystem2' */
+%closefile Enable_open_Subsystem2_4_2
+
+%assign    Enable_body_Subsystem2_4_2 = ""
+%openfile  Enable_body_Subsystem2_4_2
+
+SESE_block_start_Ax3Zq9pEdy(43U);
+%if !SLibCGSysFcnIsEmptyForTid(CompiledModel.System[0], "Enable",0)
+%if SLibCG_SystemFcnArgAccessed("SG__MDL_Subsystem_Enable",0,0)
+%assign _modelSS = RTMGetModelSSFromIR()
+%endif
+
+%<SLibCGIRGenReusableSysCall("SG__MDL_Subsystem_Enable", ["%<_modelSS>", "&SG__MDL_DW.Subsystem2"], 0, 2, 13, 0, 13, 4)>\
+%assign ss = ::CompiledModel.System[0]
+%if !LibSystemIsInlined(ss)
+;
+%else
+\
+%endif
+%endif
+SESE_blk_end_Ax3Zq9pEdy(43U);
+
+%closefile Enable_body_Subsystem2_4_2
+
+%assign    Enable_close_Subsystem2_4_2 = ""
+%openfile  Enable_close_Subsystem2_4_2
+
+/* End of Enable for SubSystem: '<Root>/Subsystem2' */
+%closefile Enable_close_Subsystem2_4_2
+%<SLibCG_DumpSSCode(Enable_open_Subsystem2_4_2, Enable_body_Subsystem2_4_2, Enable_close_Subsystem2_4_2)>
+
+
+%assign   Enable_open_Subsystem3_4_4 = ""
+%openfile Enable_open_Subsystem3_4_4
+
+/* Enable for Atomic SubSystem: '<Root>/Subsystem3' */
+%closefile Enable_open_Subsystem3_4_4
+
+%assign    Enable_body_Subsystem3_4_4 = ""
+%openfile  Enable_body_Subsystem3_4_4
+
+SESE_block_start_Ax3Zq9pEdy(44U);
+%if !SLibCGSysFcnIsEmptyForTid(CompiledModel.System[0], "Enable",0)
+%if SLibCG_SystemFcnArgAccessed("SG__MDL_Subsystem_Enable",0,0)
+%assign _modelSS = RTMGetModelSSFromIR()
+%endif
+
+%<SLibCGIRGenReusableSysCall("SG__MDL_Subsystem_Enable", ["%<_modelSS>", "&SG__MDL_DW.Subsystem3"], 0, 3, 13, 0, 13, 4)>\
+%assign ss = ::CompiledModel.System[0]
+%if !LibSystemIsInlined(ss)
+;
+%else
+\
+%endif
+%endif
+SESE_blk_end_Ax3Zq9pEdy(44U);
+
+%closefile Enable_body_Subsystem3_4_4
+
+%assign    Enable_close_Subsystem3_4_4 = ""
+%openfile  Enable_close_Subsystem3_4_4
+
+/* End of Enable for SubSystem: '<Root>/Subsystem3' */
+%closefile Enable_close_Subsystem3_4_4
+%<SLibCG_DumpSSCode(Enable_open_Subsystem3_4_4, Enable_body_Subsystem3_4_4, Enable_close_Subsystem3_4_4)>
+
+
+%assign   Enable_open_Subsystem_4_6 = ""
+%openfile Enable_open_Subsystem_4_6
+
+/* Enable for Atomic SubSystem: '<Root>/Subsystem' */
+%closefile Enable_open_Subsystem_4_6
+
+%assign    Enable_body_Subsystem_4_6 = ""
+%openfile  Enable_body_Subsystem_4_6
+
+SESE_block_start_Ax3Zq9pEdy(45U);
+%if !SLibCGSysFcnIsEmptyForTid(CompiledModel.System[0], "Enable",0)
+%if SLibCG_SystemFcnArgAccessed("SG__MDL_Subsystem_Enable",0,0)
+%assign _modelSS = RTMGetModelSSFromIR()
+%endif
+
+%<SLibCGIRGenReusableSysCall("SG__MDL_Subsystem_Enable", ["%<_modelSS>", "&SG__MDL_DW.Subsystem"], 0, 0, 13, 0, 13, 4)>\
+%assign ss = ::CompiledModel.System[0]
+%if !LibSystemIsInlined(ss)
+;
+%else
+\
+%endif
+%endif
+SESE_blk_end_Ax3Zq9pEdy(45U);
+
+%closefile Enable_body_Subsystem_4_6
+
+%assign    Enable_close_Subsystem_4_6 = ""
+%openfile  Enable_close_Subsystem_4_6
+
+/* End of Enable for SubSystem: '<Root>/Subsystem' */
+%closefile Enable_close_Subsystem_4_6
+%<SLibCG_DumpSSCode(Enable_open_Subsystem_4_6, Enable_body_Subsystem_4_6, Enable_close_Subsystem_4_6)>
+
+%closefile cfgTxt
+%<cfgTxt>
+%endfunction
+%function EnableFcnProtoType(block, system) Output
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void Enable(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(1, 7, fcnProtoType)>
+%endfunction
