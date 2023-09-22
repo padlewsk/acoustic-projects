@@ -2,15 +2,20 @@
 %%% Mathieu Padlewski 
 %%% Example of a model running 5 different tasks on the IO135 SpeedGoat
 %%% machine.
+%% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath(genpath('\\files7\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));%
+addpath('./__fun');
 
-MDL = 'SG__MDL_IO104_IO135' ;
+
+MDL = 'SG__MDL' ;
 tg = slrealtime('Mobile'); % target computer interface
 ts = 1e-4;
-set_param(MDL, 'ModelReferenceSymbolNameMessage', 'none')
+set_param(MDL, 'ModelReferenceSymbolNameMessage', 'none');
 
 %% BUILD APPLICATION
 fprintf('Building the application...\n');
 load_system(MDL);
+create_build_dir();% creates build file on local PC (runs faster)
 slbuild(MDL);
 
 %% LOAD APPLICATION

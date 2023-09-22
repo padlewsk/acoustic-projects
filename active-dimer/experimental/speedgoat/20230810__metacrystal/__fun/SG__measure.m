@@ -67,12 +67,21 @@ function Data = SG__measure(p, dlg)
     % B --> 5:8
 
     % coupling
-    tg.setparam('','k_1', [repmat([p.kappa_A, p.kappa_nl_A, p.kerr_nl_A],4,1);repmat([p.kappa_B, p.kappa_nl_B, p.kerr_nl_B],4,1)]);
-    tg.setparam('','k_2', [repmat([p.kappa_A, p.kappa_nl_A, p.kerr_nl_A],4,1);repmat([p.kappa_B, p.kappa_nl_B, p.kerr_nl_B],4,1)]);
+    %tg.setparam('','k_1', [repmat([p.kappa_A, p.kappa_nl_A, p.kerr_nl_A],4,1);repmat([p.kappa_B, p.kappa_nl_B, p.kerr_nl_B],4,1)]);
+    %tg.setparam('','k_2', [repmat([p.kappa_A, p.kappa_nl_A, p.kerr_nl_A],4,1);repmat([p.kappa_B, p.kappa_nl_B, p.kerr_nl_B],4,1)]);
 
 
     % impedance synthesis
     [b, a] = tfdata(p.Phi_d);
+    b = cell2mat(b);
+    b = [b(:,1:3); b(:,4:6)];
+    tg.setparam('','dtf_b',b);
+    
+    a = cell2mat(a);
+    a = [a(:,1:3); a(:,4:6)];
+    tg.setparam('','dtf_a',a);
+
+    %{
     %num
     b = cell2mat(b);
     b_1 = b(:,1:3);
@@ -92,7 +101,8 @@ function Data = SG__measure(p, dlg)
     a_2 = a(:,4:6);
     a_2 = [a_2, zeros(1, 3-numel(a_2))];
     tg.setparam('','a_2',a_2);
-    
+    %}
+
     %{
     tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator', n); %Block tf
     tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator', d); 
