@@ -15,7 +15,7 @@ function params = param_struct();
     %tg_model = 'Baseline'; %target select
     %MDL = 'SG__MDL_IO397'; % name of the slx model (baseline)
     params.tg_model = 'Mobile'; %target select
-    params.MDL = 'SG__MDL_IO104_IO135'; % name of the slx model (performance)
+    params.MDL = 'SG__MDL'; % name of the slx model (performance)
    
     %%% Sample time: CANNOT CHANGE ONCE FLASHED  
     params.ts_rec = 100e-06; %%% recording sampling time (s) 
