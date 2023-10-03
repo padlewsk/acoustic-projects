@@ -42,6 +42,8 @@ function Data = SG__measure(p, dlg)
     fprintf('\t[DONE]\n');
    
     %% SET PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% UPLOAD PARAMETERS TO SL WORKSPACE
+
     % SOURCE PARAMETERS 
     tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
     tg.setparam('', 'enable_source', true); %turn source on
@@ -53,23 +55,13 @@ function Data = SG__measure(p, dlg)
     %SET ACQUISITION TIME 
     tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
     
-    %{
-    tg.setparam([p.MDL, '/source/sweep_gain'], 'Gain', p.A);%
-    tg.setparam([p.MDL, '/source/tmax'], 'Value', p.tmax);%
-    tg.setparam([p.MDL, '/source/freq_ini'], 'Value', p.fi);%
-    tg.setparam([p.MDL, '/source/freq_fin'], 'Value', p.ff);%
-    tg.setparam([p.MDL, '/Triggered Pulse'], 'N', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% CONTROL PARAMETERS% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
-    %}
-
     % CONTROL PARAMETERS
-    %p(unitcell,atom) 
-    % A --> 1:4
-    % B --> 5:8
 
     % coupling
-    %tg.setparam('','k_1', [repmat([p.kappa_A, p.kappa_nl_A, p.kerr_nl_A],4,1);repmat([p.kappa_B, p.kappa_nl_B, p.kerr_nl_B],4,1)]);
-    %tg.setparam('','k_2', [repmat([p.kappa_A, p.kappa_nl_A, p.kerr_nl_A],4,1);repmat([p.kappa_B, p.kappa_nl_B, p.kerr_nl_B],4,1)]);
-
+    tg.setparam('','k_L',    p.kappa*[0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0]) 
+    tg.setparam('','k_R',    p.kappa*[1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 0]) 
+    tg.setparam('','k_L_NL', p.kappa*[0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0]) 
+    tg.setparam('','k_R_NL', p.kappa*[1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 0]) 
 
     % impedance synthesis
     [b, a] = tfdata(p.Phi_d);
@@ -81,102 +73,21 @@ function Data = SG__measure(p, dlg)
     a = [a(:,1:3); a(:,4:6)];
     tg.setparam('','dtf_a',a);
 
-    %{
-    %num
-    b = cell2mat(b);
-    b_1 = b(:,1:3);
-    b_1 = [b_1, zeros(1, 3-numel(b_1))];
-    tg.setparam('','b_1',b_1);
+    % current to voltage
+    tg.setparam('', 'i2u', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
 
-    b_2 = b(:,4:6);
-    b_2 = [b_2, zeros(1, 3-numel(b_2))];
-    tg.setparam('','b_2',b_2);
+    % mic sensitivity     %%% F(unitcell,atom) 
+    tg.setparam('', 'sens_p', mat2str([p.sens_p(:,1);p.sens_p(:,2)]));%
 
-    %den
-    a = cell2mat(a);
-    a_1 = a(:,1:3);
-    a_1 = [a_1, zeros(1, 3-numel(a_1))];
-    tg.setparam('','a_1',a_1);
+    % back pressure to displacement transfer function
+     tg.setparam('','pb2disp', mat2str([p.pb2disp(:,1);p.pb2disp(:,2)]));%
 
-    a_2 = a(:,4:6);
-    a_2 = [a_2, zeros(1, 3-numel(a_2))];
-    tg.setparam('','a_2',a_2);
-    %}
-
-    %{
-    tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator', n); %Block tf
-    tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator', d); 
-    %}
-
-    %{
-    for ii = 1:8
-        for jj = 1:2
-        tg.setparam([p.MDL, char("/enable_uc_"+ii)], 'Value', true); %turn control on
-        % coupling
-        if ii <= 4 %specify coupling for first 4 cells 
-            kappa = p.kappa_A;
-            kappa_nl = p.kappa_nl_A;
-            kerr_nl = p.kerr_nl_A;
-        else %specify coupling for last 4 cells 
-            kappa = p.kappa_B;
-            kappa_nl = p.kappa_nl_B;
-            kerr_nl = p.kerr_nl_B;
-        end
-        % linear coupling coupling   
-        tg.setparam([p.MDL, char("/uc_"+ii+"/kappa_"+jj)], 'Gain', kappa/p.Bl(ii,jj));%
-    
-        % non-linear coupling coupling   
-        tg.setparam([p.MDL, char("/uc_"+ii+"/kappa_nl_"+jj)], 'Gain', kappa_nl/p.Bl(ii,jj));%
-        
-        % onsite kerr like non-linear (backpressure)
-        tg.setparam([p.MDL, char("/uc_"+ii+"/kerr_nl_"+jj)], 'Gain', kerr_nl/p.Bl(ii,jj));%
-        
-        % mic sensitivity
-        tg.setparam([p.MDL, char("/uc_"+ii+"/sens_p_"+jj)], 'Gain', p.sens_p(ii,jj));%
-        
-        % back pressure to displacement transfer function
-        tg.setparam([p.MDL, char("/uc_"+ii+"/pb2disp_"+jj)], 'Gain', p.pb2disp(ii,jj));%
-    
-        % Onsite nonlinearity
-        %{
-        tg.setparam([p.MDL, '/control/NL_m'], 'Gain', 0);%
-        tg.setparam([p.MDL, '/control/NL_p'], 'Gain', 0);%
-        %}
-    
-        % impedance synthesis
-        n = p.Phi_d(ii,jj).num{1};
-        d = p.Phi_d(ii,jj).den{1};
-        n = [n, zeros(1, 3-numel(n))]; 
-        d = [d, zeros(1, 3-numel(d))];
-        tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator', n); %Block tf
-        tg.setparam([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator', d); 
-        
-        %{
-        n = p.Phi_d_p.num{1};
-        d = p.Phi_d_p.den{1};
-        n = [n, zeros(1, 3-numel(n))];
-        d = [d, zeros(1, 3-numel(d))];
-        tg.setparam([p.MDL, '/control/tf_2'], 'Numerator', n); %Block tf
-        tg.setparam([p.MDL, '/control/tf_2'], 'Denominator', d); %Block tf
-        %}
-
-        % current to voltage
-        tg.setparam([p.MDL, char("/uc_"+ii+"/i2u_"+jj)], 'Gain', 1/p.u2i);%converts current to voltage (will be converted back with u2i)
-        end
-    end
-    %}
 
     Simulink.sdi.view; % view the data
     pause(0.05);
 
     %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    %     if tg.FileLog.LoggingService ~= 'STOPPED' %#ok<BDSCA>
-%         tg.stopRecording();
-%     end
-    
     tg.stopRecording();
-        
     Simulink.sdi.clear();
     tg.startRecording();
 
@@ -194,13 +105,6 @@ function Data = SG__measure(p, dlg)
             tg.stop;% stops target
             Data = nan(1,4+16);
             return
-        %{ 
-        % DOESN'T WORK         
-        elseif tg.status == 'targetError'
-            dlg.Message = 'CPU OVERLOAD. RESTARTING...'
-            tg.update;% reboots target
-            return
-        %}
         end
     end
 

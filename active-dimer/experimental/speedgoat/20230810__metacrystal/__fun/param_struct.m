@@ -15,14 +15,17 @@ function params = param_struct();
     %tg_model = 'Baseline'; %target select
     %MDL = 'SG__MDL_IO397'; % name of the slx model (baseline)
     params.tg_model = 'Mobile'; %target select
-    params.MDL = 'SG__MDL'; % name of the slx model (performance)
+    params.MDL = 'SG__MDL_DMA'; % name of the slx model (performance)
    
     %%% Sample time: CANNOT CHANGE ONCE FLASHED  
-    params.ts_rec = 100e-06; %%% recording sampling time (s) 
-    params.fs_rec = 1/params.ts_rec ; 
-
-    params.ts_acq = 100e-06; %%% acquisition sampling time - this defines the new sampling when computing the tf and saved on the HD
+    params.ts_log = 100e-06; %%% data logging sampling time (s) 
+    params.fs_log = 1/params.ts_log ; 
+    
+    %%% not in DMA mode
+    %{
+    params.ts_acq = 50e-06; %%% control sampling time - this defines the new sampling when computing the tf and saved on the HD
     params.fs_acq = 1/params.ts_acq; 
+    %}
   
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.src_select = 1; %source A or B
@@ -245,7 +248,7 @@ function params = param_struct();
         params.b0(ii,jj) = params.Bl(ii,jj)*params.muC(ii,jj)/params.Cmc(ii,jj);
         %Transfer functionp. model:
         params.Phi_c(ii,jj) = tf([params.a2(ii,jj),params.a1(ii,jj),params.a0(ii,jj)],[params.b2(ii,jj),params.b1(ii,jj),params.b0(ii,jj)]);%/(sens_p_p*u2i);
-        params.Phi_d(ii,jj) = c2d(params.Phi_c(ii,jj),params.ts_rec,'tustin'); %discretized (necessary for SG model
+        params.Phi_d(ii,jj) = c2d(params.Phi_c(ii,jj),params.ts_log,'tustin'); %discretized (necessary for SG model
         params.Phi_d(ii,jj) = minreal(params.Phi_d(ii,jj));
         end
     end
@@ -254,19 +257,26 @@ function params = param_struct();
     %%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% NECESSARY?
     % --> Used to estimate the transfer functions
-    params.N = 2^nextpow2((2*params.tmax)*params.fs_acq); 
+    params.N = 2^nextpow2((2*params.tmax)*params.fs_log); 
     t = linspace(0,params.tmax,params.N)';
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; %%%linear frequency vector;
 
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    params.kappa    = 0.1*(-params.Sd); % coupling (front pressure) MAX 1
+    params.kappa_nl = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
+    params.kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
+    
+    
+    %{
     %%% DOMAIN A
     params.kappa_A    = 1*(-params.Sd); % coupling (front pressure) MAX 1
     params.kappa_nl_A = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
     params.kerr_nl_A  = 0e12; % local non-linearity (backpressure) MAX 5e12;
-
+    
     %%% DOMAIN A
     params.kappa_B    = 1*(-params.Sd); % coupling (front pressure) MAX 1
     params.kappa_nl_B = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
     params.kerr_nl_B  = 0e12; % local non-linearity (backpressure) MAX 5e12;
+    %}
 end
 

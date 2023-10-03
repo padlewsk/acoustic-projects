@@ -46,14 +46,16 @@ function SG__build()
     %%% Set sample times 
     if p.tg_model == "Mobile"
         %104
-        set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_rec)); 
-        set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_rec));  
-        %135
-        set_param([p.MDL, '/ao_135'], 'parSampleTime', num2str(p.ts_rec)); 
-        set_param([p.MDL, '/ai_135'], 'parSampleTime', num2str(p.ts_rec)); 
+        set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_log)); 
+        set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_log));  
+        %135 IN DMA mode, this is not to be defined
+        %{
+        set_param([p.MDL, '/ao_135'], 'parSampleTime', num2str(p.ts_ctrl)); 
+        set_param([p.MDL, '/ai_135'], 'parSampleTime', num2str(p.ts_ctrl));
+        %}
     elseif  p.tg_model == "Performance"
         %334
-        set_param([p.MDL, '/IO334_IO'], 'ts', num2str(p.ts_rec));
+        set_param([p.MDL, '/IO334_IO'], 'ts', num2str(p.ts_log));
     end
    
     
@@ -63,19 +65,20 @@ function SG__build()
     set_param([MDL, '/source/random'], 'SampleTime', num2str(ts));
     %}
     
+    
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
      % current to voltage
-    set_param([p.MDL, '/i2u_1'], 'Gain', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
-    set_param([p.MDL, '/i2u_2'], 'Gain', num2str(1/p.u2i));
+    set_param([p.MDL, '/i2u'], 'Gain', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
+   
     
     % mic sensitivity
-    set_param([p.MDL, '/sens_p_1'],'Value', mat2str(p.sens_p(:,1)));%
-    set_param([p.MDL, '/sens_p_2'],'Value', mat2str(p.sens_p(:,2)));%
+    set_param([p.MDL, '/sens_p'],'Value', mat2str([p.sens_p(:,1);p.sens_p(:,2)]));%
+    
         
     % back pressure to displacement transfer function
-    set_param([p.MDL, '/pb2disp_1'], 'Value', mat2str(p.pb2disp(:,1)));%
-    set_param([p.MDL, '/pb2disp_2'], 'Value', mat2str(p.pb2disp(:,2)));%
-
+    set_param([p.MDL, '/pb2disp'], 'Value', mat2str([p.pb2disp(:,1);p.pb2disp(:,2)]));%
+    
+    
     
     %%% INITIALIZE EACH TF (RMK: DO NOT INITIALIZE WITH ZEROS!)
     %%% unitcell i and atom j:
