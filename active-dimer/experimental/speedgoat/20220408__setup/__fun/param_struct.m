@@ -1,9 +1,26 @@
 function params = param_struct()
 
     params = struct;
-
     %%% LIST OF PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% RMK: Manually update the asterixed parameters after running either
+
+    %% SPEAKER PARAM
+    params.spkrName = "atm_82";
+    params.Re = 7.39; %Ohm
+    params.Sd = 12e-4; % Same diaphragm area for both
+
+    %% INPUTS
+    params.pf_channel = 1;
+    params.pb_channel = 2;
+    params.v_channel  = 3;
+   
+    %% SENSITIVITY
+    params.sens_pf = 1/(-35.624327e-3); %(m/s)/V 
+    params.sens_pb = 1/(-37.700286e-3); %(m/s)/V 
+    
+    %unchanged
+    params.sens_v = 0.01; %(m/s)/V 
+    params.u2i = 10e-3; %current amplifier: Maxime: 10(mA/V); Rivet: 1/103.8 (A/V) 
     
     %% PHYSICS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.c0 = 347.13; % 300K
@@ -20,36 +37,11 @@ function params = param_struct()
     params.fs_acq = 1/params.ts_acq;
     
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.A = 0.05; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    params.A = 0.04; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.tmax = 15; %%20 sweep up measurement time (s) 
     params.fi = 150; %% initial frequency
     params.ff = 1200;%1500; %% final frequency
     
-    %% TRANSFER FUNCTION PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %params.wind = []; %floor(N/20); %https://ch.mathworks.com/help/signal/ref/tfestimate.html#bvi01si-window
-    
-    %% CONTROL SENSITIVITY
-    %%% MIC
-    %params.sens_p_f =  -1/20.00E-3;% 1/(V/Pa) SN6969 
-    %params.sens_p_f =  -1/22.39E-3;% 1/(V/Pa) SN6993
-    %params.sens_p_f =  -1/29.86E-3;% 1/(V/Pa) SN5673 
-    %params.sens_pf =  -1/51.659363E-3;% 1/(V/Pa) SN29799
-    params.sens_pf =  -1/-35.586805E-3;% 1/(V/Pa) SN65603
-
-
-    params.sens_v = 0.01; %(m/s)/V 
-
-    %%%  CURRENT TO VOLTAGE
-    params.u2i = 10e-3; %current amplifier: Maxime: 10(mA/V); Rivet: 1/103.8 (A/V) 
-
-    %%% PRESSURE TO DISPLACEMENT
-    params.pb2disp_m = 925E3*(-20.00E-3); %Trasnferfunction between backpressure and displacement (Pa/m)*(V/Pa) = (V/m)
-    params.pb2disp_p = 925E3*(-20.00E-3); %Trasnferfunction between backpressure and displacement (Pa/m)*(V/Pa) = (V/m)
-    
-    %%% speaker: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.Re = 7.32; %%% !!!!!!!!!!!!!!!!!!!!!! CHANGE FOR EACH SPEAKER
-    params.Sd = 12e-4; % Same diaphragm area for both
-
     %%% Frequency vector %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Used to estimate the transfer functions
     params.N = 2^12; % what is chosen

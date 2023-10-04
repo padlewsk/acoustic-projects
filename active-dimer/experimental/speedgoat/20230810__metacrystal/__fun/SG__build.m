@@ -68,7 +68,7 @@ function SG__build()
     
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
      % current to voltage
-    set_param([p.MDL, '/i2u'], 'Gain', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
+    set_param([p.MDL, '/atm/i2u'], 'Gain', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
    
     
     % mic sensitivity

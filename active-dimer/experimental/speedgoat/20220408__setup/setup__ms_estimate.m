@@ -8,9 +8,6 @@
 %%% - CHANGE THE SENSITIVITY pf the mic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
 close all
 clear all
 %%% INPUT PARAMETERS
@@ -19,22 +16,12 @@ addpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox');
 addpath('__fun');
 p = param_struct();
 
-%%% INPUTS: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pf_channel = 1;
-v_channel = 3;
 
-%%% SPKR PARAM: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p.Re = 8.34 ; %%%%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CHANGE FOR EACH SPEAKER
-p.Sd = 12e-4; % Same diaphragm area for both
-p.sens_pf = 1/-35.586805E-3;% 1/(V/Pa) SN65603%OVERWRITES params !!!!!!!!!!! CHANGE FOR EACH SPEAKER
-
-%%% SRC PARAM: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p.A = 0.04;
 
 %%% SPKR NAME AND FILE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-spkrName = "atm1";
-ocFile = strcat('oc_',spkrName,'.mat'); 
-ccFile = strcat('cc_',spkrName,'.mat'); 
+spkrName = p.spkrName;
+ocFile = strcat('./__data/','oc_',spkrName,'.mat'); 
+ccFile = strcat('./__data/','cc_',spkrName,'.mat'); 
 
 %% BUILD MODEL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -49,22 +36,29 @@ while 1
    
 
     if case_select == 1 %Open Circuit Measurement
-        fprintf('### Measuring for Open Circuit case...\n')
-        %% RUN MEASUREMENT %%%%%%%%%%%%%%%
-        sigData = [];
-        sigData = SG__measure;
+        if isfile(strcat('./__data/','oc_',p.spkrName,'.mat'))
+            fprintf(strcat('###',' " ','oc_',p.spkrName,'.mat',' " ',' already exists.\n'))
+        else
 
-        %% PROCESS DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        Data = sigData.Variables; %freq;sig1;sig2;sig3;
-
-        f = Data(:,1);%data frequency
-        v = Data(:,v_channel + 1)*p.sens_v; %ai1 
-        pf = Data(:,pf_channel + 1)*p.sens_pf;%ai2 
-
-        [Zs,F] = tfestimate(v,pf,hamming(p.N/8),[],p.freq,p.fs_acq);
-       
-        fprintf('### Saving data to file...\n')
-        save(ocFile,'F','Zs');
+            fprintf('### Measuring for Open Circuit case...\n')
+            
+            %% RUN MEASUREMENT %%%%%%%%%%%%%%%
+            sigData = [];
+            sigData = SG__measure;
+    
+            %% PROCESS DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            Data = sigData.Variables; %freq;sig1;sig2;sig3;
+    
+            f = Data(:,1);%data frequency
+            v = Data(:,p.v_channel + 1)*p.sens_v;  
+            pf = Data(:,p.pf_channel + 1)*p.sens_pf;
+            pb = Data(:,p.pb_channel + 1)*p.sens_pb; 
+    
+            [Zs,F] = tfestimate(v,pf,hamming(p.N/8),[],p.freq,p.fs_acq);
+           
+            fprintf('### Saving data to file...\n')
+            save(ocFile,'f','v','pf','pb','F','Zs');
+        end
         ocData = open(ocFile);
         
         figure(1)
@@ -77,21 +71,28 @@ while 1
         legend('Open Circuit','Closed Circuit')
         fprintf('### Saving data to file...\n')
         
-    elseif case_select == 2 %Closed Circuit
-        fprintf('### Measuring for Closed Circuit case...\n')
-
-        %% RUN MEASUREMENT %%%%%%%%%%%%%%%
-        sigData = SG__measure;
-        %% PROCESS DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        Data = sigData.Variables; %freq;sig1;sig2;sig3;
-
-        f = Data(:,1);%data frequency
-        v = Data(:,v_channel + 1)*p.sens_v; %ai1; %ai1 
-        pf = Data(:,pf_channel + 1)*p.sens_pf;%ai2 
-
-        [Zs,F] = tfestimate(v,pf,hamming(p.N/8),[],p.freq,p.fs_acq);
         
-        save(ccFile,'F','Zs');
+    elseif case_select == 2 %Closed Circuit
+        if isfile(strcat('./__data/','cc_',p.spkrName,'.mat'))
+            fprintf(strcat('###',' " ','cc_',p.spkrName,'.mat',' " ',' already exists.\n'))
+        else
+
+            fprintf('### Measuring for Closed Circuit case...\n')
+    
+            %% RUN MEASUREMENT %%%%%%%%%%%%%%%
+            sigData = SG__measure;
+            %% PROCESS DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            Data = sigData.Variables; %freq;sig1;sig2;sig3;
+    
+            f =  Data(:,1);%data frequency
+            v =  Data(:,p.v_channel + 1)*p.sens_v; %ai1; %ai1 
+            pf = Data(:,p.pf_channel + 1)*p.sens_pf;%ai2 
+            pb = Data(:,p.pb_channel + 1)*p.sens_pb; %b pressure signal (V) 
+    
+            [Zs,F] = tfestimate(v,pf,hamming(p.N/8),[],p.freq,p.fs_acq);
+            
+            save(ccFile,'f','v','pf','pb','F','Zs');
+        end
         ccData = open(ccFile);
         
         figure(1)
