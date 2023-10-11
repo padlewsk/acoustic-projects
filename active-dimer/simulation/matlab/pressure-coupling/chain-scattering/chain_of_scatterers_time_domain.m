@@ -23,10 +23,11 @@ addpath('./__data/')
 load raw_data__L_ref.mat 
 fprintf("### DONE.\n")
 %}
+
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FREQ SWEEP RANGE
 global N_cell t_fin %number of unit cells (= half the number of sites)
-N_cell = 64; %2^5%N_cell/2 needs to be even?
+N_cell = 25; %2^5%N_cell/2 needs to be even?
 mat_size = N_cell*8+1 ;%9*N_cell-(N_cell-1);
 
 %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -34,7 +35,7 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive ste1p size)
-t_fin = 300E-3 + 0*4*N_cell*sys_param.a/sys_param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
+t_fin = N_cell*N_cell*sys_param.a/sys_param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
 
 %%% INITIALISATION
 y0 = zeros(2*mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
@@ -109,55 +110,79 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 %ylim([-1,1])
 %}
 
+
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %surface plot
 [X,Y] = meshgrid(1:2*N_cell,t_out*1000);
-Z = abs(p_s);
-
+Z = abs(p_s); 
+Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA!
 %{
-for nn = 1:2*N_cell
-    Z(:,nn) = abs(envelope(p_s(:,nn)));
-end
+    fig2 = figure(2); % \Delta t simulation time step
+    %colormap("pink");
+    surface(X,Y,Z,'EdgeColor','none')
+    set(gcf,'position',fig_param.window_size);
+    set(gca,fig_param.fig_prop{:});
+    set(gca,'color','none','YDir','normal')
+    %set(gcf,'InvertHardcopy','off','Color','none')
+    %{
+    c = imagesc(t_out*1000,1:2*N_cell,abs(p_s)'); %clims = [4 18];
+    c = colorbar;
+    c.Label.String = "AER pressure (Pa)";
+    c.Label.Interpreter = 'latex';
+    %}
+    %set(h, 'EdgeColor', 'none');
+    %{
+    for nn = 1:2*N_cell
+    plot3(nn*ones(numel(t_out)),t_out*1000,Z(:,nn))
+    hold on
+    end
+    hold off
+    %}
+    %xlim([0.5,2*N_cell-0.5])
+    ylim([t_out(1),t_out(end)/5]*1000)%
+    zlim([0,sys_param.A_src*2])
+    xlabel('site n')
+    ylabel('t (ms)')
+    %zlabel("$|p_n| (Pa)$",'Interpreter','latex')
+    %box on
+    %grid on
+    %colormap(jet(50))
+    c = colorbar;
+    c.Label.String = 'Amplitude (Pa)';
+    clim([0, sys_param.A_src*1]);
+    view(135,60)
 %}
 
 fig2 = figure(2); % \Delta t simulation time step
-
-%colormap("pink");
-surface(X,Y,Z,'EdgeColor','none')
+%waterfall
+%{
+h = waterfall(X',Y',Z');
+set( h, 'LineWidth', 2);
+%hidden off; %removes white separator
+%}
+%ribonn
+%
+h = ribbon(Y,Z,0.5);
+[h(:).EdgeColor] = deal('none');
+set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
+%}
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:});
 set(gca,'color','none','YDir','normal')
-
-%set(gcf,'InvertHardcopy','off','Color','none')
-%{
-c = imagesc(t_out*1000,1:2*N_cell,abs(p_s)'); %clims = [4 18];
-c = colorbar;
-c.Label.String = "AER pressure (Pa)";
-c.Label.Interpreter = 'latex';
-%}
-%set(h, 'EdgeColor', 'none');
-%{
-for nn = 1:2*N_cell
-plot3(nn*ones(numel(t_out)),t_out*1000,Z(:,nn))
-hold on
-end
-hold off
-%}
-%xlim([0.5,2*N_cell-0.5])
-ylim([t_out(1),t_out(end)/5]*1000)%
-%ylim([t_out(1),t_out(end)]*1000)%
-%zlim([0,param.A_src*2])
+grid("off")
+%box("on")
+xlim([0.5,2*N_cell+0.5])
+%xlim([N_cell-2.5,N_cell+2.5]) % zoom on topological interface
+%ylim([t_out(1),t_out(end)/5]*1000)%
+%zlim([0,sys_param.A_src*1.5])
 xlabel('site n')
 ylabel('t (ms)')
-%zlabel("$|p_n| (Pa)$",'Interpreter','latex')
-%box on
-%grid on
-%colormap(jet(50))
+zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
-clim([0, sys_param.A_src*1]);
-
+%clim([0, sys_param.A_src*1]);
 view(135,60)
+
 
 %%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 t_vec =  0:t_samp:t_fin; 

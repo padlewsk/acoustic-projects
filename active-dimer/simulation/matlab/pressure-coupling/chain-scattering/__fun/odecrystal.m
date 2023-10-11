@@ -83,12 +83,12 @@ function dydt = odecrystal(t,y,temp)
    
     %% SOURCE AND BOUNDARY CONDITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% SRC
-    %%%%%% SINE*SIGMOIDE 
-    %p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*sin(2*pi*sys_param.f_src*t)*1/(1+exp(1000*(t-t_fin/2)));
+    %%%%%% SINE*SIGMOIDE (temporal cutoff)
+    p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*sin(2*pi*sys_param.f_src*t)*1/(1+exp(1000*(t-t_fin/2)));
 
     %%%%%% CENTER PULSE 
     % gaussian pulse centered at omega_src: P_src \propto  *exp(-(omega-omega_src)^2*(tau^2)) 
-    %
+    %{
     freq_src = sys_param.f_src; %param.c0/param.a/2; %centre
     omega_src = 2*pi*freq_src;
     T_src = 1/freq_src; %1/freq
@@ -118,14 +118,14 @@ function dydt = odecrystal(t,y,temp)
     % comment out anechoic.
 
     %%%%%% ANECHOIC
-    %
+    %{
     P(1)   =  sys_param.Zc*q(1)/sys_param.S;  % RMK: opposite sign 
     P(end) =  sys_param.Zc*q(end)/sys_param.S;  
     %}
     
     %%% SOURCE LOCATION(s)
-    src_loc = [1 mat_size];% [round(mat_size/2)]; %%%%%%%
-    %src_loc = [1]; % atm 1 is source
+    src_loc = [1];% [1 mat_size]; %%%%%%%
+    %src_loc = [round(mat_size/2)]; % centre pulse
     for nn = src_loc
         if nn == 1 || mod(nn,10) == 0 % RMK: opposite sign on every first pressure node to aid with building the cell matrix
             P(nn) = P(nn) -  2*p_src;
@@ -169,10 +169,10 @@ function dydt = odecrystal(t,y,temp)
     i_s = Sd/Bl*(v_cpl.*p_v_cpl + w_cpl.*p_w_cpl);
     %}
     %linear coupling
-    v.A.L  = 1;  %segment A
+    v.A.L  = 0.2;  %segment A
     w.A.L  = 0;
     v.B.L  = 0;  %segment B
-    w.B.L  = 1;
+    w.B.L  = 0.2;
 %1E-3 in hybrid
     %non linear coupling
     v.A.NL = 0E-3; %segment A 
@@ -180,7 +180,7 @@ function dydt = odecrystal(t,y,temp)
     v.B.NL = 0E-3;  %segment B
     w.B.NL = 0E-3;
 
-    %asymmetrica coupling parameter g % +/- increase/decrease
+    %asymmetric coupling parameter g % +/- increase/decrease
     %toward right %%% FIX!!!
     g.v.A = 0; % --> non-linear non-Hermitian skin effect
     g.w.A = 0;
