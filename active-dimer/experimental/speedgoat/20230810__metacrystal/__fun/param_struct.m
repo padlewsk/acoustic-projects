@@ -18,8 +18,13 @@ function params = param_struct();
     params.MDL = 'SG__MDL_DMA'; % name of the slx model (performance)
    
     %%% Sample time: CANNOT CHANGE ONCE FLASHED  
-    params.ts_log = 100e-06; %%% data logging sampling time (s) 
-    params.fs_log = 1/params.ts_log; 
+    params.ts_ctr = 30e-06;
+    %params.log_dec = 1; %file log decimation -> reduces log file size by factor of log_dec
+    params.ts_log = 100e-06;
+    params.fs_log = (1/params.ts_log);%/params.log_dec; 
+
+    %params.ts_log = 100e-06; %%% data logging sampling time (s) 
+    %params.fs_log = 1/params.ts_log; 
     %params.log_dec = 2;
     
     %%% not in DMA mode
@@ -31,7 +36,7 @@ function params = param_struct();
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.src_select = 1; %source A or B
     
-    params.A = 0.2; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    params.A = 0.3; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.tmax = 5; %% sweep up time (s) measurement time = 2 x tmax
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
@@ -250,7 +255,7 @@ function params = param_struct();
         params.b0(ii,jj) = params.Bl(ii,jj)*params.muC(ii,jj)/params.Cmc(ii,jj);
         %Transfer functionp. model:
         params.Phi_c(ii,jj) = tf([params.a2(ii,jj),params.a1(ii,jj),params.a0(ii,jj)],[params.b2(ii,jj),params.b1(ii,jj),params.b0(ii,jj)]);%/(sens_p_p*u2i);
-        params.Phi_d(ii,jj) = c2d(params.Phi_c(ii,jj),params.ts_log,'tustin'); %discretized (necessary for SG model
+        params.Phi_d(ii,jj) = c2d(params.Phi_c(ii,jj),params.ts_ctr,'tustin'); %discretized (necessary for SG model
         params.Phi_d(ii,jj) = minreal(params.Phi_d(ii,jj));
         end
     end
@@ -265,7 +270,7 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.kappa    = 0*(-params.Sd); % coupling (front pressure) MAX 1
+    params.kappa    = 0.1*(-params.Sd); % coupling (front pressure) MAX 1
     params.kappa_nl = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
     params.kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
     

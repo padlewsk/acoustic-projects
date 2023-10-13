@@ -6,7 +6,7 @@ function param = sys_params()
     param.c0 = 344.5389; % m/s
     param.Zc = param.rho0*param.c0; % Impedance of the air (p/v)
     %nu = 18.5E-6; %Coef de viscosité dynamique du fluide
-    param.f_src  = 650; % Hz speaker + enclosure res freq 644.5 for sin and pulse
+    param.f_src  = 644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse
     
     %%% FREQ SWEEP
     param.fi = 100; %% initial frequency
@@ -15,7 +15,7 @@ function param = sys_params()
     
     %%% IDENTICAL LINER SPEAKERS
     %%% Mechanical
-    param.Rms = 0.261*0.2*0;  %% mechanical resistance %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    param.Rms = 0.261*0.2;  %% mechanical resistance %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     param.Mms = 6.671e-04; %% moving mass
     
     %Cms = 1/((2*pi*f0)^2*Mms);
