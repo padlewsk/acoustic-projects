@@ -19,7 +19,8 @@ function params = param_struct();
    
     %%% Sample time: CANNOT CHANGE ONCE FLASHED  
     params.ts_log = 100e-06; %%% data logging sampling time (s) 
-    params.fs_log = 1/params.ts_log ; 
+    params.fs_log = 1/params.ts_log; 
+    %params.log_dec = 2;
     
     %%% not in DMA mode
     %{
@@ -31,7 +32,7 @@ function params = param_struct();
     params.src_select = 1; %source A or B
     
     params.A = 0.2; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
-    params.tmax = 5; %% sweep up measurement time (s) 10
+    params.tmax = 5; %% sweep up time (s) measurement time = 2 x tmax
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     %% CALIBRATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -119,16 +120,17 @@ function params = param_struct();
     params.Sd = 12e-4; % Same diaphragm area for all
 
     %%% ms_estimate:  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % 11: R = 7.43
-    params.Bl(1,1)  =  1.59e+00;
-    params.Rms(1,1) =  3.55e-01;
-    params.Mms(1,1) =  7.23e-04; 
-    params.Cmc(1,1) =  2.15e-04; 
-    % 12: R = 7.43
-    params.Bl(1,2)  =  1.51e+00;
-    params.Rms(1,2) =  2.81e-01;
-    params.Mms(1,2) =  6.63e-04; 
-    params.Cmc(1,2) =  2.30e-04; 
+    % 11: R = 7.24
+    params.Bl(1,1)  =  1.439463e+00;
+    params.Rms(1,1) =  2.104750e-01;
+    params.Mms(1,1) =  6.692401e-04; 
+    params.Cmc(1,1) =  2.260928e-04; 
+
+    % 12: R = 7.30
+    params.Bl(1,2)  =  1.436338e+00;
+    params.Rms(1,2) =  1.887322e-01;
+    params.Mms(1,2) =  6.665242e-04;
+    params.Cmc(1,2) =  2.125228e-04; 
     
     % 21: R = 7.43
     params.Bl(2,1)  =  1.59e+00;
@@ -255,14 +257,15 @@ function params = param_struct();
 
     %%% Frequency vector
     %%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% NECESSARY?
+    %%% NECESSARY? YES.
     % --> Used to estimate the transfer functions
-    params.N = 2^nextpow2((2*params.tmax)*params.fs_log); 
-    t = linspace(0,params.tmax,params.N)';
-    params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; %%%linear frequency vector;
+    params.N = 2^nextpow2((2*params.tmax)*params.fs_log); % longer than the recorded data...?
+    t = linspace(0,2*params.tmax,params.N)'; 
 
+    params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
+    %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.kappa    = 0.1*(-params.Sd); % coupling (front pressure) MAX 1
+    params.kappa    = 0*(-params.Sd); % coupling (front pressure) MAX 1
     params.kappa_nl = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
     params.kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
     

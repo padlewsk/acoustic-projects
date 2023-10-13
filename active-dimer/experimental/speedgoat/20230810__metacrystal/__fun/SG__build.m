@@ -26,7 +26,6 @@ function SG__build()
         end
     end
 
-    
     %% UPLOAD MODEL TO WORKSPACE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     load_system(p.MDL); % loads slx model defined in params.m
     
@@ -46,8 +45,15 @@ function SG__build()
     %%% Set sample times 
     if p.tg_model == "Mobile"
         %104
-        set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_log)); 
-        set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_log));  
+        set_param([p.MDL, '/setup_135'], 'parConvClockBaseRate', "20MHz");
+        set_param([p.MDL, '/setup_135'], 'parConvClock1Divider', num2str(20E6*100E-6));%num2str(20E6*p.ts_log)
+        
+        %set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_log)); %writes in slot
+        %set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_log)); 
+        %set_param([p.MDL,'/source/sweep'],'Ts', num2str(p.ts_log));
+        %set_param([p.MDL,'/Rate Transition'],'OutPortSampleTime', num2str(p.ts_log));
+
+        
         %135 IN DMA mode, this is not to be defined
         %{
         set_param([p.MDL, '/ao_135'], 'parSampleTime', num2str(p.ts_ctrl)); 
@@ -68,15 +74,15 @@ function SG__build()
     
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
      % current to voltage
-    set_param([p.MDL, '/atm/i2u'], 'Gain', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
+    %set_param([p.MDL, '/atm/i2u'], 'Gain', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
    
     
     % mic sensitivity
-    set_param([p.MDL, '/sens_p'],'Value', mat2str([p.sens_p(:,1);p.sens_p(:,2)]));%
+    %set_param([p.MDL, '/sens_p'],'Value', mat2str([p.sens_p(:,1);p.sens_p(:,2)]));%
     
         
     % back pressure to displacement transfer function
-    set_param([p.MDL, '/pb2disp'], 'Value', mat2str([p.pb2disp(:,1);p.pb2disp(:,2)]));%
+    %set_param([p.MDL, '/pb2disp'], 'Value', mat2str([p.pb2disp(:,1);p.pb2disp(:,2)]));%
     
     
     

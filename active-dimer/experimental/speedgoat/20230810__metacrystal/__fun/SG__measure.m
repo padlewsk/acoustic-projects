@@ -46,15 +46,14 @@ function Data = SG__measure(p, dlg)
 
     % SOURCE PARAMETERS 
     tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
-    tg.setparam('', 'enable_source', true); %turn source on
     tg.setparam('','sweep_gain', p.A);%
     tg.setparam('', 'tmax', p.tmax);%
     tg.setparam('', 'freq_ini',  p.freq_ini);%
     tg.setparam('', 'freq_fin',  p.freq_fin);%
 
-    %SET ACQUISITION TIME 
+    %SET RECORDING TIME 
     tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
-    
+    %tg.setparam('','N_trig', p.N);
     % CONTROL PARAMETERS
 
     % coupling
@@ -74,13 +73,13 @@ function Data = SG__measure(p, dlg)
     tg.setparam('','dtf_a',a);
 
     % current to voltage
-    tg.setparam('', 'i2u', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
+    tg.setparam('', 'i2u', 1/p.u2i); %converts current to voltage (will be converted back with u2i)
 
     % mic sensitivity     %%% F(unitcell,atom) 
-    tg.setparam('', 'sens_p', mat2str([p.sens_p(:,1);p.sens_p(:,2)]));%
+    tg.setparam('', 'sens_p', [p.sens_p(:,1);p.sens_p(:,2)]);%
 
     % back pressure to displacement transfer function
-     tg.setparam('','pb2disp', mat2str([p.pb2disp(:,1);p.pb2disp(:,2)]));%
+    tg.setparam('','pb2disp', [p.pb2disp(:,1);p.pb2disp(:,2)]);%
 
 
     Simulink.sdi.view; % view the data
@@ -94,20 +93,22 @@ function Data = SG__measure(p, dlg)
     fprintf('Measuring...\n'); 
     % record data from start
     % make a short pulse of the Constant block 'rec'
+    tg.setparam('', 'enable_source', true); %turn source on
     tg.setparam('', 'rec', true);
     tg.start('AutoImportFileLog', false); %starts the system and omits the log data file
+    tic;
     tg.setparam('', 'rec', false);
     % wait until the signal 'acq' is false, meaning the acquisition is over
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
         pause(0.1);
         if dlg.CancelRequested %%% Check if cancel button is pressed
-            dlg.Message = 'Measurement aborted.'
+            dlg.Message = 'Measurement aborted.';
             tg.stop;% stops target
             Data = nan(1,4+16);
             return
         end
     end
-
+    toc
     tg.setparam('', 'enable_source', false); %turn source off
     fprintf('\t[DONE]\n');
 

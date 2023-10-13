@@ -11,7 +11,7 @@ addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
 
-k = 2*pi*p.freq/p.c0; %+ 70%corresponding wave vector
+k = 2*pi*p.freq/p.c0; %corresponding wave vector
 %N = length(k);
 
 %%% MICROPHONE POSITION (wrt to edge of unit cell)
@@ -57,7 +57,7 @@ s21 = s12;
 %% ASYMMETRIC + CASE
 %
 %%% CORRECTION DATA
-fstruct = dir('./__data/*90us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT
+fstruct = dir('./__data/*100us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT 
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
