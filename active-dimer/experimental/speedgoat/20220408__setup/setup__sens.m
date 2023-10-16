@@ -13,7 +13,7 @@ addpath('__fun');
 p = param_struct(); 
 p.tmax = 2;  %integration time is 4 seconds
 p.A = 0;
-p_channel = 2;
+p_channel = 1;
 
 %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('\n### Measurement started...\n\n');

@@ -57,20 +57,20 @@ function Data = SG__measure(p, dlg)
     % CONTROL PARAMETERS
 
     % coupling
-    tg.setparam('','k_L',    p.kappa*[0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0]) 
-    tg.setparam('','k_R',    p.kappa*[1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 0]) 
-    tg.setparam('','k_L_NL', p.kappa*[0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0]) 
-    tg.setparam('','k_R_NL', p.kappa*[1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 0]) 
+    tg.setparam('','k_L',       p.kappa*[0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0]) 
+    tg.setparam('','k_R',       p.kappa*[1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 0]) 
+    tg.setparam('','k_L_NL', p.kappa_nl*[0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0]) 
+    tg.setparam('','k_R_NL', p.kappa_nl*[1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 0]) 
 
     % impedance synthesis
     [b, a] = tfdata(p.Phi_d);
     b = cell2mat(b);
-    b = [b(:,1:3); b(:,4:6)];
+    b = [b(:,1:3); b(:,4:6)]; % [num coefs of 1.1 atom; num coefs of 1.2 atom]
     tg.setparam('','dtf_b',b);
     
     a = cell2mat(a);
     a = [a(:,1:3); a(:,4:6)];
-    tg.setparam('','dtf_a',a);
+    tg.setparam('','dtf_a',a);% [den coefs of 1.1 atom; den coefs of 1.2 atom]
 
     % current to voltage
     tg.setparam('', 'i2u', 1/p.u2i); %converts current to voltage (will be converted back with u2i)
@@ -166,7 +166,8 @@ function Data = SG__measure(p, dlg)
     %}
     
     Data = signal_measure_raw.Variables; % store data in data array
-    tg.ModelStatus.TETInfo
+
+    TET = struct2table(tg.ModelStatus.TETInfo) % print TET info
     fprintf('\t[DONE]\n');
     
     %run('suuu.m');
