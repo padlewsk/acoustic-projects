@@ -74,6 +74,9 @@ function Data = SG__measure(p, dlg)
     tg.setparam('', 'i2u', 1/p.u2i); %converts current to voltage (will be converted back with u2i)
 
     % mic sensitivity     %%% F(unitcell,atom) 
+    for ii = numel(p.sens_p)/2
+        sens_p = [p.sens_p(ii,1); p.sens_p(ii,2)]
+    end
     tg.setparam('', 'sens_p', [p.sens_p(:,1);p.sens_p(:,2)]);%
 
     % back pressure to displacement transfer function
