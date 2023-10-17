@@ -225,7 +225,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     params.muM_tgt = 1; %target
-    params.muR_tgt = 0.2;
+    params.muR_tgt = 0.15;
     params.muC_tgt = 1;
 
     % Synthesize all to a same average:
@@ -270,8 +270,8 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.kappa    = -0.5*(-params.Sd); % coupling (front pressure) MAX 1
-    params.kappa_nl = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
+    params.kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
+    params.kappa_nl = 3e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
     params.kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
     
     

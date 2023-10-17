@@ -57,10 +57,8 @@ function Data = SG__measure(p, dlg)
     % CONTROL PARAMETERS
 
     % coupling
-    tg.setparam('','k_L',       p.kappa*[0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0]) 
-    tg.setparam('','k_R',       p.kappa*[1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 0]) 
-    tg.setparam('','k_L_NL', p.kappa_nl*[0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0]) 
-    tg.setparam('','k_R_NL', p.kappa_nl*[1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 0]) 
+    tg.setparam('','k_mat', diag(p.kappa*ones(15,1),-1) + diag(p.kappa*ones(15,1),1)); %linear coupling matrix k
+    tg.setparam('','k_mat_NL', diag(p.kappa_nl*ones(15,1),-1) + diag(p.kappa_nl*ones(15,1),1)); %linear coupling matrix k_nl
 
     % impedance synthesis
     [b, a] = tfdata(p.Phi_d);
