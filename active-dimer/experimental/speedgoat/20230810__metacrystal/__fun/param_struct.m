@@ -36,16 +36,16 @@ function params = param_struct();
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.src_select = 1; %source A or B
     
-    params.A = 0.15; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    params.A = 0.3; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.tmax = 5; %% sweep up time (s) measurement time = 2 x tmax
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     %% CALIBRATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Mic Positions (wtr centre)
-    params.x1 = -0.38; %m
-    params.x2 = -0.33; %m
-    params.x3 = +0.33; %m
-    params.x4 = +0.38; %m
+    params.x1 = -(4*0.28 + 0.10); %m
+    params.x2 = -(4*0.28 + 0.05); %m
+    params.x3 = +(4*0.28 + 0.05); %m
+    params.x4 = +(4*0.28 + 0.10); %m
     
     %%% Unit Cell 
     params.a = 0.280; %m 0.12;
@@ -58,20 +58,20 @@ function params = param_struct();
     
     %% CONTROL SENSITIVITY 
     %%% MIC  p(unitcell,atom)
-    params.sens_p(1,1) =  -1/40.1E-3;% 1/(V/Pa) SN65606 %%%%%%%%%%%%%%%%%%%%%
-    params.sens_p(1,2) =  -1/41.1E-3;% 1/(V/Pa) SN65608
+    params.sens_p(1,1) =  -1/39.6E-3;% 1/(V/Pa) SN65602 %%%%%%%%%%%%%%%%%%%%%
+    params.sens_p(1,2) =  -1/40.3E-3;% 1/(V/Pa) SN65603
 
-    params.sens_p(2,1) =  -1/40.1E-3;% 1/(V/Pa) 
-    params.sens_p(2,2) =  -1/41.1E-3;% 1/(V/Pa) 
+    params.sens_p(2,1) =  -1/37.7E-3;% 1/(V/Pa) SN65604
+    params.sens_p(2,2) =  -1/39.2E-3;% 1/(V/Pa) SN65640
 
-    params.sens_p(3,1) =  -1/40.1E-3;% 1/(V/Pa) 
-    params.sens_p(3,2) =  -1/41.1E-3;% 1/(V/Pa)
+    params.sens_p(3,1) =  -1/41.2E-3;% 1/(V/Pa) SN65606
+    params.sens_p(3,2) =  -1/39.7E-3;% 1/(V/Pa) SN65607
 
-    params.sens_p(4,1) =  -1/40.1E-3;% 1/(V/Pa) 
-    params.sens_p(4,2) =  -1/41.1E-3;% 1/(V/Pa)
+    params.sens_p(4,1) =  -1/43.6E-3;% 1/(V/Pa) SN65608
+    params.sens_p(4,2) =  -1/43.0E-3;% 1/(V/Pa) SN65609
 
     params.sens_p(5,1) =  -1/40.1E-3;% 1/(V/Pa) 
-    params.sens_p(5,2) =  -1/41.1E-3;% 1/(V/Pa)
+    params.sens_p(5,2) =  -1/41.1E-3;% 1/(V/Pa) 
 
     params.sens_p(6,1) =  -1/40.1E-3;% 1/(V/Pa) 
     params.sens_p(6,2) =  -1/41.1E-3;% 1/(V/Pa) 
@@ -79,8 +79,8 @@ function params = param_struct();
     params.sens_p(7,1) =  -1/40.1E-3;% 1/(V/Pa) 
     params.sens_p(7,2) =  -1/41.1E-3;% 1/(V/Pa) 
 
-    params.sens_p(8,1) =  -1/40.1E-3;% 1/(V/Pa)
-    params.sens_p(8,2) =  -1/41.1E-3;% 1/(V/Pa)
+    params.sens_p(8,1) =  -1/40.1E-3;% 1/(V/Pa) 
+    params.sens_p(8,2) =  -1/41.1E-3;% 1/(V/Pa) 
 
     %%% PRESSURE TO DISPLACEMENT
     params.pb2disp(1,1) = 2.14133e-05;% -1/39.7E-3; %Trasnferfunction between backpressure and displacement (m/V) *SN 65607
@@ -137,38 +137,38 @@ function params = param_struct();
     params.Mms(1,2) =  6.665242e-04;
     params.Cmc(1,2) =  2.125228e-04; 
     
-    % 21: R = 7.43
-    params.Bl(2,1)  =  1.439463e+00;
-    params.Rms(2,1) =  2.104750e-01;
-    params.Mms(2,1) =  6.692401e-04; 
-    params.Cmc(2,1) =  2.260928e-04; 
-    % 22: R = 7.43
-    params.Bl(2,2)  =  1.436338e+00;
-    params.Rms(2,2) =  1.887322e-01;
-    params.Mms(2,2) =  6.665242e-04; 
-    params.Cmc(2,2) =  2.125228e-04; 
+    % 21: R = 7.25
+    params.Bl(2,1)  =  1.492380e+00;
+    params.Rms(2,1) =  2.274173e-01;
+    params.Mms(2,1) =  6.907285e-04; 
+    params.Cmc(2,1) =  1.844899e-04; 
+    % 22: R = 7.59
+    params.Bl(2,2)  =  1.503181e+00;
+    params.Rms(2,2) =  1.732927e-01;
+    params.Mms(2,2) =  7.168219e-04; 
+    params.Cmc(2,2) =  2.102037e-04; 
     
-    % 31: R = 7.43
-    params.Bl(3,1)  =  1.59e+00;
-    params.Rms(3,1) =  3.55e-01;
-    params.Mms(3,1) =  7.23e-04; 
-    params.Cmc(3,1) =  2.15e-04; 
-    % 32: R = 7.43
-    params.Bl(3,2)  =  1.51e+00;
-    params.Rms(3,2) =  2.81e-01;
-    params.Mms(3,2) =  6.63e-04; 
-    params.Cmc(3,2) =  2.30e-04; 
+    % 31: R = 7.54
+    params.Bl(3,1)  =  1.473817e+00;
+    params.Rms(3,1) =  2.173800e-01;
+    params.Mms(3,1) =  7.534913e-04; 
+    params.Cmc(3,1) =  1.653909e-04; 
+    % 32: R = 7.29
+    params.Bl(3,2)  =  1.489841e+00;
+    params.Rms(3,2) =  1.394455e-01;
+    params.Mms(3,2) =  7.110030e-04; 
+    params.Cmc(3,2) =  2.158767e-04; 
 
-    % 41: R = 7.43
-    params.Bl(4,1)  =  1.59e+00;
-    params.Rms(4,1) =  3.55e-01;
-    params.Mms(4,1) =  7.23e-04; 
-    params.Cmc(4,1) =  2.15e-04; 
-    % 42: R = 7.43
-    params.Bl(4,2)  =  1.51e+00;
-    params.Rms(4,2) =  2.81e-01;
-    params.Mms(4,2) =  6.63e-04; 
-    params.Cmc(4,2) =  2.30e-04; 
+    % 41: R = 7.23
+    params.Bl(4,1)  =  1.457938e+00;
+    params.Rms(4,1) =  1.977614e-01;
+    params.Mms(4,1) =  6.814108e-04; 
+    params.Cmc(4,1) =  1.895497e-04; 
+    % 42: R = 7.34
+    params.Bl(4,2)  =  1.518334e+00;
+    params.Rms(4,2) =  1.872651e-01;
+    params.Mms(4,2) =  7.086857e-04; 
+    params.Cmc(4,2) =  1.938161e-04; 
 
     % 51: R = 7.43
     params.Bl(5,1)  =  1.59e+00;
@@ -225,7 +225,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     params.muM_tgt = 1; %target
-    params.muR_tgt = 0.15;
+    params.muR_tgt = 1;
     params.muC_tgt = 1;
 
     % Synthesize all to a same average:
@@ -271,7 +271,7 @@ function params = param_struct();
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
-    params.kappa_nl = 3e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
+    params.kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
     params.kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
     
     
