@@ -57,7 +57,7 @@ s21 = s12;
 %% ASYMMETRIC + CASE
 %
 %%% CORRECTION DATA
-fstruct = dir('./__data/*100us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT 
+fstruct = dir('./__data/*315us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT 
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
@@ -65,14 +65,14 @@ load('C:/Speedgoat/temp/processed_data_a.mat');
 load('C:/Speedgoat/temp/processed_data_b.mat');
 
 H11_a = ones(p.N,1);
-H21_a = processed_data_a.H21./cal.H21_corr;
+H21_a=  processed_data_a.H21./cal.H21_corr; %%% DATA SMOOTHING HERE!!!
 H31_a = processed_data_a.H31./cal.H31_corr;
 H41_a = processed_data_a.H41./cal.H41_corr;
 
 H11_b = ones(p.N,1);
-H21_b =  processed_data_b.H21./cal.H21_corr;
-H31_b =  processed_data_b.H31./cal.H31_corr;
-H41_b =  processed_data_b.H41./cal.H41_corr;
+H21_b = processed_data_b.H21./cal.H21_corr;
+H31_b = processed_data_b.H31./cal.H31_corr;
+H41_b = processed_data_b.H41./cal.H41_corr;
 
 %%% COMPUTE WAVE COEFFICIENTS
 A_a = 1i*(H11_a.*exp(1i*k*l1)       - H21_a.*exp(1i*k*(l1-s1)))./(2*sin(k*s1));
@@ -153,15 +153,15 @@ legend("Re(q_{F})","Im(q_{F})","q_F = 2\pif/a ")
 %%% S-MATRIX
 figure(2);
 
-plot(p.freq, abs(s11), 'DisplayName', 's11');
+plot(p.freq, abs(s11).^2, 'DisplayName', '|s_{11}|^2');
 hold on;
-plot(p.freq, abs(s21), 'DisplayName', 's21');
-plot(p.freq, abs(s12), 'DisplayName', 's12');
-plot(p.freq, abs(s22), 'DisplayName', 's22');
+plot(p.freq, abs(s21).^2, 'DisplayName', '|s_{21}|^2');
+plot(p.freq, abs(s12).^2, 'DisplayName', '|s_{12}|^2');
+plot(p.freq, abs(s22).^2, 'DisplayName', '|s_{22}|^2');
 legend show
 ylim([0,1])
 xlabel("Frequency (Hz)")
-title("Transmission/reflection")
+title("Transmission/reflection coefficients")
 box on
 grid on
 
@@ -174,6 +174,7 @@ semilogy(p.freq, processed_data_a.C41, 'DisplayName', 'C_{41}','LineWidth',2);
 legend show;
 ylim([0,1.2])
 xlabel("Frequency (Hz)")
+title("Correlation w/r to mic. 1 of run A")
 box on
 grid on
 
@@ -184,11 +185,11 @@ autoArrangeFigures
 %{
 figure(4);
 %hold on;
-plot(f, abs(t11), 'DisplayName', 't11');
+plot(p.freq, abs(t11).^2, 'DisplayName', 't11');
 hold on;
-plot(f, abs(t21), 'DisplayName', 't21');
-plot(f, abs(t12), 'DisplayName', 't12');
-plot(f, abs(t22), 'DisplayName', 't22');
+plot(p.freq, abs(t21).^2, 'DisplayName', 't21');
+plot(p.freq, abs(t12).^2, 'DisplayName', 't12');
+plot(p.freq, abs(t22).^2, 'DisplayName', 't22');
 legend show;
 ylim([0,1])
 xlabel("Frequency (Hz)")
@@ -196,37 +197,25 @@ box on
 grid on
 %}
 
-%{
-z_11 = (1 + s11)./(1 - s11); % A VERIFIER
-z_22 = (1 + s22)./(1 - s22); % A VERIFIER (C'EST PROBABLEMENT FAUX)
-z_21 = 2./s21 - 2;
-z_12 = 2./s12 - 2;
-
-figure;
-plot_bode(f, z_11, 'displayName', 'z (s11)');
-plot_bode(f, z_21, 'displayName', 'z (s21)');
-plot_bode(f, z_12, 'displayName', 'z (s12)');
-plot_bode(f, z_22, 'displayName', 'z (s22)');
-
-%}
 
 %{
 figure(2);
 subplot(2,1,1);
 %hold on;
-plot(f, abs(s11), 'DisplayName', 's11');
+plot(p.freq, abs(s11).^2, 'DisplayName', 's11');
 hold on;
-plot(f, abs(s21), 'DisplayName', 's21');
-plot(f, abs(s12), 'DisplayName', 's12');
-plot(f, abs(s22), 'DisplayName', 's22');
+plot(p.freq, abs(s21).^2, 'DisplayName', 's21');
+plot(p.freq, abs(s12).^2, 'DisplayName', 's12');
+plot(p.freq, abs(s22).^2, 'DisplayName', 's22');
 legend show;
+ylim([0,1])
 
 subplot(2,1,2);
-plot(f, angle(s11), 'DisplayName', 's11');
+plot(p.freq, angle(s11), 'DisplayName', 's11');
 hold on
-plot(f, angle(s21), 'DisplayName', 's21');
-plot(f, angle(s12), 'DisplayName', 's12');
-plot(f, angle(s22), 'DisplayName', 's22');
+plot(p.freq, angle(s21), 'DisplayName', 's21');
+plot(p.freq, angle(s12), 'DisplayName', 's12');
+plot(p.freq, angle(s22), 'DisplayName', 's22');
 legend show;
 %}
 

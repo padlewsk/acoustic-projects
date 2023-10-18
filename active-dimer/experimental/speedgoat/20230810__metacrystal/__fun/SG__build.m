@@ -47,12 +47,12 @@ function SG__build()
         %104
         set_param([p.MDL, '/setup_135'], 'parConvClockBaseRate', "20MHz");
         set_param([p.MDL, '/setup_135'], 'parConvClock1Divider', num2str(20E6*p.ts_ctr));
-        %set_param([p.MDL,'/Enabled Subsystem Measure/File Log'],'decimation', num2str(p.log_dec)); %set decimation for logging
+        set_param([p.MDL,'/Enabled Subsystem Measure/File Log'],'decimation', num2str(p.log_dec)); %set decimation for logging
 
-        set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_log)); %writes in slot
-        set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_log)); 
-        set_param([p.MDL,'/source/sweep'],'Ts', num2str(p.ts_log));
-        set_param([p.MDL,'/Rate Transition'],'OutPortSampleTime', num2str(p.ts_log));
+        set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_log/p.log_dec)); %writes in slot
+        set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_log/p.log_dec)); 
+        set_param([p.MDL,'/source/sweep'],'Ts', num2str(p.ts_log/p.log_dec));
+        %set_param([p.MDL,'/Rate Transition'],'OutPortSampleTime', num2str(p.ts_log));
 
         %135 IN DMA mode, this is not to be defined
         %{
