@@ -12,7 +12,7 @@ function params = param_struct();
     
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.src_select = 1; % 1 = src A and 2 = src B
-    params.A = 0.4; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    params.A = 0.4  ; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     params.freq_span = params.freq_fin - params.freq_ini;
@@ -29,10 +29,10 @@ function params = param_struct();
     
     %%% Sample time: CANNOT CHANGE ONCE FLASHED  
     params.ts_ctr = 35e-06;
+    params.fs_ctr = (1/params.ts_ctr);
     params.log_dec = 9; %file log decimation -> reduces log file size by factor of log_dec
-    params.ts_log =  params.ts_ctr*params.log_dec; % must be <= 1/(2*params.freq_span) (a bit over the nyquist-shannon limit)
-    %params.ts_log =  1/(2.56*params.freq_span); %a bit over the nyquist-shannon limit
-    params.fs_log = (1/params.ts_log); %c.f.20231018__
+    params.ts_log = params.ts_ctr*params.log_dec; % must be <= 1/(2*params.freq_span) (a bit over the nyquist-shannon limit)
+    params.fs_log = round(1/params.ts_log); %c.f.20231018__
 
     %%% not in DMA mode
     %{
@@ -40,7 +40,7 @@ function params = param_struct();
     params.fs_acq = 1/params.ts_acq; 
     %}
     %% TRANSFER FUNCTION PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.wind = []; %1/(params.ts_log/params.log_dec); % number of samples for a window of 1s e.g. resolve up to 2 Hz --> window must be 1/2 s
+    params.wind = params.fs_log; % number of samples for a window of 1s e.g. resolve up to 2 Hz --> window must be 1/2 s
 
     %% CALIBRATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Mic Positions (wtr centre)
@@ -56,17 +56,17 @@ function params = param_struct();
     %a = 0.055; %m
     %% CONTROL SENSITIVITY 
     %%% MIC  p(unitcell,atom)
-    params.sens_p(1,1) =  -1/40.3E-3;% 1/(V/Pa) SN65602 %%%%%%%%%%%%%%%%%%%%%
-    params.sens_p(1,2) =  -1/39.6E-3;% 1/(V/Pa) SN65603 wtf ??????
+    params.sens_p(1,1) =  -1/38.6E-3;% 1/(V/Pa) SN65603 wtf ??????%%%%%%%%%%%%%%%
+    params.sens_p(1,2) =  -1/37.6E-3;% 1/(V/Pa) SN65602 
 
-    params.sens_p(2,1) =  -1/37.7E-3;% 1/(V/Pa) SN65604
-    params.sens_p(2,2) =  -1/39.2E-3;% 1/(V/Pa) SN65640
+    params.sens_p(2,1) =  -1/40.0E-3;% 1/(V/Pa) SN65604
+    params.sens_p(2,2) =  -1/37.9E-3;% 1/(V/Pa) SN65640
 
-    params.sens_p(3,1) =  -1/41.2E-3;% 1/(V/Pa) SN65606
-    params.sens_p(3,2) =  -1/39.7E-3;% 1/(V/Pa) SN65607
+    params.sens_p(3,1) =  -1/40.7E-3;% 1/(V/Pa) SN65606
+    params.sens_p(3,2) =  -1/39.3E-3;% 1/(V/Pa) SN65607
 
-    params.sens_p(4,1) =  -1/43.6E-3;% 1/(V/Pa) SN65608
-    params.sens_p(4,2) =  -1/43.0E-3;% 1/(V/Pa) SN65609
+    params.sens_p(4,1) =  -1/41.8E-3;% 1/(V/Pa) SN65608
+    params.sens_p(4,2) =  -1/42.0E-3;% 1/(V/Pa) SN65609
 
     params.sens_p(5,1) =  -1/40.1E-3;% 1/(V/Pa) 
     params.sens_p(5,2) =  -1/41.1E-3;% 1/(V/Pa) 
@@ -222,7 +222,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     params.muM_tgt = 1; %target
-    params.muR_tgt = 0.5;
+    params.muR_tgt = 1;
     params.muC_tgt = 1;
 
     % Synthesize all to a same average:

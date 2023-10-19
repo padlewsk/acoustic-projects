@@ -1,19 +1,19 @@
 %%% Microphone sensitivties; Microphone (V) --> (Pa) 
 %%% Use the 114.0 dB 1000 Hz Sound Calibrator type 1251 and run the code
-%%% Plug microphone in input 1 
+%%% Plug microphone in input 1 of th 104 module
 %%% Takes AVG amplitude over 5s
 %%% UPDATE params.m with the correct values.
 
 %%% add toolbox library
 addpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox');
 addpath('__fun');
-
+%run SG__build
 
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct(); 
 p.tmax = 2;  %integration time is 4 seconds
 p.A = 0;
-p_channel = 1;
+p_channel = 1; 
 
 %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('\n### Measurement started...\n\n');
@@ -32,7 +32,7 @@ p = Data(:,p_channel+1); %ai1
 %sens_est =  rms(p)/(20e-6*10^(114/20)); % (V/Pa) AND NOT A/p(dB)
 sens_est =  -sqrt(var(p))/(20e-6*10^(114/20)); 
 
-fprintf('\nSensitivity = %f mV/Pa \n', sens_est*10^3);
+fprintf('\nSensitivity = %.1f mV/Pa \n', round(sens_est*10^3,1)); % round to one decimal place
 
 
     
