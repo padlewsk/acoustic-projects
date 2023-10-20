@@ -6,19 +6,19 @@ function params = param_struct();
     %%% RMK: Manually update the asterixed parameters after running either
     
     %% PHYSICS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.c0 = 347.13; % 300K
-    params.rho0 = 1.1839;
-    params.Zc = params.c0*params.rho0; % characteristic specific acoustic impedence at 300K
+    params.c0 = 347.13; % 300KN_lines
+    %params.rho0 = 1.1839;
+    %params.Zc = params.c0*params.rho0; % characteristic specific acoustic impedence at 300K
     
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.src_select = 1; % 1 = src A and 2 = src B
-    params.A = 0.4  ; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    params.A = 0.4; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
-    params.freq_span = params.freq_fin - params.freq_ini;
-    params.N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
-    params.freq_res = params.freq_span/params.N_lines; %frequency resolution Hz
-    params.tmax = 1/params.freq_res; % sweep up time (s) measurement time = 2 x tmax
+    freq_span = params.freq_fin - params.freq_ini;
+    N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
+    freq_res = freq_span/N_lines; %frequency resolution Hz
+    params.tmax = 1/freq_res; % sweep up time (s) measurement time = 2 x tmax
 
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Machine type
@@ -30,8 +30,8 @@ function params = param_struct();
     %%% Sample time: CANNOT CHANGE ONCE FLASHED  
     params.ts_ctr = 35e-06;
     params.fs_ctr = (1/params.ts_ctr);
-    params.log_dec = 9; %file log decimation -> reduces log file size by factor of log_dec
-    params.ts_log = params.ts_ctr*params.log_dec; % must be <= 1/(2*params.freq_span) (a bit over the nyquist-shannon limit)
+    params.log_dec = 8; %file log decimation -> reduces log file size by factor of log_dec
+    params.ts_log = params.ts_ctr*params.log_dec; % must be <= 1/(2*freq_span) (a bit over the nyquist-shannon limit)
     params.fs_log = round(1/params.ts_log); %c.f.20231018__
 
     %%% not in DMA mode
@@ -221,38 +221,38 @@ function params = param_struct();
     %% CONTROL TARGET IMPEDENCE PARAMETERS 
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
-    params.muM_tgt = 1; %target
-    params.muR_tgt = 1;
-    params.muC_tgt = 1;
+    muM_tgt = 1; %target
+    muR_tgt = 0.4;
+    muC_tgt = 1;
 
     % Synthesize all to a same average:
-    params.Bl_avg =  mean(params.Bl(:,:),"all");
-    params.Mms_avg = mean(params.Mms(:,:),"all");
-    params.Rms_avg = mean(params.Rms(:,:),"all");
-    params.Cmc_avg = mean(params.Cmc(:,:),"all");
+    Bl_avg =  mean(params.Bl(:,:),"all");
+    Mms_avg = mean(params.Mms(:,:),"all");
+    Rms_avg = mean(params.Rms(:,:),"all");
+    Cmc_avg = mean(params.Cmc(:,:),"all");
 
     %Target resonnance frequency
-    %params.fst_A = 1/(2*pi*sqrt(params.Mms_avg*params.Cmc_avg))*sqrt(params.muC/params.muM); 
+    %fst_A = 1/(2*pi*sqrt(Mms_avg*Cmc_avg))*sqrt(muC/muM); 
 
     for ii = 1:8
         for jj = 1:2
-        params.muM(ii,jj) = params.muM_tgt*params.Mms_avg/params.Mms(ii,jj);
-        params.muR(ii,jj) = params.muR_tgt*params.Rms_avg/params.Rms(ii,jj);
-        params.muC(ii,jj) = (params.muC_tgt*params.Cmc(ii,jj))/params.Cmc_avg; 
-        params.fst(ii,jj) = params.f0(ii,jj)*sqrt(params.muC(ii,jj)/params.muM(ii,jj)); %Target resonance frequency
+        muM(ii,jj) = muM_tgt*Mms_avg/params.Mms(ii,jj);
+        muR(ii,jj) = muR_tgt*Rms_avg/params.Rms(ii,jj);
+        muC(ii,jj) = (muC_tgt*params.Cmc(ii,jj))/Cmc_avg; 
+        fst(ii,jj) = params.f0(ii,jj)*sqrt(muC(ii,jj)/muM(ii,jj)); %Target resonance frequency
         
         %%% Transfer function Coefs
         %num:
-        params.a2(ii,jj) = params.Sd*(params.muM(ii,jj) - 1)*params.Mms(ii,jj);
-        params.a1(ii,jj) = params.Sd*(params.muR(ii,jj) - 1)*params.Rms(ii,jj);
-        params.a0(ii,jj) = params.Sd*(params.muC(ii,jj) - 1)/params.Cmc(ii,jj);
+        a2(ii,jj) = params.Sd*(muM(ii,jj) - 1)*params.Mms(ii,jj);
+        a1(ii,jj) = params.Sd*(muR(ii,jj) - 1)*params.Rms(ii,jj);
+        a0(ii,jj) = params.Sd*(muC(ii,jj) - 1)/params.Cmc(ii,jj);
         %den:   
-        params.b2(ii,jj) = params.Bl(ii,jj)*params.muM(ii,jj)*params.Mms(ii,jj);
-        params.b1(ii,jj) = params.Bl(ii,jj)*params.muR(ii,jj)*params.Rms(ii,jj);
-        params.b0(ii,jj) = params.Bl(ii,jj)*params.muC(ii,jj)/params.Cmc(ii,jj);
+        b2(ii,jj) = params.Bl(ii,jj)*muM(ii,jj)*params.Mms(ii,jj);
+        b1(ii,jj) = params.Bl(ii,jj)*muR(ii,jj)*params.Rms(ii,jj);
+        b0(ii,jj) = params.Bl(ii,jj)*muC(ii,jj)/params.Cmc(ii,jj);
         %Transfer functionp. model:
-        params.Phi_c(ii,jj) = tf([params.a2(ii,jj),params.a1(ii,jj),params.a0(ii,jj)],[params.b2(ii,jj),params.b1(ii,jj),params.b0(ii,jj)]);%/(sens_p_p*u2i);
-        params.Phi_d(ii,jj) = c2d(params.Phi_c(ii,jj),params.ts_ctr,'tustin'); %discretized (necessary for SG model
+        Phi_c(ii,jj) = tf([a2(ii,jj),a1(ii,jj),a0(ii,jj)],[b2(ii,jj),b1(ii,jj),b0(ii,jj)]);%/(sens_p_p*u2i);
+        params.Phi_d(ii,jj) = c2d(Phi_c(ii,jj),params.ts_ctr,'tustin'); %discretized (necessary for SG model
         params.Phi_d(ii,jj) = minreal(params.Phi_d(ii,jj));
         end
     end
@@ -261,16 +261,20 @@ function params = param_struct();
     %%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% NECESSARY? YES.
     % --> Used to estimate the transfer functions
-    params.N = 2^(nextpow2((2*params.tmax)*params.fs_log)+1); % longer than the recorded data - for zero padding
+    params.N = 2^(nextpow2((2*params.tmax)*params.fs_log) + 1); % longer than the recorded data - for zero padding
     t = linspace(0,2*params.tmax,params.N)'; 
 
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.kappa    = 1*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
-    params.kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
-    params.kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
-    
+    kappa    = 0.8*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
+    kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
+    kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
+
+    params.cpl = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa];
+    %params.cpl = [kappa,0,kappa,0,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface test
+    %params.cpl = [kappa,0,kappa,kappa,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface test
+    params.cpl_nl = [kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl];
     
     %{
     %%% DOMAIN A

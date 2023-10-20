@@ -43,7 +43,7 @@ function Data = SG__measure(p, dlg)
    
     %% SET PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
-
+    
     % SOURCE PARAMETERS 
     tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
     tg.setparam('','sweep_gain', p.A);%
@@ -57,13 +57,11 @@ function Data = SG__measure(p, dlg)
     % CONTROL PARAMETERS
 
     % coupling
-    cpl = [p.kappa,0,p.kappa,0,p.kappa,0,p.kappa,0,p.kappa,0,p.kappa,0,p.kappa,0,p.kappa];
-    cpl_nl = [p.kappa_nl,0,p.kappa_nl,0,p.kappa_nl,0,p.kappa_nl,0,p.kappa_nl,0,p.kappa_nl,0,p.kappa_nl,0,p.kappa_nl];
-    tg.setparam('','k_mat',    diag(cpl,-1) + diag(cpl,1));    %linear coupling matrix k 
-    tg.setparam('','k_mat_NL', diag(cpl_nl,-1) + diag(cpl_nl,1)); % nonlinear coupling matrix k_nl
+    tg.setparam('','k_mat',   diag(p.cpl,-1)    + diag(p.cpl,1));    %linear coupling matrix k 
+    tg.setparam('','k_mat_NL',diag(p.cpl_nl,-1) + diag(p.cpl_nl,1)); % nonlinear coupling matrix k_nl
 
     % Bl
-     tg.setparam('','Bl',reshape(p.Bl',[] ,1)); RMK: the reshape is simply to change the 8x2 matrix to a 16x1 
+     tg.setparam('','Bl',reshape(p.Bl',[] ,1)); %RMK: the reshape is simply to change the 8x2 matrix to a 16x1 
 
     % impedance synthesis
     [b, a] = tfdata(p.Phi_d);
