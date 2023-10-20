@@ -267,13 +267,13 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    kappa    = 0.8*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
+    kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
     kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
     kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
 
-    params.cpl = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa];
-    %params.cpl = [kappa,0,kappa,0,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface test
-    %params.cpl = [kappa,0,kappa,kappa,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface test
+    %params.cpl   = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa];
+    %params.cpl   = [kappa,0,kappa,0,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface test
+    params.cpl    = [kappa,0,kappa,kappa,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface test
     params.cpl_nl = [kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl];
     
     %{
