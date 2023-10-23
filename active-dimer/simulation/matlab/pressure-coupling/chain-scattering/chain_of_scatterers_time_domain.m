@@ -25,22 +25,10 @@ fprintf("### DONE.\n")
 %}
 
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% FREQ SWEEP RANGE
-global N_cell t_fin %number of unit cells (= half the number of sites)
-N_cell = 25; %2^5%N_cell/2 needs to be even?
-mat_size = N_cell*8+1 ;%9*N_cell-(N_cell-1);
-
-%%% SAMPLING (for post processing --> doesn't affect sim time alot)
-f_samp = 5E5;
-t_samp = 1/f_samp;
-
-%%% SIMULATION TIME (MATLAB odes use adaptive ste1p size)
-t_fin = N_cell*N_cell*sys_param.a/sys_param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
-
 %%% INITIALISATION
-y0 = zeros(2*mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
+y0 = zeros(2*sys_param.mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
 %y0 = zeros(1,6)%RES 
-%y0(mat_size + 3) = Caa*Sd;
+%y0(sys_param.mat_size + 3) = Caa*Sd;
  
 %%% TODO: CRYSTAL S-MATRIX ANALYSIS
 %{ 
@@ -57,12 +45,12 @@ if ~exist("t_out") % skips simulation if data has been loaded
     %'NormControl','on'
     opts = odeset('InitialStep', 1e-5, 'Refine', 8,'Stats','on'); % use refine to compute additional points
     temp = 0; %Future settings?
-    [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,temp),[0,t_fin], y0, opts);%dynamically adjusts sampling time
+    [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,temp),[0,sys_param.t_fin], y0, opts);%dynamically adjusts sampling time
     toc
     fprintf("### DONE.\n")
 else
-    mat_size = size(y_out,2)/2;%%% extracts cell size from imported data
-    N_cell = (mat_size-1)/8; 
+    sys_param.mat_size = size(y_out,2)/2;%%% extracts cell size from imported data
+    sys_param.N_cell = (sys_param.mat_size-1)/8; 
 end
 %%% y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
@@ -79,8 +67,8 @@ end
 toc
 
 %% EXCTRACT DATA
-x = y_out(:,1:mat_size);   % acoustic charge
-q = y_out(:,mat_size+1:end);% acoustic flow
+x = y_out(:,1:sys_param.mat_size);   % acoustic charge
+q = y_out(:,sys_param.mat_size+1:end);% acoustic flow
 x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
 p_s = 1/(sys_param.Caa)*(x(:,2:4:end) - x(:,3:4:end) - x(:,4:4:end)); %(xi-xs-xo)
 
@@ -113,7 +101,7 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %surface plot
-[X,Y] = meshgrid(1:2*N_cell,t_out*1000);
+[X,Y] = meshgrid(1:2*sys_param.N_cell,t_out*1000);
 Z = abs(p_s); 
 Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA!
 %{
@@ -125,20 +113,20 @@ Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA!
     set(gca,'color','none','YDir','normal')
     %set(gcf,'InvertHardcopy','off','Color','none')
     %{
-    c = imagesc(t_out*1000,1:2*N_cell,abs(p_s)'); %clims = [4 18];
+    c = imagesc(t_out*1000,1:2*sys_param.N_cell,abs(p_s)'); %clims = [4 18];
     c = colorbar;
     c.Label.String = "AER pressure (Pa)";
     c.Label.Interpreter = 'latex';
     %}
     %set(h, 'EdgeColor', 'none');
     %{
-    for nn = 1:2*N_cell
+    for nn = 1:2*sys_param.N_cell
     plot3(nn*ones(numel(t_out)),t_out*1000,Z(:,nn))
     hold on
     end
     hold off
     %}
-    %xlim([0.5,2*N_cell-0.5])
+    %xlim([0.5,2*sys_param.N_cell-0.5])
     ylim([t_out(1),t_out(end)/5]*1000)%
     zlim([0,sys_param.A_src*2])
     xlabel('site n')
@@ -167,28 +155,33 @@ h = ribbon(Y,Z,0.5);
 set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
 %}
 set(gcf,'position',fig_param.window_size);
+set(gcf, 'InvertHardCopy', 'off'); % to make black figure
+set(gcf,'Color',[0 0 0]);% to make black figure
+
 set(gca,fig_param.fig_prop{:});
-set(gca,'color','none','YDir','normal')
+set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
+%set(gca,'color','none','YDir','normal')
 grid("off")
 %box("on")
-xlim([0.5,2*N_cell+0.5])
-%xlim([N_cell-2.5,N_cell+2.5]) % zoom on topological interface
-%ylim([t_out(1),t_out(end)/5]*1000)%
+xlim([0.5,2*sys_param.N_cell+0.5])
+%xlim([sys_param.N_cell-2.5,sys_param.N_cell+2.5]) % zoom on topological interface
+%ylim([t_out(1),t_out(end)/5]*1000)
 %zlim([0,sys_param.A_src*1.5])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
-%clim([0, sys_param.A_src*1]);
+c.Color = 'w';
+%clim([0, sys_param.A_src*1.5]);
 view(135,60)
 
 
 %%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-t_vec =  0:t_samp:t_fin; 
+t_vec =  0:sys_param.t_samp:sys_param.t_fin; 
 
 %%% ZERO PADDING
-%t_vec = linspace(0,t_fin,2^(nextpow2(numel(t_out))+4));%This time vector used to interpolate before performing the FFT. 
+%t_vec = linspace(0,sys_param.t_fin,2^(nextpow2(numel(t_out))+4));%This time vector used to interpolate before performing the FFT. 
 p_seg = interp1(t_out,p_s,t_vec); % Interpolate data 
 
 t0 = 3/(sys_param.f_src); %3/(2*pi*param.c0/param.a/2);% pulse delay
@@ -200,15 +193,15 @@ Y = fft2(p_seg)/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)
 Y = fftshift(Y); %filters out DC component
 
 NFFT_f = length(t_seg); % signal length
-omega = 2*pi*f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
+omega = 2*pi*sys_param.f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
 
 NFFT_qa = length(p_seg); % signal length
 qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
 
-%%% BAND FOLDING %%% RMK: N_cell must be EVEN
+%%% BAND FOLDING %%% RMK: sys_param.N_cell must be EVEN
 %{
-Y_inner = [Y(:,N_cell/2+1:3*N_cell/2)];
-Y_outer = flip([Y(:,3*N_cell/2+1:2*N_cell) Y(:,1:N_cell/2)],2);
+Y_inner = [Y(:,sys_param.N_cell/2+1:3*sys_param.N_cell/2)];
+Y_outer = flip([Y(:,3*sys_param.N_cell/2+1:2*sys_param.N_cell) Y(:,1:sys_param.N_cell/2)],2);
 Y_fold = (Y_inner+Y_outer);
 %}
 Y_fold = Y; %Bypass
@@ -216,7 +209,9 @@ Y_fold = Y; %Bypass
 %%% CUT OFF HIGH FREQUENCIES
 fig3 = figure(3);
 set(gcf,'position',fig_param.window_size);
-set(gca,fig_param.fig_prop{:});
+set(gcf, 'InvertHardCopy', 'off'); % to make black figure
+set(gcf,'Color',[0 0 0]);% to make black figure
+set(gca,fig_param.fig_prop{:},'XColor','w','YColor','w');
 %set(gca,'FontSize',20)
 %set(gcf,'position',[50, 50, 800, 1000]);
 hold on
@@ -230,8 +225,9 @@ hold off
 colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
+c.Color = 'w';
 %clim([0, sys_param.A_src*0.5]);
-clim([0, 1.5]);
+%clim([0, 1.5]);
 xlabel("qa/\pi")% full unitcell
 %ylabel("$(\omega-\omega_0)/(2\pi)$",'Interpreter','latex')
 %xlabel("$qa/(2\pi)$",'Interpreter','latex')% halved unitcell
@@ -244,8 +240,8 @@ ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 
 %{
 %%% OUTPUT AND PROCESSING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-q_i = y_out(:,mat_size+1);
-q_o = y_out(:,2*mat_size);
+q_i = y_out(:,sys_param.mat_size+1);
+q_o = y_out(:,2*sys_param.mat_size);
 
 %%% COMPUTE PRESSURES
 psrc = source(A_pinc,f,t_out); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -366,7 +362,7 @@ legend(str, 'Interpreter','latex', 'Location','NW')
 
 drawnow
 %}
-
+box on
 
 hold off
 
