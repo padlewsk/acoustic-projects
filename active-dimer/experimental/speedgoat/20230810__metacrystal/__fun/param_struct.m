@@ -11,6 +11,7 @@ function params = param_struct();
     %params.Zc = params.c0*params.rho0; % characteristic specific acoustic impedence at 300K
     
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    params.use_random = true;
     params.src_select = 1; % 1 = src A and 2 = src B
     params.A = 0.4; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.freq_ini = 150;%150; %% initial frequency
@@ -30,7 +31,7 @@ function params = param_struct();
     %%% Sample time: CANNOT CHANGE ONCE FLASHED  
     params.ts_ctr = 35e-06;
     params.fs_ctr = (1/params.ts_ctr);
-    params.log_dec = 8; %file log decimation -> reduces log file size by factor of log_dec
+    params.log_dec = 2; %file log decimation -> reduces log file size by factor of log_dec
     params.ts_log = params.ts_ctr*params.log_dec; % must be <= 1/(2*freq_span) (a bit over the nyquist-shannon limit)
     params.fs_log = round(1/params.ts_log); %c.f.20231018__
 

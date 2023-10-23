@@ -11,7 +11,7 @@ function Data = SG__measure(p, dlg)
        dlg = struct ;
        dlg.CancelRequested = 0; 
     end
-    
+
     %% START APPLICATION
     % The ``tg.start`` function starts the target. The option
     % ``AutoImportFileLog`` is passed to the ``tg.start`` function to specify
@@ -45,6 +45,8 @@ function Data = SG__measure(p, dlg)
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
     
     % SOURCE PARAMETERS 
+    tg.setparam('', 'use_random', p.use_random); 
+    
     tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
     tg.setparam('','sweep_gain', p.A);%
     tg.setparam('', 'tmax', p.tmax);%
