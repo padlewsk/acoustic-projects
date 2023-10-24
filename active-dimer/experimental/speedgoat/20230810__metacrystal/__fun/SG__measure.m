@@ -188,12 +188,4 @@ function Data = SG__measure(p, dlg)
 
     TET = struct2table(tg.ModelStatus.TETInfo) % print TET info
     fprintf('\t[DONE]\n');
-    
-    %run('suuu.m');
-    
-    %t = ((0:size(Data, 1)-1)*ts)';
-    %N = length(t);
-    
-    %%% Frequency vector
-    %f = fi+(ff-fi)*t/tmax; %frequency vector tmax is the time when the frequency reaches ff
 end

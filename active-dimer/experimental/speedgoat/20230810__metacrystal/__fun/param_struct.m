@@ -17,7 +17,7 @@ function params = param_struct();
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     freq_span = params.freq_fin - params.freq_ini;
-    N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
+    N_lines = 1600; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     freq_res = freq_span/N_lines; %frequency resolution Hz
     params.tmax = 1/freq_res; % sweep up time (s) measurement time = 2 x tmax
 
@@ -28,10 +28,10 @@ function params = param_struct();
     params.tg_model = 'Mobile'; %target select
     params.MDL = 'SG__MDL_DMA'; % name of the slx model (performance)
     
-    %%% Sample time: CANNOT CHANGE ONCE FLASHED  
+    %%% Sample time: CANNOT CHANGE ONCE BUILT AND UPLOADED !
     params.ts_ctr = 35e-06;
     params.fs_ctr = (1/params.ts_ctr);
-    params.log_dec = 2; %file log decimation -> reduces log file size by factor of log_dec
+    params.log_dec = 1; %file log decimation -> reduces log file size by factor of log_dec
     params.ts_log = params.ts_ctr*params.log_dec; % must be <= 1/(2*freq_span) (a bit over the nyquist-shannon limit)
     params.fs_log = round(1/params.ts_log); %c.f.20231018__
 
@@ -223,7 +223,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; %target
-    muR_tgt = 0.4;
+    muR_tgt = 0.2;
     muC_tgt = 1;
 
     % Synthesize all to a same average:
@@ -268,25 +268,15 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
+    kappa    = 0.8*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
     kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
     kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
 
-    %params.cpl   = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa];
-    %params.cpl   = [kappa,0,kappa,0,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface test
-    params.cpl    = [kappa,0,kappa,kappa,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface test
+    %params.cpl  = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa]; % interfaceless
+    %params.cpl = [kappa,0,kappa,0,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface 1 
+    params.cpl = [kappa,0,kappa,kappa,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface 2
     params.cpl_nl = [kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl];
     
-    %{
-    %%% DOMAIN A
-    params.kappa_A    = 1*(-params.Sd); % coupling (front pressure) MAX 1
-    params.kappa_nl_A = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
-    params.kerr_nl_A  = 0e12; % local non-linearity (backpressure) MAX 5e12;
-    
-    %%% DOMAIN A
-    params.kappa_B    = 1*(-params.Sd); % coupling (front pressure) MAX 1
-    params.kappa_nl_B = 0e-2*(-params.Sd); % NL coupling (front pressure) MAX 1.5e-2*(-params.Sd)
-    params.kerr_nl_B  = 0e12; % local non-linearity (backpressure) MAX 5e12;
-    %}
+    % MAKE KERR CPL
 end
 
