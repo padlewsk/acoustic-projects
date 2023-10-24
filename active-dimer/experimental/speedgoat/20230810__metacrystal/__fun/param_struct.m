@@ -12,7 +12,7 @@ function params = param_struct();
     
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.use_random = true;
-    params.src_select = 1; % 1 = src A and 2 = src B
+    params.src_select = 1; % 1 = src A,  2 = src B and 3 = src A + src B
     params.A = 0.4; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency

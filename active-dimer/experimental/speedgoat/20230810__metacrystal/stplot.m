@@ -11,8 +11,9 @@ addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projec
 %%% RUN PARAMETERS FILE
 addpath('./__fun/')
 addpath('./__data/')
-load signal_control_raw_a.mat signal_control_raw
-sys_param = sys_params();
+load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
+%load signal_control_raw_a.mat signal_control_raw
+sys_param = param_struct();
 sys_param.N_cell = 4;
 
 %%% SAVE DATA FOR PLOTS
@@ -94,25 +95,27 @@ view(135,60)
 
 
 %%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-t_vec =  0:sys_param.t_samp:sys_param.t_fin; 
-
+t_vec = t_out;% 0:sys_param.ts_log:2*sys_param.tmax; 
+p_vec = p_s;
 %%% ZERO PADDING
-%t_vec = linspace(0,sys_param.t_fin,2^(nextpow2(numel(t_out))+4));%This time vector used to interpolate before performing the FFT. 
-p_seg = interp1(t_out,p_s,t_vec); % Interpolate data 
+%t_vec = linspace(0,t_out(end),2^(nextpow2(numel(t_out))));%This time vector used to interpolate before performing the FFT. 
+%p_vec = interp1(t_out,p_s,t_vec); % Interpolate data 
 
-t0 = 3/(sys_param.f_src); %3/(2*pi*param.c0/param.a/2);% pulse delay
+%{
+t0 = 3/(sys_param.f_src); 
 
 t_seg = t_vec(t_vec>2*t0); %omit first data points
 p_seg = p_seg(t_vec>2*t0,:); 
+%}
 
-Y = fft2(p_seg)/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)
+Y = fft2(p_vec)/length(p_vec); %2D FFT --> normalized to get amplitude in (Pa)
 Y = fftshift(Y); %filters out DC component
 
-NFFT_f = length(t_seg); % signal length
-omega = 2*pi*sys_param.f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
+NFFT_f = length(t_vec); % signal length
+omega = 2*pi*sys_param.fs_log*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
 
-NFFT_qa = length(p_seg); % signal length
-qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
+NFFT_qa = length(p_vec); % signal length
+qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1))+0.5; %%% WHY THIS 0.5???'
 
 %%% BAND FOLDING %%% RMK: sys_param.N_cell must be EVEN
 %{
