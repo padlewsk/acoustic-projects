@@ -1,4 +1,4 @@
-function Data = SG__measure(p, dlg)
+function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     %%% 2023.08.10 Passive unit cell dispersion measurement.
     addpath('__fun');
 
@@ -11,7 +11,7 @@ function Data = SG__measure(p, dlg)
        dlg = struct ;
        dlg.CancelRequested = 0; 
     end
-    
+
     %% START APPLICATION
     % The ``tg.start`` function starts the target. The option
     % ``AutoImportFileLog`` is passed to the ``tg.start`` function to specify
@@ -45,6 +45,7 @@ function Data = SG__measure(p, dlg)
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
     
     % SOURCE PARAMETERS 
+    tg.setparam('', 'use_random', p.use_random); 
     tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
     tg.setparam('','sweep_gain', p.A);%
     tg.setparam('', 'tmax', p.tmax);%
@@ -121,7 +122,7 @@ function Data = SG__measure(p, dlg)
         if dlg.CancelRequested %%% Check if cancel button is pressed
             dlg.Message = 'Measurement aborted.';
             tg.stop;% stops target
-            Data = nan(1,4+16);
+            data = nan(1,4+16);
             return
         end
     end
@@ -182,16 +183,7 @@ function Data = SG__measure(p, dlg)
     fprintf('\t[DONE]\n');
     %}
     
-    Data = signal_measure_raw.Variables; % store data in data array
-
+    %data = signal_measure_raw.Variables; % store data in data array
     TET = struct2table(tg.ModelStatus.TETInfo) % print TET info
     fprintf('\t[DONE]\n');
-    
-    %run('suuu.m');
-    
-    %t = ((0:size(Data, 1)-1)*ts)';
-    %N = length(t);
-    
-    %%% Frequency vector
-    %f = fi+(ff-fi)*t/tmax; %frequency vector tmax is the time when the frequency reaches ff
 end

@@ -57,7 +57,7 @@ s21 = s12;
 %% ASYMMETRIC + CASE
 %
 %%% CORRECTION DATA
-fstruct = dir('./__data/*315us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT 
+fstruct = dir('./__data/*35us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT 
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
@@ -172,7 +172,7 @@ hold on;
 semilogy(p.freq, processed_data_a.C31, 'DisplayName', 'C_{31}','LineWidth',2);
 semilogy(p.freq, processed_data_a.C41, 'DisplayName', 'C_{41}','LineWidth',2);
 legend show;
-ylim([0,1.2])
+ylim([0, 1.2])
 xlabel("Frequency (Hz)")
 title("Correlation w/r to mic. 1 of run A")
 box on
