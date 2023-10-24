@@ -17,7 +17,7 @@ function params = param_struct();
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     freq_span = params.freq_fin - params.freq_ini;
-    N_lines = 1600; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
+    N_lines = 2000; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     freq_res = freq_span/N_lines; %frequency resolution Hz
     params.tmax = 1/freq_res; % sweep up time (s) measurement time = 2 x tmax
 

@@ -1,4 +1,4 @@
-function Data = SG__measure(p, dlg)
+function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     %%% 2023.08.10 Passive unit cell dispersion measurement.
     addpath('__fun');
 
@@ -46,7 +46,6 @@ function Data = SG__measure(p, dlg)
     
     % SOURCE PARAMETERS 
     tg.setparam('', 'use_random', p.use_random); 
-    
     tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
     tg.setparam('','sweep_gain', p.A);%
     tg.setparam('', 'tmax', p.tmax);%
@@ -123,7 +122,7 @@ function Data = SG__measure(p, dlg)
         if dlg.CancelRequested %%% Check if cancel button is pressed
             dlg.Message = 'Measurement aborted.';
             tg.stop;% stops target
-            Data = nan(1,4+16);
+            data = nan(1,4+16);
             return
         end
     end
@@ -184,8 +183,7 @@ function Data = SG__measure(p, dlg)
     fprintf('\t[DONE]\n');
     %}
     
-    Data = signal_measure_raw.Variables; % store data in data array
-
+    %data = signal_measure_raw.Variables; % store data in data array
     TET = struct2table(tg.ModelStatus.TETInfo) % print TET info
     fprintf('\t[DONE]\n');
 end
