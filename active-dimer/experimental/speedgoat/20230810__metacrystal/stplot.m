@@ -1,6 +1,4 @@
-%%% SCATTERING THROUGH AN ACOUSTIC LINER IN TIME DOMAIN %%%%%%%%%%%%%%%%%%
-
-%rng(1);%specifies the seed for the MATLAB® random number generator TEST
+%%% SPATIO-TEMPORAL AND DISPERSION PLOTS %%%%%%%%%%%%%%%%%%
 close all; pause(0); 
 clear all; 
 clc;
@@ -12,15 +10,15 @@ addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projec
 addpath('./__fun/')
 addpath('./__data/')
 load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
-%load signal_control_raw_a.mat signal_control_raw
+
 sys_param = param_struct();
 sys_param.N_cell = 4;
 
 %%% SAVE DATA FOR PLOTS
 %sim_name = "L_ref";
 
-p_s = signal_control_raw.Variables;
-p_s = p_s(:,1:8); %only first 4 cells
+p_out = signal_control_raw.Variables;
+p_out = p_out(:,1:8); %only first 4 cells
 t_out = signal_control_raw.Time;
 t_out = seconds(t_out);
 
@@ -36,15 +34,15 @@ fig1 = figure(1);
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:});
 hold on
-plot(t_out,real(p_s(:,1)),'-')
-plot(t_out,real(p_s(:,2)),'-')
-plot(t_out,real(p_s(:,3)),'-.')
-plot(t_out,real(p_s(:,4)),'-.')
+plot(t_out,real(p_out(:,1)),'-')
+plot(t_out,real(p_out(:,2)),'-')
+plot(t_out,real(p_out(:,3)),'-.')
+plot(t_out,real(p_out(:,4)),'-.')
 hold off
 box on
 grid on
 %title('Solution of van der Pol Equation (\mu = 1) with ODE45');
-xlabel('Time t/T');
+xlabel('Time t (s)');
 ylabel('Solution p');
 legend('p_{11}','p_{12}','p_{21}','p_{22}')
 %ylim([-1,1])
@@ -52,9 +50,15 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 
 
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% OMIT FIRST DATA POINTS
+t_cut_idx = t_out>=200e-3; %cf 20231025
+t_out = t_out(t_cut_idx);
+t_out = t_out-t_out(1); %reset t_o = 0;
+p_out = p_out(t_cut_idx,:);
+
 %surface plot
 [X,Y] = meshgrid(1:2*sys_param.N_cell,t_out*1000);
-Z = abs(p_s); 
+Z = abs(p_out); 
 Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA!
 
 fig2 = figure(2); % \Delta t simulation time step
@@ -80,42 +84,36 @@ set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
 grid("off")
 %box("on")
 xlim([0.5,2*sys_param.N_cell+0.5])
-%xlim([sys_param.N_cell-2.5,sys_param.N_cell+2.5]) % zoom on topological interface
-%ylim([t_out(1),300])
-%ylim([t_out(1),t_out(end)/5]*1000)
-%zlim([0,sys_param.A_src*1.5])
+ylim([t_out(1),300])
+zlim([0,5])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-%clim([0, sys_param.A_src*1.5]);
+clim([0, 5]);
 view(135,60)
 
 
 %%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-t_vec = t_out;% 0:sys_param.ts_log:2*sys_param.tmax; 
-p_vec = p_s;
+
 %%% ZERO PADDING
-%t_vec = linspace(0,t_out(end),2^(nextpow2(numel(t_out))));%This time vector used to interpolate before performing the FFT. 
-%p_vec = interp1(t_out,p_s,t_vec); % Interpolate data 
+%t_vec = linspace(0,t_out(end),2^(nextpow2(numel(t_out))+3))';%This time vector used to interpolate before performing the FFT. 
+%p_vec = interp1(t_out,p_out,t_vec,'spline'); % Interpolate data (spline eliminates NaNs at the start...)
 
-%{
-t0 = 3/(sys_param.f_src); 
+%%% OMIT FIRST DATA POINTS
+p_vec = p_out;
+t_vec = t_out;
 
-t_seg = t_vec(t_vec>2*t0); %omit first data points
-p_seg = p_seg(t_vec>2*t0,:); 
-%}
-
-Y = fft2(p_vec)/length(p_vec); %2D FFT --> normalized to get amplitude in (Pa)
+Y = fft2(p_vec,2^(nextpow2(size(p_vec,1))),8)/length(p_vec); % normalized to get amplitude in (Pa) %p_vec is truncated to length 2^10)
 Y = fftshift(Y); %filters out DC component
 
 NFFT_f = length(t_vec); % signal length
-omega = 2*pi*sys_param.fs_log*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
+omega = 2*pi*sys_param.fs_log*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1))'; %
 
 NFFT_qa = length(p_vec); % signal length
-qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1))+0.5; %%% WHY THIS 0.5???'
+qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1))'+ 0.5 ; %%% WHY THIS 0.5???'
 
 %%% BAND FOLDING %%% RMK: sys_param.N_cell must be EVEN
 %{
@@ -137,20 +135,16 @@ hold on
 %imagesc(qa/pi,omega/(2*pi),abs(Y)); 
 %imagesc(abs(Y_fold));
 imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
-%yline([422.380/1000 param.c0/param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
-%yline([415/1000 644.5/1000],'r--',{'Local','Bragg'},'LineWidth',2);
+%yline([422.380/1000 sys_param.c0/sys_param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
+yline([422.380/1000 673/1000],'r--',{'Local','Bragg'},'LineWidth',1);
 hold off
 %colormap('hot');
 colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-%clim([0, sys_param.A_src*0.5]);
-%clim([0, 1.5]);
+clim([0, 0.4]);
 xlabel("qa/\pi")% full unitcell
-%ylabel("$(\omega-\omega_0)/(2\pi)$",'Interpreter','latex')
-%xlabel("$qa/(2\pi)$",'Interpreter','latex')% halved unitcell
-%ylabel("$\omega/(2\pi)$",'Interpreter','latex')
 ylabel("f (kHz)")
 xlim([-1,1])
 ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)

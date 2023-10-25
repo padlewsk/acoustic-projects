@@ -14,8 +14,12 @@ function params = param_struct();
     params.use_random = true;
     params.src_select = 1; % 1 = src A,  2 = src B and 3 = src A + src B
     params.A = 0.4; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    %constant
+    params.freq_sine = 680; %default
+    %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
+
     freq_span = params.freq_fin - params.freq_ini;
     N_lines = 2000; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     freq_res = freq_span/N_lines; %frequency resolution Hz
@@ -268,13 +272,13 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    kappa    = 0.8*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
+    kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
     kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
-    kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
+    kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
 
-    %params.cpl  = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa]; % interfaceless
-    %params.cpl = [kappa,0,kappa,0,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface 1 
-    params.cpl = [kappa,0,kappa,kappa,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface 2
+    %params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa]; % interfaceless
+    %params.cpl    = [kappa,0,kappa,0,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface 1 
+    params.cpl    = [kappa,0,kappa,kappa,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface 2
     params.cpl_nl = [kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl];
     
     % MAKE KERR CPL

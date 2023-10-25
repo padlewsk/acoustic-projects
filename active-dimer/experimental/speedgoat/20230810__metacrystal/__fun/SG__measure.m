@@ -45,12 +45,17 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
     
     % SOURCE PARAMETERS 
-    tg.setparam('', 'use_random', p.use_random); 
+    tg.setparam('', 'use_random', p.use_random); % 1 random 0 cte
+    tg.setparam('','freq_sine', p.A);%
     tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
-    tg.setparam('','sweep_gain', p.A);%
+    tg.setparam('','src_gain', p.A);%
+
+    %{
+    %sweep not used for now
     tg.setparam('', 'tmax', p.tmax);%
     tg.setparam('', 'freq_ini',  p.freq_ini);%
     tg.setparam('', 'freq_fin',  p.freq_fin);%
+    %} 
 
     %SET RECORDING TIME 
     tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
