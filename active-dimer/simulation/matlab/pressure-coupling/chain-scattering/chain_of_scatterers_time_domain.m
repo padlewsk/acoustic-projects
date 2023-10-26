@@ -50,7 +50,7 @@ if ~exist("t_out") % skips simulation if data has been loaded
     fprintf("### DONE.\n")
 else
     sys_param.mat_size = size(y_out,2)/2;%%% extracts cell size from imported data
-    sys_param.N_cell = (sys_param.mat_size-1)/8; 
+    sys_param.N_cell   = (sys_param.mat_size-1)/8; 
 end
 %%% y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
@@ -178,24 +178,22 @@ view(135,60)
 
 
 %%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-t_vec =  0:sys_param.t_samp:sys_param.t_fin; 
+t_vec =  (0:sys_param.t_samp:sys_param.t_fin)'; %need to create another time vector because the output of the simulation isn't with constant sampling.
+p_vec = interp1(t_out,p_s,t_vec); % Interpolate data 
 
-%%% ZERO PADDING
-%t_vec = linspace(0,sys_param.t_fin,2^(nextpow2(numel(t_out))+4));%This time vector used to interpolate before performing the FFT. 
-p_seg = interp1(t_out,p_s,t_vec); % Interpolate data 
-
+%omit first data points
 t0 = 3/(sys_param.f_src); %3/(2*pi*param.c0/param.a/2);% pulse delay
-
 t_seg = t_vec(t_vec>2*t0); %omit first data points
-p_seg = p_seg(t_vec>2*t0,:); 
+p_seg = p_vec(t_vec>2*t0,:); 
 
-Y = fft2(p_seg)/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa)
+%Y = fft2(p_seg,2^nextpow2(size(p_seg,1)),size(p_seg,2))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa). Extra points are for zero padding.
+Y = fft2(p_seg)/length(p_seg); 
 Y = fftshift(Y); %filters out DC component
 
-NFFT_f = length(t_seg); % signal length
-omega = 2*pi*sys_param.f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1)); %
+NFFT_f = size(Y,1); % signal length
+omega = 2*pi*sys_param.f_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1))'; %
 
-NFFT_qa = length(p_seg); % signal length
+NFFT_qa = size(Y,2); % signal length
 qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
 
 %%% BAND FOLDING %%% RMK: sys_param.N_cell must be EVEN
@@ -215,11 +213,11 @@ set(gca,fig_param.fig_prop{:},'XColor','w','YColor','w');
 %set(gca,'FontSize',20)
 %set(gcf,'position',[50, 50, 800, 1000]);
 hold on
-%imagesc(qa/pi,omega/(2*pi),abs(Y)); 
+%imagesc(qa/pi,omega/(2*pi),abs(Y));
 %imagesc(abs(Y_fold));
 imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
 %yline([422.380/1000 param.c0/param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
-%yline([415/1000 644.5/1000],'r--',{'Local','Bragg'},'LineWidth',2);
+yline([415/1000 644.5/1000],'r--',{'Local','Bragg'},'LineWidth',1);
 hold off
 %colormap('hot');
 colormap(magma);

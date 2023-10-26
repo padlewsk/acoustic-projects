@@ -91,6 +91,8 @@ function dydt = odecrystal(t,y,temp)
         t0 = 3*T_src;% delay %%%%%%%%%%%%%%%%%
         tau = 0.5*T_src/sqrt(2);% width
         p_src = sys_param.A_src*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); 
+    elseif sys_param.src_select == 2  %%% White noise  (temporal cutoff)
+        p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*rand(1)*1/(1+exp(1000*(t-sys_param.t_fin/2)));
     else
         fprintf("%%% No source selected.\n")
     end
