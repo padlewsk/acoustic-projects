@@ -43,7 +43,7 @@ if ~exist("t_out") % skips simulation if data has been loaded
     %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     tic
     %'NormControl','on'
-    opts = odeset('InitialStep', 1e-5, 'Refine', 8,'Stats','on'); % use refine to compute additional points
+    opts = odeset('InitialStep', 1e-5, 'Refine', 10,'Stats','on'); % use refine to compute additional points
     temp = 0; %Future settings?
     [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,temp),[0,sys_param.t_fin], y0, opts);%dynamically adjusts sampling time
     toc
@@ -167,6 +167,7 @@ xlim([0.5,2*sys_param.N_cell+0.5])
 %xlim([sys_param.N_cell-2.5,sys_param.N_cell+2.5]) % zoom on topological interface
 %ylim([t_out(1),t_out(end)/5]*1000)
 %zlim([0,sys_param.A_src*1.5])
+%zlim([0,10])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
@@ -186,8 +187,8 @@ t0 = 3/(sys_param.f_src); %3/(2*pi*param.c0/param.a/2);% pulse delay
 t_seg = t_vec(t_vec>2*t0); %omit first data points
 p_seg = p_vec(t_vec>2*t0,:); 
 
-%Y = fft2(p_seg,2^nextpow2(size(p_seg,1)),size(p_seg,2))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa). Extra points are for zero padding.
-Y = fft2(p_seg)/length(p_seg); 
+Y = fft2(p_seg,2^(nextpow2(size(p_seg,1))+1),size(p_seg,2))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa). Extra points are for zero padding.
+%Y = fft2(p_seg)/length(p_seg); 
 Y = fftshift(Y); %filters out DC component
 
 NFFT_f = size(Y,1); % signal length
