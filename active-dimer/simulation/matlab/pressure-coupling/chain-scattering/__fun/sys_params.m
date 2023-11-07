@@ -62,7 +62,7 @@ function sys_param = sys_params()
     sys_param.ff = 1300; %% final frequency
     sys_param.A_src = 10; %%% incident pressure amplitude (Pa) %%% NL
     sys_param.f_src  = 645; % Hz speaker + enclosure res freq 644.5 for sin and pulse
-    sys_param.src_select = 0; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1  %%% PULSE CENTERED AT sys_param.f_src %%% 2 white noise (doesn't work)
+    sys_param.src_select = 1; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1  %%% PULSE CENTERED AT sys_param.f_src %%% 2 white noise (doesn't work)
     sys_param.src_loc = [1];% 
     %sys_param.src_loc =[1 sys_param.mat_size];% [round(sys_param.mat_size/2)]; %%%%%%%
 
@@ -71,14 +71,15 @@ function sys_param = sys_params()
     sys_param.t_samp = 1/sys_param.f_samp;
 
     %%% SIMULATION TIME (MATLAB odes use adaptive step size)
-    sys_param.t_fin =  15*sys_param.N_cell*sys_param.a/sys_param.c0; % 3 for pulse dynamics%simulation time in seconds (time for sound to go from source to end of crystal)
+    sys_param.t_fin =  5*sys_param.N_cell*sys_param.a/sys_param.c0; % 3 for pulse dynamics, 15 for cte%simulation time in seconds (time for sound to go from source to end of crystal)
     
     %%% COUPLING MATRIX
-    kappa    = 0.8;
-    kappa_nl = 0e-3; %+9e-3 with a = 10
-    %mat = mod(1:2*sys_param.N_cell-1,2); %interfaceless
-    mat = [mod(1:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-2,2)];% interface 1 (better --> single center peak)
+    sys_param.kappa    = 0.8;
+    sys_param.kappa_nl = 0e-3; %+9e-3 with a = 10
+    mat = mod(1:2*sys_param.N_cell-1,2); %interfaceless
+    %mat = [mod(1:sys_param.N_cell,2)
+    %mod(sys_param.N_cell:2*sys_param.N_cell-2,2)];% interface 1 (better --> single center peak) 8c
     %mat = [mod(1:sys_param.N_cell-1,2) mod(sys_param.N_cell+1:2*sys_param.N_cell,2)];% interface 2
-    sys_param.cpl = kappa*mat;
-    sys_param.cpl_nl = kappa_nl*mat;
+    sys_param.cpl = sys_param.kappa*mat;
+    sys_param.cpl_nl = sys_param.kappa_nl*mat;
 end
