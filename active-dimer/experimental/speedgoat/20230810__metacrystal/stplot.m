@@ -12,7 +12,7 @@ addpath('./__data/')
 load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
 
 sys_param = param_struct();
-sys_param.N_cell = 4;
+sys_param.N_cell = 8;
 
 %%% SAVE DATA FOR PLOTS
 %sim_name = "L_ref";
@@ -48,7 +48,6 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 %ylim([-1,1])
 %}
 
-
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
 t_cut_idx = t_out>=200e-3; %cf 20231025
@@ -59,17 +58,9 @@ p_out = p_out(t_cut_idx,:);
 %surface plot
 [X,Y] = meshgrid(1:2*sys_param.N_cell,t_out*1000);
 Z = abs(p_out); 
-Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA!
+Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fig2 = figure(2); % \Delta t simulation time step
-%waterfall
-%{
-h = waterfall(X',Y',Z');
-set( h, 'LineWidth', 2);
-%hidden off; %removes white separator
-%}
-%ribonn
-%
 h = ribbon(Y,Z,0.5);
 [h(:).EdgeColor] = deal('none');
 set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
@@ -97,11 +88,6 @@ view(135,60)
 
 
 %%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%% ZERO PADDING
-%t_vec = linspace(0,t_out(end),2^(nextpow2(numel(t_out))+3))';%This time vector used to interpolate before performing the FFT. 
-%p_vec = interp1(t_out,p_out,t_vec,'spline'); % Interpolate data (spline eliminates NaNs at the start...)
-
 %%% OMIT FIRST DATA POINTS
 p_vec = p_out;
 t_vec = t_out;

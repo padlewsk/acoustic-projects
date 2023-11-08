@@ -13,7 +13,7 @@ function params = param_struct();
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.use_random = true;
     params.src_select = 1; % 1 = src A,  2 = src B and 3 = src A + src B
-    params.A = 0.4; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    params.A = 1; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     %constant
     params.freq_sine = 680; %default
     %sweep
@@ -49,10 +49,10 @@ function params = param_struct();
 
     %% CALIBRATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Mic Positions (wtr centre)
-    params.x1 = -(2*0.28 + 0.24); %m
-    params.x2 = -(2*0.28 + 0.19); %m
-    params.x3 = +(2*0.28 + 0.19); %m
-    params.x4 = +(2*0.28 + 0.24); %m
+    params.x1 = -(4*0.28 + 0.24); %m
+    params.x2 = -(4*0.28 + 0.19); %m
+    params.x3 = +(4*0.28 + 0.19); %m
+    params.x4 = +(4*0.28 + 0.24); %m
     
     %%% Unit Cell 
     params.a = 0.28; %m
@@ -73,17 +73,17 @@ function params = param_struct();
     params.sens_p(4,1) =  -1/41.8E-3;% 1/(V/Pa) SN65608
     params.sens_p(4,2) =  -1/42.0E-3;% 1/(V/Pa) SN65609
 
-    params.sens_p(5,1) =  -1/40.1E-3;% 1/(V/Pa) 
-    params.sens_p(5,2) =  -1/41.1E-3;% 1/(V/Pa) 
+    params.sens_p(5,1) =  -1/38.5E-3;% 1/(V/Pa) SN51780 (LWE)
+    params.sens_p(5,2) =  -1/44.7E-3;% 1/(V/Pa) SN51781 (LWE)
+ 
+    params.sens_p(6,1) =  -1/36.0E-3;% 1/(V/Pa) SN51782 (LWE)
+    params.sens_p(6,2) =  -1/37.2E-3;% 1/(V/Pa) SN51783 (LWE) 
 
-    params.sens_p(6,1) =  -1/40.1E-3;% 1/(V/Pa) 
-    params.sens_p(6,2) =  -1/41.1E-3;% 1/(V/Pa) 
-
-    params.sens_p(7,1) =  -1/40.1E-3;% 1/(V/Pa) 
-    params.sens_p(7,2) =  -1/41.1E-3;% 1/(V/Pa) 
-
-    params.sens_p(8,1) =  -1/40.1E-3;% 1/(V/Pa) 
-    params.sens_p(8,2) =  -1/41.1E-3;% 1/(V/Pa) 
+    params.sens_p(7,1) =  -1/35.8E-3;% 1/(V/Pa) SN51784 (LWE)
+    params.sens_p(7,2) =  -1/37.2E-3;% 1/(V/Pa) SN51785 (LWE)
+ 
+    params.sens_p(8,1) =  -1/33.5E-3;% 1/(V/Pa) SN51786 (LWE)
+    params.sens_p(8,2) =  -1/38.9E-3;% 1/(V/Pa) SN50797 (LWE)
 
     %%% PRESSURE TO DISPLACEMENT
     params.pb2disp(1,1) = 2.14133e-05;% -1/39.7E-3; %Trasnferfunction between backpressure and displacement (m/V) *SN 65607
@@ -170,51 +170,51 @@ function params = param_struct();
     params.Bl(4,2)  =  1.518334e+00;
     params.Rms(4,2) =  1.872651e-01;
     params.Mms(4,2) =  7.086857e-04; 
-    params.Cmc(4,2) =  1.938161e-04; 
+    params.Cmc(4,2) =  2.1e-4;%1.938161e-04; 
 
     % 51: R = 7.43
-    params.Bl(5,1)  =  1.59e+00;
-    params.Rms(5,1) =  3.55e-01;
-    params.Mms(5,1) =  7.23e-04; 
-    params.Cmc(5,1) =  2.15e-04; 
+    params.Bl(5,1)  =  1.492331e+00;
+    params.Rms(5,1) =  2.220907e-01;
+    params.Mms(5,1) =  6.935072e-04; 
+    params.Cmc(5,1) =  1.904666e-04; 
     % 52: R = 7.43
-    params.Bl(5,2)  =  1.51e+00;
-    params.Rms(5,2) =  2.81e-01;
-    params.Mms(5,2) =  6.63e-04; 
-    params.Cmc(5,2) =  2.30e-04; 
+    params.Bl(5,2)  =  1.488830e+00;
+    params.Rms(5,2) =  1.844278e-01;
+    params.Mms(5,2) =  6.932563e-04; 
+    params.Cmc(5,2) =  2.041370e-04; 
 
     % 61: R = 7.43
-    params.Bl(6,1)  =  1.59e+00;
-    params.Rms(6,1) =  3.55e-01;
-    params.Mms(6,1) =  7.23e-04; 
-    params.Cmc(6,1) =  2.15e-04; 
+    params.Bl(6,1)  =  1.444718e+00;
+    params.Rms(6,1) =  1.662037e-01;
+    params.Mms(6,1) =  6.995107e-04; 
+    params.Cmc(6,1) =  2.039369e-04; 
     % 62: R = 7.43
-    params.Bl(6,2)  =  1.51e+00;
-    params.Rms(6,2) =  2.81e-01;
-    params.Mms(6,2) =  6.63e-04; 
-    params.Cmc(6,2) =  2.30e-04; 
+    params.Bl(6,2)  =  1.462797e+00;
+    params.Rms(6,2) =  1.745243e-01;
+    params.Mms(6,2) =  6.756669e-04; 
+    params.Cmc(6,2) =  2.061695e-04; 
 
     % 71: R = 7.43
-    params.Bl(7,1)  =  1.59e+00;
-    params.Rms(7,1) =  3.55e-01;
-    params.Mms(7,1) =  7.23e-04; 
-    params.Cmc(7,1) =  2.15e-04; 
+    params.Bl(7,1)  =  1.487905e+00;
+    params.Rms(7,1) =  2.137628e-01;
+    params.Mms(7,1) =  6.526790e-04; 
+    params.Cmc(7,1) =  2.078265e-04; 
     % 72: R = 7.43
-    params.Bl(7,2)  =  1.51e+00;
-    params.Rms(7,2) =  2.81e-01;
-    params.Mms(7,2) =  6.63e-04; 
-    params.Cmc(7,2) =  2.30e-04; 
+    params.Bl(7,2)  =  1.485184e+00;
+    params.Rms(7,2) =  2.463107e-01;
+    params.Mms(7,2) =  6.530957e-04; 
+    params.Cmc(7,2) =  2.243297e-04; 
 
     % 81: R = 7.43
-    params.Bl(8,1)  =  1.59e+00;
-    params.Rms(8,1) =  3.55e-01;
-    params.Mms(8,1) =  7.23e-04; 
-    params.Cmc(8,1) =  2.15e-04; 
+    params.Bl(8,1)  =  1.497458e+00;
+    params.Rms(8,1) =  2.075385e-01;
+    params.Mms(8,1) =  6.839664e-04; 
+    params.Cmc(8,1) =  1.883416e-04; 
     % 82: R = 7.43
-    params.Bl(8,2)  =  1.51e+00;
-    params.Rms(8,2) =  2.81e-01;
-    params.Mms(8,2) =  6.63e-04; 
-    params.Cmc(8,2) =  2.30e-04; 
+    params.Bl(8,2)  = 1.504838e+00;
+    params.Rms(8,2) = 1.785134e-01;
+    params.Mms(8,2) = 6.790660e-04; 
+    params.Cmc(8,2) = 2.177386e-04; 
     
     % Resonnance frequency (Hz)
     for ii = 1:8
@@ -275,12 +275,19 @@ function params = param_struct();
     kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
     kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
     kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
+    
+    params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa]; % interfaceless
+    %params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,0, kappa,0,kappa,0,kappa,0];% interface 1 
+    %params.cpl    = [0,kappa,0,kappa,0,kappa,0, 0, kappa,0,kappa,0,kappa,0, kappa];% interface 2
+    params.cpl_nl = [kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0, 0, kappa_nl,0,kappa_nl,0,kappa_nl,0];% interface 1 
 
+    % 4 unit cells
+    %{
     %params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa]; % interfaceless
     %params.cpl    = [kappa,0,kappa,0,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface 1 
-    params.cpl    = [kappa,0,kappa,kappa,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface 2
-    params.cpl_nl = [kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl];
-    
+    %params.cpl    = [kappa,0,kappa,kappa,0,kappa,0,0,kappa,0,kappa,0,kappa,0,kappa];% interface 2
+    %params.cpl_nl = [kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl];
+    %}
     % MAKE KERR CPL
 end
 

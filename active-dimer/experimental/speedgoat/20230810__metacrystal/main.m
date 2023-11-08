@@ -1,4 +1,4 @@
-%%% UPDATED: 11.08.2023
+%%% UPDATED: 08.11.2023
 %%% DISPERSION VIA TRANSFER MATRIX METHOD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
@@ -57,7 +57,7 @@ s21 = s12;
 %% ASYMMETRIC + CASE
 %
 %%% CORRECTION DATA
-fstruct = dir('./__data/*35us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT 
+fstruct = dir('./__data/*35us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT !!!
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
@@ -158,6 +158,7 @@ hold on;
 plot(p.freq, abs(s21).^2, 'DisplayName', '|s_{21}|^2');
 plot(p.freq, abs(s12).^2, 'DisplayName', '|s_{12}|^2');
 plot(p.freq, abs(s22).^2, 'DisplayName', '|s_{22}|^2');
+xline(638,'--',{'Topological','interface'}) % 
 legend show
 ylim([0,1])
 xlabel("Frequency (Hz)")
