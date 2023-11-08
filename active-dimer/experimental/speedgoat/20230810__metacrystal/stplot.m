@@ -9,8 +9,8 @@ addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projec
 %%% RUN PARAMETERS FILE
 addpath('./__fun/')
 addpath('./__data/')
-load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
-
+%load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
+load './__data/signal_control_raw_a_638Hz_notopo.mat' signal_control_raw ;
 sys_param = param_struct();
 sys_param.N_cell = 8;
 
@@ -18,7 +18,7 @@ sys_param.N_cell = 8;
 %sim_name = "L_ref";
 
 p_out = signal_control_raw.Variables;
-p_out = p_out(:,1:8); %only first 4 cells
+p_out = p_out(:,1:16); %8 cells %p_out(:,1:8); %only first 4 cells
 t_out = signal_control_raw.Time;
 t_out = seconds(t_out);
 
@@ -50,7 +50,7 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
-t_cut_idx = t_out>=200e-3; %cf 20231025
+t_cut_idx = t_out>=0*200e-3; %cf 20231025
 t_out = t_out(t_cut_idx);
 t_out = t_out-t_out(1); %reset t_o = 0;
 p_out = p_out(t_cut_idx,:);
@@ -75,15 +75,15 @@ set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
 grid("off")
 %box("on")
 xlim([0.5,2*sys_param.N_cell+0.5])
-ylim([t_out(1),300])
-zlim([0,5])
+ylim([t_out(1),50])
+%zlim([0, 1.5])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-clim([0, 5]);
+%clim([0, 1.5]);
 view(135,60)
 
 
