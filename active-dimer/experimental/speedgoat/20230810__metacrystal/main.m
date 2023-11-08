@@ -152,7 +152,6 @@ legend("Re(q_{F})","Im(q_{F})","q_F = 2\pif/a ")
 
 %%% S-MATRIX
 figure(2);
-
 plot(p.freq, abs(s11).^2, 'DisplayName', '|s_{11}|^2');
 hold on;
 plot(p.freq, abs(s21).^2, 'DisplayName', '|s_{21}|^2');

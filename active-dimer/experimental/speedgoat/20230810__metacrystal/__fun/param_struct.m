@@ -170,7 +170,7 @@ function params = param_struct();
     params.Bl(4,2)  =  1.518334e+00;
     params.Rms(4,2) =  1.872651e-01;
     params.Mms(4,2) =  7.086857e-04; 
-    params.Cmc(4,2) =  2.1e-4;%1.938161e-04; 
+    params.Cmc(4,2) =  1.938161e-04; 
 
     % 51: R = 7.43
     params.Bl(5,1)  =  1.492331e+00;
@@ -272,13 +272,13 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
+    kappa    = 0.9*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
     kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
     kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
     
-    params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa]; % interfaceless
+    %params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa]; % interfaceless
     %params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,0, kappa,0,kappa,0,kappa,0];% interface 1 
-    %params.cpl    = [0,kappa,0,kappa,0,kappa,0, 0, kappa,0,kappa,0,kappa,0, kappa];% interface 2
+    params.cpl    = [0,kappa,0,kappa,0,kappa,0, 0, kappa,0,kappa,0,kappa,0, kappa];% interface 2
     params.cpl_nl = [kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0, 0, kappa_nl,0,kappa_nl,0,kappa_nl,0];% interface 1 
 
     % 4 unit cells
