@@ -15,7 +15,7 @@ function params = param_struct();
     params.src_select = 1; % 1 = src A,  2 = src B and 3 = src A + src B
     params.A = 1; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     %constant
-    params.freq_sine = 680; %default
+    params.freq_sine = 638; %default
     %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
@@ -73,17 +73,17 @@ function params = param_struct();
     params.sens_p(4,1) =  -1/41.8E-3;% 1/(V/Pa) SN65608
     params.sens_p(4,2) =  -1/42.0E-3;% 1/(V/Pa) SN65609
 
-    params.sens_p(5,1) =  -1/38.5E-3;% 1/(V/Pa) SN51780 (LWE)
-    params.sens_p(5,2) =  -1/44.7E-3;% 1/(V/Pa) SN51781 (LWE)
+    params.sens_p(5,1) =  -1/37.2E-3;% 1/(V/Pa) SN68202 
+    params.sens_p(5,2) =  -1/35.0E-3;% 1/(V/Pa) SN68203 
  
-    params.sens_p(6,1) =  -1/36.0E-3;% 1/(V/Pa) SN51782 (LWE)
-    params.sens_p(6,2) =  -1/37.2E-3;% 1/(V/Pa) SN51783 (LWE) 
+    params.sens_p(6,1) =  -1/35.1E-3;% 1/(V/Pa) SN68204 
+    params.sens_p(6,2) =  -1/36.2E-3;% 1/(V/Pa) SN68205  
 
-    params.sens_p(7,1) =  -1/35.8E-3;% 1/(V/Pa) SN51784 (LWE)
-    params.sens_p(7,2) =  -1/37.2E-3;% 1/(V/Pa) SN51785 (LWE)
+    params.sens_p(7,1) =  -1/37.6E-3;% 1/(V/Pa) SN68246 
+    params.sens_p(7,2) =  -1/38.1E-3;% 1/(V/Pa) SN68247 
  
-    params.sens_p(8,1) =  -1/33.5E-3;% 1/(V/Pa) SN51786 (LWE)
-    params.sens_p(8,2) =  -1/38.9E-3;% 1/(V/Pa) SN50797 (LWE)
+    params.sens_p(8,1) =  -1/37.4E-3;% 1/(V/Pa) SN68248 
+    params.sens_p(8,2) =  -1/37.0E-3;% 1/(V/Pa) SN68249 
 
     %%% PRESSURE TO DISPLACEMENT
     params.pb2disp(1,1) = 2.14133e-05;% -1/39.7E-3; %Trasnferfunction between backpressure and displacement (m/V) *SN 65607
@@ -227,7 +227,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; %target
-    muR_tgt = 0.2;
+    muR_tgt = 1;
     muC_tgt = 1;
 
     % Synthesize all to a same average:
@@ -272,13 +272,13 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    kappa    = 0.9*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
+    kappa    = 0.8*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
     kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
     kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
     
-    %params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa]; % interfaceless
+    params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa,0,kappa]; % interfaceless
     %params.cpl    = [kappa,0,kappa,0,kappa,0,kappa,0,0, kappa,0,kappa,0,kappa,0];% interface 1 
-    params.cpl    = [0,kappa,0,kappa,0,kappa,0, 0, kappa,0,kappa,0,kappa,0, kappa];% interface 2
+    %params.cpl    = [0,kappa,0,kappa,0,kappa,0, 0, kappa,0,kappa,0,kappa,0, kappa];% interface 2
     params.cpl_nl = [kappa_nl,0,kappa_nl,0,kappa_nl,0,kappa_nl,0, 0, kappa_nl,0,kappa_nl,0,kappa_nl,0];% interface 1 
 
     % 4 unit cells

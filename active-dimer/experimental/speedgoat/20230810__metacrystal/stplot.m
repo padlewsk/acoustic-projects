@@ -75,7 +75,7 @@ set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
 grid("off")
 %box("on")
 xlim([0.5,2*sys_param.N_cell+0.5])
-ylim([t_out(1),1000])
+ylim([t_out(1),50])
 %zlim([0, 1.5])
 xlabel('site n')
 ylabel('t (ms)')
@@ -87,12 +87,12 @@ c.Color = 'w';
 view(135,60)
 
 
-%%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
 p_vec = p_out;
 t_vec = t_out;
 
-Y = fft2(p_vec,2^(nextpow2(size(p_vec,1))),8)/length(p_vec); % normalized to get amplitude in (Pa) %p_vec is truncated to length 2^10)
+Y = fft2(p_vec,2^(nextpow2(size(p_vec,1))),1)/length(p_vec); % normalized to get amplitude in (Pa) %p_vec is truncated to length 2^10) 
 Y = fftshift(Y); %filters out DC component
 
 NFFT_f = length(t_vec); % signal length
@@ -129,7 +129,7 @@ colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-clim([0, 0.4]);
+%clim([0, 0.4]);
 xlabel("qa/\pi")% full unitcell
 ylabel("f (kHz)")
 xlim([-1,1])

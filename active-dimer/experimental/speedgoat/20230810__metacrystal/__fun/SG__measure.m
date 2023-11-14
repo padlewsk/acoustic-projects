@@ -46,7 +46,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     
     % SOURCE PARAMETERS 
     tg.setparam('', 'use_random', p.use_random); % 1 random 0 cte
-    tg.setparam('','freq_sine', p.A);%
+    %tg.setparam('','freq_sine', p.A);%
     tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
     tg.setparam('','src_gain', p.A);%
 
