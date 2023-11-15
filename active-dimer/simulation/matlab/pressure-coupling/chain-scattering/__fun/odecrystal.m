@@ -85,12 +85,24 @@ function dydt = odecrystal(t,y,temp)
         p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*sin(2*pi*sys_param.f_src*t)*1/(1+exp(1000*(t-sys_param.t_fin/2)));
     elseif sys_param.src_select == 1  %%% CENTER PULSE 
     % gaussian pulse centered at omega_src: P_src \propto  *exp(-(omega-omega_src)^2*(tau^2)) 
-        freq_src = sys_param.f_src; %param.c0/param.a/2; %centre
+        freq_src = sys_param.f_src; %param.c0/param.a/2; %centering pulse on this frequency
         omega_src = 2*pi*freq_src;
-        T_src = 1/freq_src; %1/freq
-        t0 = 3*T_src;% delay %%%%%%%%%%%%%%%%%
+        T_src = 1/freq_src; %1/freq 
+        t0 = 3*T_src;% delay for single pulse %%%%%%%%%%%%%%%%%
         tau = 0.5*T_src/sqrt(2);% width
-        p_src = sys_param.A_src*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); 
+
+        p_src = sys_param.A_src*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); %single pulse
+        %{
+        pulse_period = (5*sys_param.N_cell*sys_param.a/sys_param.c0);
+        p_src = 0;
+        for nn = 1:floor(sys_param.t_fin/pulse_period)  %multi pulse
+            tt = pulse_period*nn;
+            p_src = p_src + sys_param.A_src*exp(1i*(omega_src*t))*exp(-(t-tt)^2/(2*tau^2));
+        end
+        %}
+       
+
+
     elseif sys_param.src_select == 2  %%% White noise  (temporal cutoff)
         p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*rand(1)*1/(1+exp(1000*(t-sys_param.t_fin/2)));
     else

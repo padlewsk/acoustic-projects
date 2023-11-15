@@ -148,16 +148,26 @@ h = waterfall(X',Y',Z');
 set( h, 'LineWidth', 2);
 %hidden off; %removes white separator
 %}
-%ribonn
-%
+%ribbon
 h = ribbon(Y,Z,0.5);
 [h(:).EdgeColor] = deal('none');
 set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
-%}
+
+%add interface position
+p1 = [sys_param.N_cell 0 0];
+p2 = [sys_param.N_cell sys_param.t_fin*1000 0];
+p3 = [sys_param.N_cell sys_param.t_fin*1000 max(Z(:))/2];
+p4 = [sys_param.N_cell 0 max(Z(:))/2];  
+xx = [p1(1) p2(1) p3(1) p4(1)];
+yy = [p1(2) p2(2) p3(2) p4(2)];
+zz = [p1(3) p2(3) p3(3) p4(3)];
+hold on;
+fill3(xx, yy, zz,'w', 'EdgeColor', 'none', 'FaceAlpha',0.3);
+hold off
+%%% figure style
 set(gcf,'position',fig_param.window_size);
 set(gcf, 'InvertHardCopy', 'off'); % to make black figure
 set(gcf,'Color',[0 0 0]);% to make black figure
-
 set(gca,fig_param.fig_prop{:});
 set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
 %set(gca,'color','none','YDir','normal')
@@ -174,6 +184,7 @@ zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
+
 %clim([0, sys_param.A_src*1.5]);
 view(135,60)
 
@@ -183,12 +194,31 @@ t_vec =  (0:sys_param.t_samp:sys_param.t_fin)'; %need to create another time vec
 p_vec = interp1(t_out,p_s,t_vec); % Interpolate data 
 
 %omit first data points
-t0 = 3/(sys_param.f_src); %3/(2*pi*param.c0/param.a/2);% pulse delay
-t_seg = t_vec(t_vec>2*t0); %omit first data points
+%%% single pulse
+%{
+t0 = 3/(sys_param.f_src); %3/(2*pi*param.c0/param.a/2);% corresponds to the pulse time
+t_seg = t_vec(t_vec>2*t0); %omit first data points to get the natural response without the drive
 p_seg = p_vec(t_vec>2*t0,:); 
+%}
 
-Y = fft2(p_seg,2^(nextpow2(size(p_seg,1))+1),size(p_seg,2))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa). Extra points are for zero padding.
-%Y = fft2(p_seg)/length(p_seg); 
+%%% multipulse pulse%omit first data points to get the natural response without the drive
+%{
+pulse_period = (5*sys_param.N_cell*sys_param.a/sys_param.c0);
+tau = 0.5*(1/sys_param.f_src)/sqrt(2); % width
+
+t_lower = (pulse_period-tau/2) + pulse_period*1:4;
+t_upper = (pulse_period+tau/2) + pulse_period*1:4;
+
+for nn = 1:numel(t_lower)
+t_seg = t_vec(t_lower(nn)<t_vec<t_upper(nn)); 
+p_seg = p_vec(t_lower(nn)<t_vec<t_upper(nn),:); 
+end
+%}
+t_seg = t_vec; 
+p_seg = p_vec; 
+
+Y = fft2(p_seg,2^(nextpow2(size(p_seg,1))+5),size(p_seg,2))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa). Extra points are for zero padding.
+Y = fft2(p_seg)/length(p_seg); 
 Y = fftshift(Y); %filters out DC component
 
 NFFT_f = size(Y,1); % signal length
@@ -214,11 +244,12 @@ set(gca,fig_param.fig_prop{:},'XColor','w','YColor','w');
 %set(gca,'FontSize',20)
 %set(gcf,'position',[50, 50, 800, 1000]);
 hold on
+yline([415/1000 644.5/1000],'w-',{'Local','Bragg'},'LineWidth',2,'alpha',0.3);
 %imagesc(qa/pi,omega/(2*pi),abs(Y));
 %imagesc(abs(Y_fold));
 imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
 %yline([422.380/1000 param.c0/param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
-yline([415/1000 644.5/1000],'r--',{'Local','Bragg'},'LineWidth',1);
+
 hold off
 %colormap('hot');
 colormap(magma);

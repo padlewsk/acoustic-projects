@@ -54,16 +54,16 @@ function sys_param = sys_params()
     
     %%% SIMULATION PARAMETERS    
     %%% SYSTEM SIZE
-    sys_param.N_cell = 8; %number of unit cells (= half the number of sites)
+    sys_param.N_cell = 16; %number of unit cells (= half the number of sites)
     sys_param.mat_size = sys_param.N_cell*8+1; %number of nodes in the acoustic circuit
 
     %%% SOURCE
     sys_param.fi = 500; %% initial frequency
     sys_param.ff = 1300; %% final frequency
     sys_param.A_src = 10; %%% incident pressure amplitude (Pa) %%% NL
-    sys_param.f_src  = 645; % Hz speaker + enclosure res freq 644.5 for sin and pulse
+    sys_param.f_src  = 644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse
     sys_param.src_select = 1; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1  %%% PULSE CENTERED AT sys_param.f_src %%% 2 white noise (doesn't work)
-    sys_param.src_loc = [1];% 
+    sys_param.src_loc = [1];%source location
     %sys_param.src_loc =[1 sys_param.mat_size];% [round(sys_param.mat_size/2)]; %%%%%%%
 
     %%% SAMPLING (for post processing --> doesn't affect sim time alot)
@@ -77,8 +77,7 @@ function sys_param = sys_params()
     sys_param.kappa    = 0.8;
     sys_param.kappa_nl = 0e-3; %+9e-3 with a = 10
     mat = mod(1:2*sys_param.N_cell-1,2); %interfaceless
-    %mat = [mod(1:sys_param.N_cell,2)
-    %mod(sys_param.N_cell:2*sys_param.N_cell-2,2)];% interface 1 (better --> single center peak) 8c
+    %mat = [mod(1:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-2,2)];% interface 1 (better --> single center peak) 8c
     %mat = [mod(1:sys_param.N_cell-1,2) mod(sys_param.N_cell+1:2*sys_param.N_cell,2)];% interface 2
     sys_param.cpl = sys_param.kappa*mat;
     sys_param.cpl_nl = sys_param.kappa_nl*mat;
