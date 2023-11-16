@@ -11,7 +11,7 @@ function params = param_struct();
     %params.Zc = params.c0*params.rho0; % characteristic specific acoustic impedence at 300K
     
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.use_random = true;
+    params.use_random = true; % white noise
     params.src_select = 1; % 1 = src A,  2 = src B and 3 = src A + src B
     params.A = 1; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     %constant
@@ -23,7 +23,7 @@ function params = param_struct();
     freq_span = params.freq_fin - params.freq_ini;
     N_lines = 2000; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     freq_res = freq_span/N_lines; %frequency resolution Hz
-    params.tmax = 1/freq_res; % sweep up time (s) measurement time = 2 x tmax
+    params.tmax = 0.3;% 1/freq_res; % sweep up time (s) measurement time = 2 x tmax
 
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Machine type
@@ -227,7 +227,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; %target
-    muR_tgt = 1;
+    muR_tgt = 0.2;
     muC_tgt = 1;
 
     % Synthesize all to a same average:
@@ -272,7 +272,7 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    kappa    = 0.8*(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
+    kappa    = 0.8 *(params.Sd); % coupling (front pressure) MAX 1;  x(-params.Sd)???
     kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 3e-2*x(-params.Sd)???
     kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
     

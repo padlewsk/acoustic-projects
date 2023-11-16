@@ -89,17 +89,18 @@ view(135,60)
 
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
-p_vec = p_out;
 t_vec = t_out;
+p_vec = p_out;
 
-Y = fft2(p_vec,2^(nextpow2(size(p_vec,1))),1)/length(p_vec); % normalized to get amplitude in (Pa) %p_vec is truncated to length 2^10) 
+Y = fft2(p_vec,2^(nextpow2(size(p_vec,1))),size(p_vec,2))/length(p_vec);% size(p_vec,2) = number of sites %0 padding up to next power normalized to get amplitude in (Pa) 
+%Y = fft2(p_vec,2^12,size(p_vec,2))/length(p_vec);% TRUNCATED SIGNAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Y = fftshift(Y); %filters out DC component
 
 NFFT_f = length(t_vec); % signal length
 omega = 2*pi*sys_param.fs_log*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1))'; %
 
 NFFT_qa = length(p_vec); % signal length
-qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1))'+ 0.5 ; %%% WHY THIS 0.5???'
+qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1))'+ 0.25 ; %%% WHY THIS 0.5???'
 
 %%% BAND FOLDING %%% RMK: sys_param.N_cell must be EVEN
 %{
@@ -122,25 +123,23 @@ hold on
 %imagesc(abs(Y_fold));
 imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
 %yline([422.380/1000 sys_param.c0/sys_param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
-yline([422.380/1000 673/1000],'r--',{'Local','Bragg'},'LineWidth',1);
+yline([444/1000 638/1000],'w-',{'Local','Bragg'},'LineWidth',2,'alpha',0.3,'LabelHorizontalAlignment', 'center');
 hold off
 %colormap('hot');
 colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-%clim([0, 0.4]);
+clim([0, 0.05]);
 xlabel("qa/\pi")% full unitcell
 ylabel("f (kHz)")
 xlim([-1,1])
 ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 
 %title("Transmission peak as a function of local disorder")
-
 box on
 
 hold off
-
 
 autoArrangeFigures
 toc

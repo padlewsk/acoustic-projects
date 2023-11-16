@@ -217,8 +217,8 @@ end
 t_seg = t_vec; 
 p_seg = p_vec; 
 
-Y = fft2(p_seg,2^(nextpow2(size(p_seg,1))+5),size(p_seg,2))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa). Extra points are for zero padding.
-Y = fft2(p_seg)/length(p_seg); 
+Y = fft2(p_seg,2^(nextpow2(size(p_seg,1))+2),size(p_seg,2))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa). Extra points are for zero padding.
+%Y = fft2(p_seg)/length(p_seg); 
 Y = fftshift(Y); %filters out DC component
 
 NFFT_f = size(Y,1); % signal length
