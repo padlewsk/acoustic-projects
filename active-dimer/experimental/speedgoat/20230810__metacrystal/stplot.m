@@ -89,7 +89,7 @@ view(135,60)
 
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
-t_vec = t_out;
+t_vec = t_out; %already omited
 p_vec = p_out;
 
 Y = fft2(p_vec,2^(nextpow2(size(p_vec,1))),size(p_vec,2))/length(p_vec);% size(p_vec,2) = number of sites %0 padding up to next power normalized to get amplitude in (Pa) 
@@ -124,13 +124,14 @@ hold on
 imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
 %yline([422.380/1000 sys_param.c0/sys_param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
 yline([444/1000 638/1000],'w-',{'Local','Bragg'},'LineWidth',2,'alpha',0.3,'LabelHorizontalAlignment', 'center');
+%yline([444/1000 595/1000],'w-',{'Local','Bragg'},'LineWidth',2,'alpha',0.3,'LabelHorizontalAlignment', 'center');
 hold off
 %colormap('hot');
 colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-clim([0, 0.05]);
+%clim([0, 2]);
 xlabel("qa/\pi")% full unitcell
 ylabel("f (kHz)")
 xlim([-1,1])
