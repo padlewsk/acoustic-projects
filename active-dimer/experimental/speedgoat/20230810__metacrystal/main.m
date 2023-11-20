@@ -112,8 +112,7 @@ t22 = 1./s12;
 for ii = 1:p.N
     T = [t11(ii),t12(ii);t21(ii),t22(ii)];
     q = log(0.5*(trace(T) - sqrt(trace(T)^2-4*det(T))))/(1i*p.a);
-    %q = log(0.5*(trace(T) - sqrt(trace(T)^2-4*det(T))))/(1i*a);
-    
+
     q_real(ii) = real(q);
     q_imag(ii) = imag(q);
 end
@@ -125,7 +124,8 @@ end
 %% GRAPHICS 
 %%% see https://link.springer.com/content/pdf/10.1007/978-3-030-84300-7.pdf, p 69
 close all
-%%% DISPERSION 
+%%% DISPERSION (ONLY FOR SINGLE CELL)
+%{
 figure(1);
 hold on
 plot(abs(q_real)*p.a/pi,p.freq,'-r','LineWidth',3)
