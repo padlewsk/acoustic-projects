@@ -1,7 +1,7 @@
 %%% SCATTERING THROUGH AN ACOUSTIC LINER IN TIME DOMAIN %%%%%%%%%%%%%%%%%%
 %RMK: SAVE PARAMS FILE BEFORE RUNNING SIMULATION
 %rng(1);%specifies the seed for the MATLAB® random number generator TEST
-close all; pause(0); 
+close all;  
 clear all; 
 clc;
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -14,15 +14,6 @@ sys_param = sys_params();
 
 %%% SAVE DATA FOR PLOTS
 sim_name = "L_ref";
-
-%%% LOAD DATA FOR PLOTS
-% loads t_out and y_out from a saved simulation and skips current simulation
-%{
-fprintf("### LOADING PARAMETERS, FUNCTION AND DATA...\n")
-addpath('./__data/')
-load raw_data__L_ref.mat 
-fprintf("### DONE.\n")
-%}
 
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INITIALISATION
@@ -97,7 +88,6 @@ ylabel('Solution p');
 legend('p_{11}','p_{12}','p_{21}','p_{22}')
 %ylim([-1,1])
 %}
-
 
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %surface plot
@@ -192,6 +182,40 @@ view(135,60)
 %%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 t_vec =  (0:sys_param.t_samp:sys_param.t_fin)'; %need to create another time vector because the output of the simulation isn't with constant sampling.
 p_vec = interp1(t_out,p_s,t_vec); % Interpolate data 
+
+
+%% NONLINEARITY TEST 
+
+L = length(t_vec);             % Length of signal
+t = t_vec;        % Time vector
+
+FFT = fft(real(p_s(:,:)));
+P2 = abs(FFT/L);
+P1 = P2(1:L/2+1,:)';
+P1(2:end-1) = 2*P1(2:end-1);
+f = (0:(L/2))./(sys_param.t_samp*L);
+
+fig5 = figure(5);
+set(gcf,'position',fig_param.window_size);
+set(gca,fig_param.fig_prop{:});
+cmp = flip(copper(sys_param.N_cell*2));
+colororder(cmp);
+hold on
+plot(f,P1(1:1:16,:),"LineWidth",2) 
+hold off
+box on
+grid on
+xlim([sys_param.fi ,sys_param.ff])
+legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location', 'NorthEast', 'NumColumns', 2)
+%title("Single-Sided Amplitude Spectrum of S(t)")
+xlabel("f (Hz)")
+ylabel("|P1(f)|")
+
+
+
+
+
+
 
 %omit first data points
 %%% single pulse
