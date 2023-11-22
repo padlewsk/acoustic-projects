@@ -4,6 +4,13 @@ function data_struct = SG__data_process(data)
     addpath('__fun');
     p = param_struct();
     
+    % average the time data wrt nyquist frequency
+    %{
+    freq_nyquist = 3*params.freq_fin; % over 2 to be safe...
+    mean_window = 3;%floor(params.fs_log/freq_nyquist);
+    data = movmean(data,mean_window); %cf 20231122__experiment
+    %}
+
     H21 = [];               
     H31 = [];
     H41 = [];
@@ -12,13 +19,13 @@ function data_struct = SG__data_process(data)
     C31 = [];% coherence
     C41 = [];% coherence  
     
-    [H21,F] = tfestimate(data(:,1),data(:,2), p.wind,[],p.freq, p.fs_log);
-    [H31,F] = tfestimate(data(:,1),data(:,3), p.wind,[],p.freq, p.fs_log);
-    [H41,F] = tfestimate(data(:,1),data(:,4), p.wind,[],p.freq, p.fs_log);
+    [H21,F] = tfestimate(data(:,1), data(:,2), p.wind, [], p.freq, p.fs_log);
+    [H31,F] = tfestimate(data(:,1), data(:,3), p.wind, [], p.freq, p.fs_log);
+    [H41,F] = tfestimate(data(:,1), data(:,4), p.wind, [], p.freq, p.fs_log);
      
-    [C21,F] = mscohere(data(:,1),data(:,2), p.wind,[], p.freq, p. fs_log);
-    [C31,F] = mscohere(data(:,1),data(:,3), p.wind,[], p.freq, p.fs_log);
-    [C41,F] = mscohere(data(:,1),data(:,4), p.wind,[], p.freq, p.fs_log);
+    [C21,F] = mscohere(data(:,1), data(:,2), p.wind, [], p.freq, p.fs_log);
+    [C31,F] = mscohere(data(:,1), data(:,3), p.wind, [], p.freq, p.fs_log);
+    [C41,F] = mscohere(data(:,1), data(:,4), p.wind, [], p.freq, p.fs_log);
     
     %data_struct = struct;
 

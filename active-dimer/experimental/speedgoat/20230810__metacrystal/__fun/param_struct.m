@@ -19,12 +19,14 @@ function params = param_struct();
     %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
-
-    freq_span = params.freq_fin - params.freq_ini;
-    N_lines = 2000; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
-    freq_res = freq_span/N_lines; %frequency resolution Hz
-    params.tmax = 1/freq_res; %0.3% sweep up time (s) measurement time = 2 x tmax
-
+    
+    avg_num_wind = 5; %The number of windows with 0% overlap (x2-1 for 50% overlap) 
+    %freq_max = params.freq_fin - 0*params.freq_ini;
+    %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
+    freq_res = 1; %freq_max/N_lines; %frequency resolution Hz
+    params.tmax = avg_num_wind/freq_res; %0.3% sweep up time (s) measurement time = 2 x tmax
+    
+    freq_nyquist = 2*(params.freq_fin-0*params.freq_ini); % over 2 to be safe...
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Machine type
     %tg_model = 'Baseline'; %target select
@@ -32,10 +34,10 @@ function params = param_struct();
     params.tg_model = 'Mobile'; %target select
     params.MDL = 'SG__MDL_DMA'; % name of the slx model (performance)
     
-    %%% Sample time: CANNOT CHANGE ONCE BUILT AND UPLOADED !
-    params.ts_ctr = 35e-06;
+    %%% Speedgoat sample time: CANNOT CHANGE ONCE BUILT AND UPLOADED !
+    params.ts_ctr = 35e-06; 
     params.fs_ctr = (1/params.ts_ctr);
-    params.log_dec = 1; %file log decimation -> reduces log file size by factor of log_dec
+    params.log_dec = floor(params.fs_ctr/freq_nyquist/4); %file log decimation -> reduces log file size by factor of log_dec
     params.ts_log = params.ts_ctr*params.log_dec; % must be <= 1/(2*freq_span) (a bit over the nyquist-shannon limit)
     params.fs_log = round(1/params.ts_log); %c.f.20231018__
 
@@ -45,7 +47,7 @@ function params = param_struct();
     params.fs_acq = 1/params.ts_acq; 
     %}
     %% TRANSFER FUNCTION PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.wind = params.fs_log; % number of samples for a window of 1s e.g. resolve up to 2 Hz --> window must be 1/2 s
+    params.wind = params.fs_log/freq_res; % The window size is in number of samples. Window of 1s yields a resolution of 1Hz, 2s --> 0.5 Hz etc... The window size is in number of samples
 
     %% CALIBRATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Mic Positions (wtr centre)
@@ -266,14 +268,14 @@ function params = param_struct();
     %%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% NECESSARY? YES.
     % --> Used to estimate the transfer functions
-    params.N = 2^(nextpow2((2*params.tmax)*params.fs_log) + 1); % longer than the recorded data - for zero padding
-    t = linspace(0,2*params.tmax,params.N)'; 
+    params.N = 2^(nextpow2((2*params.tmax)*params.fs_log)); % longer than the recorded data - for zero padding
+    t = linspace(0,2*params.tmax,params.N)'; % x2 because sweep up and sweep down
 
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;
-    kappa_nl = 5e-2*(params.Sd); % NL coupling (front pressure) MAX 5e-2*x(-params.Sd)???
+    kappa    = 0.8*(params.Sd); % coupling (front pressure) MAX 1;
+    kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 5e-2*x(params.Sd)
     kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
     
     cpl_0 = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1];% interfaceless
@@ -281,7 +283,7 @@ function params = param_struct();
     cpl_2 = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1];% interface 2
    
     params.cpl    = kappa*cpl_0;   % Linear coupling
-    params.cpl_nl = kappa_nl*cpl_0;% Nonlinear coupling
+    params.cpl_nl = kappa_nl*cpl_2;% Nonlinear coupling
 
     % 4 unit cells
     %{

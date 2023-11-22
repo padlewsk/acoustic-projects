@@ -57,7 +57,7 @@ s21 = s12;
 %% ASYMMETRIC + CASE
 %
 %%% CORRECTION DATA
-fstruct = dir('./__data/*35us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT !!!
+fstruct = dir('./__data/*70us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT !!!
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
@@ -65,7 +65,7 @@ load('C:/Speedgoat/temp/processed_data_a.mat');
 load('C:/Speedgoat/temp/processed_data_b.mat');
 
 H11_a = ones(p.N,1);
-H21_a=  processed_data_a.H21./cal.H21_corr; %%% DATA SMOOTHING HERE!!!
+H21_a=  processed_data_a.H21./cal.H21_corr; 
 H31_a = processed_data_a.H31./cal.H31_corr;
 H41_a = processed_data_a.H41./cal.H41_corr;
 
@@ -99,6 +99,15 @@ s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be 
 s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 
 %}
+
+%%% DATA SMOOTHING HERE!!!
+%
+s11 = smoothdata(s11,"movmean", 9/(p.freq(2)-p.freq(1)));% average over 9 Hz
+s12 = smoothdata(s12,"movmean", 9/(p.freq(2)-p.freq(1)));
+s21 = smoothdata(s21,"movmean", 9/(p.freq(2)-p.freq(1)));
+s22 = smoothdata(s22,"movmean", 9/(p.freq(2)-p.freq(1)));
+%}
+
 
 %%% COMPUTE TRANSFER MATRIX 
 t11 = 1./conj(s12);%s21-(s11.*s22./s12); ????????????????????????????????
@@ -152,11 +161,11 @@ legend("Re(q_{F})","Im(q_{F})","q_F = 2\pif/a ")
 
 %%% S-MATRIX
 figure(2);
-plot(p.freq, abs(s11).^2, 'DisplayName', '|s_{11}|^2');
+plot(p.freq, abs(s11).^2, 'DisplayName', '|s_{11}|^2','LineWidth',2);
 hold on;
-plot(p.freq, abs(s21).^2, 'DisplayName', '|s_{21}|^2');
-plot(p.freq, abs(s12).^2, 'DisplayName', '|s_{12}|^2');
-plot(p.freq, abs(s22).^2, 'DisplayName', '|s_{22}|^2');
+plot(p.freq, abs(s21).^2, 'DisplayName', '|s_{21}|^2','LineWidth',2);
+plot(p.freq, abs(s12).^2, 'DisplayName', '|s_{12}|^2','LineWidth',2);
+plot(p.freq, abs(s22).^2, 'DisplayName', '|s_{22}|^2','LineWidth',2);
 xline(638,'--',{'Topological','interface'}) % 
 legend show
 ylim([0,1])
@@ -167,10 +176,10 @@ grid on
 
 %Correlation (C-files)
 figure(3);
-semilogy(p.freq, processed_data_a.C21, 'DisplayName', 'C_{21}','LineWidth',2);
+plot(p.freq, processed_data_a.C21, 'DisplayName', 'C_{21}','LineWidth',2);
 hold on;
-semilogy(p.freq, processed_data_a.C31, 'DisplayName', 'C_{31}','LineWidth',2);
-semilogy(p.freq, processed_data_a.C41, 'DisplayName', 'C_{41}','LineWidth',2);
+plot(p.freq, processed_data_a.C31, 'DisplayName', 'C_{31}','LineWidth',2);
+plot(p.freq, processed_data_a.C41, 'DisplayName', 'C_{41}','LineWidth',2);
 legend show;
 ylim([0, 1.2])
 xlabel("Frequency (Hz)")
