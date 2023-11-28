@@ -45,9 +45,10 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
     
     % SOURCE PARAMETERS 
-    tg.setparam('', 'use_random', p.use_random); % 1 random 0 cte
-    %tg.setparam('','freq_sine', p.A);%
-    tg.setparam('', 'src_select', p.src_select); %src 0 and src 1
+    %tg.setparam('', 'use_random', p.use_random); % 1 random 0 cte
+    tg.setparam('','freq_sine', p.A);%
+    tg.setparam('', 'src_select_type', p.src_select_type); % 1 random 0 cte
+    tg.setparam('', 'src_select_ab', p.src_select_ab); % 1 = src A, 2 = src B r = src A+B
     tg.setparam('','src_gain', p.A);%
 
     %{
@@ -63,8 +64,8 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     % CONTROL PARAMETERS
 
     % coupling
-    tg.setparam('','k_mat',   diag(p.cpl,-1)    + diag(p.cpl,1));    %linear coupling matrix k 
-    tg.setparam('','k_mat_NL',diag(p.cpl_nl,-1) + diag(p.cpl_nl,1)); % nonlinear coupling matrix k_nl
+    tg.setparam('','k_mat',   diag(p.cpl_L,-1)    + diag(p.cpl_R,1));    %linear coupling matrix k 
+    tg.setparam('','k_mat_NL',diag(p.cpl_nl_L,-1) + diag(p.cpl_nl_R,1)); % nonlinear coupling matrix k_nl
 
     % Bl
      tg.setparam('','Bl',reshape(p.Bl',[] ,1)); %RMK: the reshape is simply to change the 8x2 matrix to a 16x1 

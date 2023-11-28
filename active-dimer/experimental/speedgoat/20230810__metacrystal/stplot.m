@@ -142,5 +142,33 @@ box on
 
 hold off
 
+%% NONLINEARITY TEST 
+
+L = length(t_vec);  % Length of signal
+t = t_vec;        % Time vector
+
+FFT = fft(real(p_vec(:,:)));
+P2 = abs(FFT/L);
+P1 = P2(1:L/2+1,:)';
+P1(2:end-1) = 2*P1(2:end-1);
+f = (0:(L/2))./(sys_param.ts_log*L);
+
+fig5 = figure(5);
+set(gcf,'position',fig_param.window_size);
+set(gca,fig_param.fig_prop{:});
+cmp = flip(copper(sys_param.N_cell*2));
+colororder(cmp);
+hold on
+plot(f,P1(1:1:16,:),"LineWidth",2) 
+hold off
+box on
+grid on
+%xlim([sys_param.freq_ini ,sys_param.freq_fin])
+xlim([0 ,sys_param.freq_fin])
+legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location', 'NorthEast', 'NumColumns', 2)
+%title("Single-Sided Amplitude Spectrum of S(t)")
+xlabel("f (Hz)")
+ylabel("|P1(f)|")
+
 autoArrangeFigures
 toc

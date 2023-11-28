@@ -11,9 +11,10 @@ function params = param_struct();
     %params.Zc = params.c0*params.rho0; % characteristic specific acoustic impedence at 300K
     
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.use_random = true; % white noise
-    params.src_select = 1; % 1 = src A,  2 = src B and 3 = src A + src B
-    params.A = 8; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    %params.use_random = true; % white noise
+    params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
+    params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
+    params.A = 10; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     %constant
     params.freq_sine = 638; %default
     %sweep
@@ -278,12 +279,15 @@ function params = param_struct();
     kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 5e-2*x(params.Sd)
     kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
     
-    cpl_0 = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1];% interfaceless
-    cpl_1 = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0];% interface 1 
-    cpl_2 = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1];% interface 2
+    cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1];% interfaceless
+    %cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0];% interface 1 
+    %cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1];% interface 2
    
-    params.cpl    = kappa*cpl_0;   % Linear coupling
-    params.cpl_nl = kappa_nl*cpl_2;% Nonlinear coupling
+    params.cpl_L    = kappa*cpl;   % Linear coupling
+    params.cpl_R    = kappa*cpl;   % Linear coupling
+
+    params.cpl_nl_L = kappa_nl*cpl;% Nonlinear coupling
+    params.cpl_nl_R = kappa_nl*cpl;% Nonlinear coupling
 
     % 4 unit cells
     %{
