@@ -5,13 +5,14 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     %%% UPLOAD PARAMETERS 
     if ~exist('p') ||  isempty(p)
        p = param_struct(); % in case some parameters are overwritten
+       fprintf('Using default parameters\n')
     end
 
     if ~exist('dlg') ||  isempty(dlg) %%% This is implemented to make cancel the measurement at any time using "uiprogressdlg" in the app 
        dlg = struct ;
        dlg.CancelRequested = 0; 
     end
-
+    fprintf(string(p.freq_sine))
     %% START APPLICATION
     % The ``tg.start`` function starts the target. The option
     % ``AutoImportFileLog`` is passed to the ``tg.start`` function to specify
@@ -32,25 +33,25 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     app = slrealtime.Application(p.MDL); % reference to the built application
     % Find the signal 'acq' in the application which will later be polled.
     sigInfo = app.getSignals; % list of all the signals in the application
-    sigInfo = sigInfo(strcmp({sigInfo.SignalLabel}, 'acq')); % keep only one with the acq signal
+    sigInfo = sigInfo(strcmp({sigInfo.SignalLabel}, 'acq')); % keep only one with the acq signal (test point!)
     
     fprintf('tg stop\n')
     tg.stop(); % make sure the target is stopped
     fprintf('tg load\n')
     tg.load(p.MDL); % loads the application in the RT target
     %NECESSARY TO LOAD EVERY TIME?
+    pause(0.1)
     fprintf('\t[DONE]\n');
-   
+    
     %% SET PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
     
     % SOURCE PARAMETERS 
-    %tg.setparam('', 'use_random', p.use_random); % 1 random 0 cte
-    tg.setparam('','freq_sine', p.A);%
+    tg.setparam('', 'freq_sine', p.freq_sine);% WHy DOES THIS NOT WORK????
+    %set_param([p.MDL, '/source/src_sine/src_sine'], 'Frequency', string(p.freq_sine*2*pi));%
     tg.setparam('', 'src_select_type', p.src_select_type); % 1 random 0 cte
     tg.setparam('', 'src_select_ab', p.src_select_ab); % 1 = src A, 2 = src B r = src A+B
-    tg.setparam('','src_gain', p.A);%
-
+    tg.setparam('', 'src_gain', p.A);%
     %{
     %sweep not used for now
     tg.setparam('', 'tmax', p.tmax);%
@@ -60,7 +61,6 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
 
     %SET RECORDING TIME 
     tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
-    %tg.setparam('','N_trig', p.N);
     % CONTROL PARAMETERS
 
     % coupling
@@ -68,7 +68,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     tg.setparam('','k_mat_NL',diag(p.cpl_nl_L,-1) + diag(p.cpl_nl_R,1)); % nonlinear coupling matrix k_nl
 
     % Bl
-     tg.setparam('','Bl',reshape(p.Bl',[] ,1)); %RMK: the reshape is simply to change the 8x2 matrix to a 16x1 
+    tg.setparam('','Bl',reshape(p.Bl',[] ,1)); %RMK: the reshape is simply to change the 8x2 matrix to a 16x1 
 
     % impedance synthesis
     [b, a] = tfdata(p.Phi_d);
@@ -104,24 +104,26 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
 
     % back pressure to displacement transfer function
     tg.setparam('','pb2disp', reshape(p.pb2disp',[] ,1));%
-
-
+    
+    Simulink.sdi.clear(); % clear previous run
     Simulink.sdi.view; % view the data
-    pause(0.05);
-
+    
+    pause(0.1)
     %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    tg.stopRecording();
-    Simulink.sdi.clear();
-    tg.startRecording();
+    %initialize
+    tg.setparam('', 'rec', false);
+    tg.setparam('', 'enable_source', false); %turn source off
 
     fprintf('Measuring...\n'); 
+    tic;
+    tg.start('AutoImportFileLog', false); %starts the system and omits the log data file
+    pause(0.5) % !!!  waits for the system to relax in the first moments cf 20231128
     % record data from start
     % make a short pulse of the Constant block 'rec'
     tg.setparam('', 'enable_source', true); %turn source on
-    tg.setparam('', 'rec', true);
-    tg.start('AutoImportFileLog', false); %starts the system and omits the log data file
-    tic;
+    tg.setparam('', 'rec', true); %start logging --> serves as tg.startRecording();
     tg.setparam('', 'rec', false);
+   
     % wait until the signal 'acq' is false, meaning the acquisition is over
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
         pause(0.1);
@@ -132,11 +134,10 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
             return
         end
     end
-    toc
     tg.setparam('', 'enable_source', false); %turn source off
-    fprintf('\t[DONE]\n');
-
     tg.stopRecording();
+    toc
+    fprintf('\t[DONE]\n');
 
     %% OUTPUT DATA & PROCESSING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     

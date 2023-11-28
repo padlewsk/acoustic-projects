@@ -12,11 +12,11 @@ function params = param_struct();
     
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %params.use_random = true; % white noise
-    params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
+    params.src_select_type = 3; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 10; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
+    params.A = 5; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     %constant
-    params.freq_sine = 638; %default
+    params.freq_sine = 500; %638 %default
     %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
@@ -241,7 +241,6 @@ function params = param_struct();
 
     %Target resonnance frequency
     %fst_A = 1/(2*pi*sqrt(Mms_avg*Cmc_avg))*sqrt(muC/muM); 
-
     for ii = 1:8
         for jj = 1:2
         muM(ii,jj) = muM_tgt*Mms_avg/params.Mms(ii,jj);
@@ -264,7 +263,7 @@ function params = param_struct();
         params.Phi_d(ii,jj) = minreal(params.Phi_d(ii,jj));
         end
     end
-
+    params.fst = params.f0(1,1)*sqrt(muC(1,1)/muM(1,1));%same value for all atms
     %%% Frequency vector
     %%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% NECESSARY? YES.
@@ -276,11 +275,11 @@ function params = param_struct();
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     kappa    = 0.8*(params.Sd); % coupling (front pressure) MAX 1;
-    kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 5e-2*x(params.Sd)
+    kappa_nl = 0*(params.Sd); % NL coupling (front pressure) MAX 5e-2*x(params.Sd)
     kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
     
-    cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1];% interfaceless
-    %cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0];% interface 1 
+    %cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1];% interfaceless
+    cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0];% interface 1 
     %cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1];% interface 2
    
     params.cpl_L    = kappa*cpl;   % Linear coupling

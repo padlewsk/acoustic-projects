@@ -50,7 +50,7 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
-t_cut_idx = t_out>=200e-3; %cf 20231025
+t_cut_idx = t_out>=0*50e-3; %cf 20231025 with fix at 20231128
 t_out = t_out(t_cut_idx);
 t_out = t_out-t_out(1); %reset t_o = 0;
 p_out = p_out(t_cut_idx,:);
@@ -75,7 +75,7 @@ set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
 grid("off")
 %box("on")
 xlim([0.5,2*sys_param.N_cell+0.5])
-ylim([t_out(1),50])
+ylim([t_out(1),300])
 %zlim([0, 1.5])
 xlabel('site n')
 ylabel('t (ms)')
