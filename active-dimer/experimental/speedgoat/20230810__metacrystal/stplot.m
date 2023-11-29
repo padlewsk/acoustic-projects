@@ -85,6 +85,7 @@ c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
 %clim([0, 1.5]);
 view(135,60)
+view(180,0)
 
 
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -29,26 +29,30 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
             error('ERROR. Unable to establish connection.')
         end
     end
-    fprintf('Loading the application...\n');
+    fprintf('Loading the application...');
     app = slrealtime.Application(p.MDL); % reference to the built application
     % Find the signal 'acq' in the application which will later be polled.
     sigInfo = app.getSignals; % list of all the signals in the application
     sigInfo = sigInfo(strcmp({sigInfo.SignalLabel}, 'acq')); % keep only one with the acq signal (test point!)
     
-    fprintf('tg stop\n')
+    %fprintf('tg stop\n')
     tg.stop(); % make sure the target is stopped
-    fprintf('tg load\n')
+    %fprintf('tg load\n')
     tg.load(p.MDL); % loads the application in the RT target
     %NECESSARY TO LOAD EVERY TIME?
     pause(0.1)
-    fprintf('\t[DONE]\n');
+    fprintf('done.\n');
     
     %% SET PARAMETERS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% UPLOAD PARAMETERS TO SL WORKSPACE
+    %{
+    mdlWks = get_param(p.MDL, 'ModelWorkspace'); % get the model workspace of 'myModel'
+    varList = whos(mdlWks); % list all variables in the model workspace
+    varList.name % list all variable names in the model workspace
+    %}
     
     % SOURCE PARAMETERS 
-    tg.setparam('', 'freq_sine', p.freq_sine);% WHy DOES THIS NOT WORK????
-    %set_param([p.MDL, '/source/src_sine/src_sine'], 'Frequency', string(p.freq_sine*2*pi));%
+    tg.setparam('', 'freq_sine', p.freq_sine);% 
     tg.setparam('', 'src_select_type', p.src_select_type); % 1 random 0 cte
     tg.setparam('', 'src_select_ab', p.src_select_ab); % 1 = src A, 2 = src B r = src A+B
     tg.setparam('', 'src_gain', p.A);%
@@ -114,7 +118,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     tg.setparam('', 'rec', false);
     tg.setparam('', 'enable_source', false); %turn source off
 
-    fprintf('Measuring...\n'); 
+    fprintf('Measuring...'); 
     tic;
     tg.start('AutoImportFileLog', false); %starts the system and omits the log data file
     pause(0.5) % !!!  waits for the system to relax in the first moments cf 20231128
@@ -136,12 +140,13 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     end
     tg.setparam('', 'enable_source', false); %turn source off
     tg.stopRecording();
+    fprintf('done.\n');
     toc
-    fprintf('\t[DONE]\n');
+    
 
     %% OUTPUT DATA & PROCESSING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    fprintf('Fetching data from target...\n');
+    fprintf('Fetching data from target...');
     
     %tg.FileLog.import(p.MDL); % import the file log in the SDI
     signal_measure_raw = get_signals(tg, {'data.p1', 'data.p2', 'data.p3', 'data.p4'}); % c.f. function in acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller
@@ -171,7 +176,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     % When the target is stopped, it cannot be started using ``tg.start()``.
     % You must first load the application again.
     tg.stop; % stops target
-    fprintf('\t[DONE]\n');
+    fprintf('done.\n');
     
     %% Display the signals
     %{ 
@@ -192,5 +197,4 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     
     %data = signal_measure_raw.Variables; % store data in data array
     TET = struct2table(tg.ModelStatus.TETInfo) % print TET info
-    fprintf('\t[DONE]\n');
 end
