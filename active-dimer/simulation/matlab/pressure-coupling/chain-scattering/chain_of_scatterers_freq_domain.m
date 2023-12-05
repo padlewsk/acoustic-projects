@@ -10,26 +10,28 @@ addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projec
 %%% RUN PARAMETERS FILE
 addpath('./__fun/')
 sp = sys_params();
+sp.kappa = 0.8*sp.Sd % RMK: Sd in the time domain code is found in the odecrystal part...
 
 
 freq = linspace(sp.fi,sp.ff,sp.f_samp)'; % frequency vector
-k = 2*pi*freq/sp.c0; % free wavevector/ dispersionless omega = c0*k => v_g = v_p = c0
+k = 2*pi*freq/sp.c0; % free space wavevector/ dispersionless omega = c0*k => v_g = v_p = c0
 
 zs = (1i*k*sp.c0)*sp.Mms + sp.Rms + 1./((1i*k*sp.c0)*sp.Cms);
 zr = sp.rho0*sp.c0 + sp.Sd/sp.S;
 
 
 % Unitcell transfer matrix:
-den = 2.*zs.*((-1+exp((1i*sp.a.*k))).*sp.kappa*zr + 2.*exp(1i*sp.a.*k/2).*zs);
+num = 4*zs.*(1i*sp.kappa*zr*sin((sp.a*k)/2)+zs);
+den = -(sp.kappa-sp.Sd)*(sp.kappa+sp.Sd)*zr.^2*(-1+cos(sp.a*k)) - 4*1i*zr*(sp.kappa*sin((sp.a*k)/2) - sp.Sd*sin(sp.a*k)).*zs + 4*cos(sp.a*k).*zs.^2;
 
-a1 = (-1 + exp(1i*sp.a.*k)).*(sp.kappa^2 - sp.Sd^2)+zr^2;
-a2 = 2*(-2*exp((1i*sp.a*k)/2)*sp.kappa + sp.Sd + exp(1i*sp.a*k)*sp.Sd).*zs*zr;
-a3= 4*((exp((1i*sp.a*k)/2)*sp.kappa - sp.Sd)*zr.*zs + zs.^2);
-a4 = 2*(-2*exp((1i*sp.a*k)/2)*sp.kappa + sp.Sd + exp(1i*sp.a*k)*sp.Sd).*zs*zr;
-a5= exp(1i*sp.a*k)*4.*((exp((-1i*sp.a*k)/2)*sp.kappa - sp.Sd)*zr.*zs + zs.^2);
+q_F  = asec(num./den)/sp.a;
 
-M_11 = (1./a1).*(a2 + a3);
-M_12 = (1./a1).*(a2 - a4);
-M_21 = (1./a1).*(-(a2 - a4));
-M_22 = (1./a1).*(-a2 + a5);
 
+%% FIGURES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clc
+
+figure()
+plot(abs(real(q_F)),freq)
+hold on
+plot(abs(imag(q_F)),freq)
+hold off

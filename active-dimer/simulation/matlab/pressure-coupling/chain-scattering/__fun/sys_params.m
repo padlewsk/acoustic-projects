@@ -74,8 +74,8 @@ function sys_param = sys_params()
     sys_param.t_fin =  30*sys_param.N_cell*sys_param.a/sys_param.c0; % 5 for pulse dynamics, 30 for cte%simulation time in seconds (time for sound to go from source to end of crystal)
     
     %%% COUPLING MATRIX
-    sys_param.kappa    = 0*0.8  ;%0.8
-    sys_param.kappa_nl = 5e-3; %7e-3 with A = 10 and interface 2 for 8 cells (5e-3 for 32 cells)
+    sys_param.kappa    = 0  ;%0.8
+    sys_param.kappa_nl = 0*5e-3; %7e-3 with A = 10 and interface 2 for 8 cells (5e-3 for 32 cells)
     %mat = mod(1:2*sys_param.N_cell-1,2); %interfaceless
     %mat = [mod(1:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-2,2)];% interface 1 
     mat = [mod(1:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell,2)];% interface 2 
