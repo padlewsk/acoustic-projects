@@ -177,6 +177,7 @@ c.Color = 'w';
 
 %clim([0, sys_param.A_src*1.5]);
 view(135,60)
+%view(180,0)
 
 
 %%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -189,7 +190,7 @@ p_vec = interp1(t_out,p_s,t_vec); % Interpolate data
 L = length(t_vec);             % Length of signal
 t = t_vec;        % Time vector
 
-FFT = fft(real(p_s(:,:)));
+FFT = fft(real(p_vec(:,:)));
 P2 = abs(FFT/L);
 P1 = P2(1:L/2+1,:)';
 P1(2:end-1) = 2*P1(2:end-1);
@@ -206,6 +207,7 @@ hold off
 box on
 grid on
 xlim([sys_param.fi ,sys_param.ff])
+xlim([0 ,sys_param.ff])
 legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location', 'NorthEast', 'NumColumns', 2)
 %title("Single-Sided Amplitude Spectrum of S(t)")
 xlabel("f (Hz)")

@@ -82,7 +82,7 @@ function dydt = odecrystal(t,y,temp)
     %% SOURCE AND BOUNDARY CONDITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% SRC
     if sys_param.src_select == 0 %%% SINE*SIGMOIDE (temporal cutoff)
-        p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*sin(2*pi*sys_param.f_src*t)*1/(1+exp(1000*(t-sys_param.t_fin/2)));
+        p_src = 1/(1+exp(500*(-t)))*sys_param.A_src*sin(2*pi*sys_param.f_src*t)*1/(1+exp(1000*(t-sys_param.t_fin/2))); %500 on the signal rise and 1000 on signal fall
     elseif sys_param.src_select == 1  %%% CENTER PULSE 
     % gaussian pulse centered at omega_src: P_src \propto  *exp(-(omega-omega_src)^2*(tau^2)) 
         freq_src = sys_param.f_src; %param.c0/param.a/2; %centering pulse on this frequency
