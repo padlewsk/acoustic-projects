@@ -50,7 +50,7 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
-t_cut_idx = t_out>=200e-3; %cf 20231025
+t_cut_idx = t_out>=0*50e-3; %cf 20231025 with fix at 20231128
 t_out = t_out(t_cut_idx);
 t_out = t_out-t_out(1); %reset t_o = 0;
 p_out = p_out(t_cut_idx,:);
@@ -75,7 +75,7 @@ set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
 grid("off")
 %box("on")
 xlim([0.5,2*sys_param.N_cell+0.5])
-ylim([t_out(1),50])
+ylim([t_out(1),300])
 %zlim([0, 1.5])
 xlabel('site n')
 ylabel('t (ms)')
@@ -85,6 +85,7 @@ c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
 %clim([0, 1.5]);
 view(135,60)
+view(180,0)
 
 
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,6 +142,34 @@ ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 box on
 
 hold off
+
+%% NONLINEARITY TEST 
+
+L = length(t_vec);  % Length of signal
+t = t_vec;        % Time vector
+
+FFT = fft(real(p_vec(:,:)));
+P2 = abs(FFT/L);
+P1 = P2(1:L/2+1,:)';
+P1(2:end-1) = 2*P1(2:end-1);
+f = (0:(L/2))./(sys_param.ts_log*L);
+
+fig5 = figure(5);
+set(gcf,'position',fig_param.window_size);
+set(gca,fig_param.fig_prop{:});
+cmp = flip(copper(sys_param.N_cell*2));
+colororder(cmp);
+hold on
+plot(f,P1(1:1:16,:),"LineWidth",2) 
+hold off
+box on
+grid on
+%xlim([sys_param.freq_ini ,sys_param.freq_fin])
+xlim([0 ,sys_param.freq_fin])
+legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location', 'NorthEast', 'NumColumns', 2)
+%title("Single-Sided Amplitude Spectrum of S(t)")
+xlabel("f (Hz)")
+ylabel("|P1(f)|")
 
 autoArrangeFigures
 toc

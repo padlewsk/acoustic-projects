@@ -100,7 +100,7 @@ s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 
 %}
 
-%%% DATA SMOOTHING HERE!!!
+%%% DATA SMOOTHING HERE!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 s11 = smoothdata(s11,"movmean", 9/(p.freq(2)-p.freq(1)));% average over 9 Hz
 s12 = smoothdata(s12,"movmean", 9/(p.freq(2)-p.freq(1)));
