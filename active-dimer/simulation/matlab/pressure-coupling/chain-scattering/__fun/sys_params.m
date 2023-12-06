@@ -24,6 +24,7 @@ function sys_param = sys_params()
     sys_param.Mas = sys_param.Mms/sys_param.Sd^2;
     sys_param.Cas = sys_param.Cms*sys_param.Sd^2;
     
+    sys_param.f_res = 1/(2*pi*sqrt(sys_param.Mas*sys_param.Cas));
     %Rss = Rms/Sd;%%% Specific acoustic 
     %Mss = Mms/Sd;
     %Css = Cms*Sd; 
