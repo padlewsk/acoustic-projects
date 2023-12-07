@@ -14,7 +14,7 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 0.5; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
+    params.A = 5; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
@@ -114,7 +114,7 @@ function params = param_struct();
     params.pb2disp(8,2) = 1.91082e-05;
 
     %%%  CURRENT TO VOLTAGE
-    params.u2i = 1e-2; %current amplifier: Maxime: 10e-3(A/V); Rivet: 1/103.8 (A/V)   
+    params.i2u = 100; %current amplifier: Maxime: 100(V/A); Rivet: 103.8 (V/A)   
 
     %% CONTROL SPEAKER PARAMETERS
     %Sd: Effective piston area (m^2) 
@@ -258,7 +258,7 @@ function params = param_struct();
         b1(ii,jj) = params.Bl(ii,jj)*muR(ii,jj)*params.Rms(ii,jj);
         b0(ii,jj) = params.Bl(ii,jj)*muC(ii,jj)/params.Cmc(ii,jj);
         %Transfer functionp. model:
-        Phi_c(ii,jj) = tf([a2(ii,jj),a1(ii,jj),a0(ii,jj)],[b2(ii,jj),b1(ii,jj),b0(ii,jj)]);%/(sens_p_p*u2i);
+        Phi_c(ii,jj) = tf([a2(ii,jj),a1(ii,jj),a0(ii,jj)],[b2(ii,jj),b1(ii,jj),b0(ii,jj)]);%/(sens_p_p/i2u);
         params.Phi_d(ii,jj) = c2d(Phi_c(ii,jj),params.ts_ctr,'tustin'); %discretized (necessary for SG model
         params.Phi_d(ii,jj) = minreal(params.Phi_d(ii,jj));
         end
@@ -274,8 +274,10 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    params.i2u = 0; % bypass impedance synthesis
+
     kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;
-    kappa_nl = 1e-2*(params.Sd); % NL coupling (front pressure) MAX 5e-2*x(params.Sd) @ A = 0.2
+    kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 5e-2*x(params.Sd) @ A = 0.2
     kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
     
     %cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1];% interfaceless
