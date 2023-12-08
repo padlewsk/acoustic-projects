@@ -12,7 +12,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
        dlg = struct ;
        dlg.CancelRequested = 0; 
     end
-    fprintf(string(p.freq_sine))
+    
     %% START APPLICATION
     % The ``tg.start`` function starts the target. The option
     % ``AutoImportFileLog`` is passed to the ``tg.start`` function to specify
@@ -101,7 +101,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     tg.setparam('','dtf_a',a);% [den coefs of 1.1 atom; den coefs of 1.2 atom]
 
     % current to voltage
-    tg.setparam('', 'i2u', 1/p.u2i); %converts current to voltage (will be converted back with u2i)
+    tg.setparam('', 'i2u', p.i2u); %converts current to voltage (will be converted back with u2i)
 
     % mic sensitivity     %%% F(unitcell,atom) 
     tg.setparam('', 'sens_p', reshape(p.sens_p',[] ,1));%

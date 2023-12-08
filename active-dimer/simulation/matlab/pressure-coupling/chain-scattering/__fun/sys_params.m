@@ -24,6 +24,7 @@ function sys_param = sys_params()
     sys_param.Mas = sys_param.Mms/sys_param.Sd^2;
     sys_param.Cas = sys_param.Cms*sys_param.Sd^2;
     
+    sys_param.f_res = 1/(2*pi*sqrt(sys_param.Mas*sys_param.Cas));
     %Rss = Rms/Sd;%%% Specific acoustic 
     %Mss = Mms/Sd;
     %Css = Cms*Sd; 
@@ -54,14 +55,14 @@ function sys_param = sys_params()
     
     %%% SIMULATION PARAMETERS    
     %%% SYSTEM SIZE
-    sys_param.N_cell = 8; %number of unit cells (= half the number of sites)
+    sys_param.N_cell = 32; %number of unit cells (= half the number of sites)
     sys_param.mat_size = sys_param.N_cell*8+1; %number of nodes in the acoustic circuit
 
     %%% SOURCE
     sys_param.fi = 300; %% initial frequency
     sys_param.ff = 1300; %% final frequency
     sys_param.A_src = 10; %%% incident pressure amplitude (Pa) %%% NL
-    sys_param.f_src  = 644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse
+    sys_param.f_src  = 644.5;%644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse 
     sys_param.src_select = 0; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1  %%% PULSE CENTERED AT sys_param.f_src %%% 2 white noise (doesn't work)
     sys_param.src_loc = [1];%source location
     %sys_param.src_loc =[1 sys_param.mat_size];% [round(sys_param.mat_size/2)]; %%%%%%%
@@ -74,11 +75,11 @@ function sys_param = sys_params()
     sys_param.t_fin =  30*sys_param.N_cell*sys_param.a/sys_param.c0; % 5 for pulse dynamics, 30 for cte%simulation time in seconds (time for sound to go from source to end of crystal)
     
     %%% COUPLING MATRIX
-    sys_param.kappa    = 0;
-    sys_param.kappa_nl = 7e-3; %8e-3 with A = 10 and interface 1
+    sys_param.kappa    = 0  ;%0.8
+    sys_param.kappa_nl = 0*5e-3; %7e-3 with A = 10 and interface 2 for 8 cells (5e-3 for 32 cells)
     %mat = mod(1:2*sys_param.N_cell-1,2); %interfaceless
-    mat = [mod(1:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-2,2)];% interface 1 
-    %mat = [mod(1:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell,2)];% interface 2 
+    %mat = [mod(1:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-2,2)];% interface 1 
+    mat = [mod(1:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell,2)];% interface 2 
     %mat = [mod(1:sys_param.N_cell-1,2) mod(sys_param.N_cell+1:2*sys_param.N_cell,2)];% interface  with double link 
     %
     sys_param.cpl = sys_param.kappa*mat;
