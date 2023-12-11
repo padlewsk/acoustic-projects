@@ -19,6 +19,10 @@ function data_struct = SG__data_process(data)
     C31 = [];% coherence
     C41 = [];% coherence  
 
+    %{
+    load('C:\Speedgoat\temp\signal_control_raw_a.mat');  %%%%
+    data = signal_control_raw.Variables;
+    tic
     [H21,F] = tfestimate(data(:,1), data(:,2), p.wind, [], p.freq, p.fs_log);
     [H31,F] = tfestimate(data(:,1), data(:,3), p.wind, [], p.freq, p.fs_log);
     [H41,F] = tfestimate(data(:,1), data(:,4), p.wind, [], p.freq, p.fs_log);
@@ -26,7 +30,18 @@ function data_struct = SG__data_process(data)
     [C21,F] = mscohere(data(:,1), data(:,2), p.wind, [], p.freq, p.fs_log);
     [C31,F] = mscohere(data(:,1), data(:,3), p.wind, [], p.freq, p.fs_log);
     [C41,F] = mscohere(data(:,1), data(:,4), p.wind, [], p.freq, p.fs_log);
-    
+    toc
+    %}
+
+    tic
+    [H21,freq] = tfestimate(data(:,1), data(:,2), p.wind, [], [], p.fs_log);
+    [H31,freq] = tfestimate(data(:,1), data(:,3), p.wind, [], [], p.fs_log);
+    [H41,freq] = tfestimate(data(:,1), data(:,4), p.wind, [], [], p.fs_log);
+     
+    [C21,freq] = mscohere(data(:,1), data(:,2), p.wind, [], [], p.fs_log);
+    [C31,freq] = mscohere(data(:,1), data(:,3), p.wind, [], [], p.fs_log);
+    [C41,freq] = mscohere(data(:,1), data(:,4), p.wind, [], [], p.fs_log);
+    toc
     %data_struct = struct;
 
     data_struct.H21 = H21;
@@ -37,5 +52,5 @@ function data_struct = SG__data_process(data)
     data_struct.C31 = C31;
     data_struct.C41 = C41;
 
-    data_struct.F = F;
+    data_struct.freq = freq;
 end

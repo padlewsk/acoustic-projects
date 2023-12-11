@@ -14,7 +14,7 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 15; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
+    params.A = 10; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
@@ -24,10 +24,10 @@ function params = param_struct();
     avg_num_wind = 5; %The number of windows with 0% overlap (x2-1 for 50% overlap) 
     %freq_max = params.freq_fin - 0*params.freq_ini;
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
-    freq_res = 1; %freq_max/N_lines; %frequency resolution Hz
+    freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz
     params.tmax = avg_num_wind/freq_res; %0.3% sweep up time (s) measurement time = 2 x tmax
     
-    freq_nyquist = 2*(params.freq_fin-0*params.freq_ini); % over 2 to be safe...
+    freq_nyquist = 2*(2*params.freq_fin); % over 2 to be safe...
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Machine type
     %tg_model = 'Baseline'; %target select
@@ -38,7 +38,7 @@ function params = param_struct();
     %%% Speedgoat sample time: CANNOT CHANGE ONCE BUILT AND UPLOADED !
     params.ts_ctr = 35e-06; 
     params.fs_ctr = (1/params.ts_ctr);
-    params.log_dec = floor(params.fs_ctr/freq_nyquist/4); %file log decimation -> reduces log file size by factor of log_dec
+    params.log_dec = floor(params.fs_ctr/freq_nyquist); %file log decimation -> reduces log file size by factor of log_dec
     params.ts_log = params.ts_ctr*params.log_dec; % must be <= 1/(2*freq_span) (a bit over the nyquist-shannon limit)
     params.fs_log = round(1/params.ts_log); %c.f.20231018__
 
@@ -268,11 +268,11 @@ function params = param_struct();
     %%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% NECESSARY? YES.
     % --> Used to estimate the transfer functions
-    params.N = 2^(nextpow2((2*params.tmax)*params.fs_log)+1); % longer than the recorded data - for zero padding
-    t = linspace(0,2*params.tmax,params.N)'; % x2 because sweep up and sweep down
+    %params.N = 2^(nextpow2((2*params.tmax)*params.fs_log)+1); % longer than the recorded data - for zero padding
+    %t = linspace(0,2*params.tmax,params.N)'; % x2 because sweep up and sweep down
 
-    params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
-    %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
+    %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
+   
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % bypass impedance synthesis
     params.i2u = 0; 
@@ -295,26 +295,26 @@ function params = param_struct();
     % reciprocal coupling disorder
     params.lambda_cpl = 0; % from 0 to 1
     for ii = 1:numel(cpl)
-        cpl(ii) = cpl(ii)*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
+        cpl(ii) = cpl(ii)*2*(1 + params.lambda_cpl*2*(rand(1) - 0.5));
     end
     
     % nonreciprocal coupling disorder
     params.lambda_cpl_NR = 0; % from 0 to 1
     for ii = 1:numel(cpl)
-        params.cpl_L(ii) =  params.cpl_L*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
-        params.cpl_R(ii) =  params.cpl_R*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
-        params.cpl_nl_L(ii) = params.cpl_nl_L(ii)*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
-        params.cpl_nl_R(ii) = params.cpl_nl_R(ii)*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
+        params.cpl_L(ii)    = params.cpl_L(ii)*2*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
+        params.cpl_R(ii)    = params.cpl_R(ii)*2*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
+        params.cpl_nl_L(ii) = params.cpl_nl_L(ii)*2*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
+        params.cpl_nl_R(ii) = params.cpl_nl_R(ii)*2*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
     end
 
     % Local disorder
     params.lambda_loc = 0; % from 0 to 1
     for ii = 1:8
         for jj = 1:2
-             params.Bl(ii,jj) =  params.Bl(ii,jj)*(1 + lambda_loc*2*(rand(1) - 0.5)); %1 pm 0.5 max!
-            params.Rms(ii,jj) = params.Rms(ii,jj)*(1 + lambda_loc*2*(rand(1) - 0.5));
-            params.Mms(ii,jj) = params.Mms(ii,jj)*(1 + lambda_loc*2*(rand(1) - 0.5)); 
-            params.Cmc(ii,jj) = params.Cmc(ii,jj)*(1 + lambda_loc*2*(rand(1) - 0.5)); 
+             params.Bl(ii,jj) =  params.Bl(ii,jj)*(1 + params.lambda_loc*2*(rand(1) - 0.5)); %1 pm 0.5 max!
+            params.Rms(ii,jj) = params.Rms(ii,jj)*(1 + params.lambda_loc*2*(rand(1) - 0.5));
+            params.Mms(ii,jj) = params.Mms(ii,jj)*(1 + params.lambda_loc*2*(rand(1) - 0.5)); 
+            params.Cmc(ii,jj) = params.Cmc(ii,jj)*(1 + params.lambda_loc*2*(rand(1) - 0.5)); 
         end
     end
 

@@ -11,7 +11,7 @@ addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
 
-k = 2*pi*p.freq/p.c0; %corresponding wave vector
+%k = 2*pi*freq/p.c0; %corresponding wave vector
 %N = length(k);
 
 %%% MICROPHONE POSITION (wrt to edge of unit cell)
@@ -36,7 +36,7 @@ load(strcat(fstruct.folder,'\',fstruct.name));
 load('C:/Speedgoat/temp/processed_data_a.mat');
 
 %%% CORRECTION 
-H11_a = ones(p.N,1);
+H11_a = ones(N,1);
 H21_a = processed_data_a.H21./cal.H21_corr;
 H31_a = processed_data_a.H31./cal.H31_corr;
 H41_a = processed_data_a.H41./cal.H41_corr;
@@ -63,13 +63,17 @@ load(strcat(fstruct.folder,'\',fstruct.name));
 %%% TRANSFER FUNCTION DATA
 load('C:/Speedgoat/temp/processed_data_a.mat');
 load('C:/Speedgoat/temp/processed_data_b.mat');
+freq = processed_data_a.freq; %corresponding wave vector
 
-H11_a = ones(p.N,1);
+k = 2*pi*freq/p.c0; %corresponding wave vector
+N = numel(k);
+
+H11_a = ones(N,1);
 H21_a=  processed_data_a.H21./cal.H21_corr; 
 H31_a = processed_data_a.H31./cal.H31_corr;
 H41_a = processed_data_a.H41./cal.H41_corr;
 
-H11_b = ones(p.N,1);
+H11_b = ones(N,1);
 H21_b = processed_data_b.H21./cal.H21_corr;
 H31_b = processed_data_b.H31./cal.H31_corr;
 H41_b = processed_data_b.H41./cal.H41_corr;
@@ -102,10 +106,10 @@ s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 
 %%% DATA SMOOTHING HERE!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
-s11 = smoothdata(s11,"movmean", 9/(p.freq(2)-p.freq(1)));% average over 9 Hz
-s12 = smoothdata(s12,"movmean", 9/(p.freq(2)-p.freq(1)));
-s21 = smoothdata(s21,"movmean", 9/(p.freq(2)-p.freq(1)));
-s22 = smoothdata(s22,"movmean", 9/(p.freq(2)-p.freq(1)));
+s11 = smoothdata(s11,"movmean", 9/(freq(2)-freq(1)));% average over 9 Hz
+s12 = smoothdata(s12,"movmean", 9/(freq(2)-freq(1)));
+s21 = smoothdata(s21,"movmean", 9/(freq(2)-freq(1)));
+s22 = smoothdata(s22,"movmean", 9/(freq(2)-freq(1)));
 %}
 
 
@@ -118,7 +122,7 @@ t22 = 1./s12;
 %%% COMPUTE FLOQUET-BLOCH WAVE VECTOR q:
 %%% General solutions \pm
 %
-for ii = 1:p.N
+for ii = 1:N
     T = [t11(ii),t12(ii);t21(ii),t22(ii)];
     q = log(0.5*(trace(T) - sqrt(trace(T)^2-4*det(T))))/(1i*p.a);
 
@@ -137,10 +141,10 @@ close all
 %{
 figure(1);
 hold on
-plot(abs(q_real)*p.a/pi,p.freq,'-r','LineWidth',3)
-plot(abs(q_imag)*p.a/pi,p.freq,'-k','LineWidth',3)
-plot(k*p.a/pi,p.freq,'-b','LineWidth',1)
-plot(2-k*p.a/pi,p.freq,'-b','LineWidth',1)
+plot(abs(q_real)*p.a/pi,freq,'-r','LineWidth',3)
+plot(abs(q_imag)*p.a/pi,freq,'-k','LineWidth',3)
+plot(k*p.a/pi,freq,'-b','LineWidth',1)
+plot(2-k*p.a/pi,freq,'-b','LineWidth',1)
 
 hold off
 linespec = {'LabelVerticalAlignment','bottom'}; %'LabelOrientation','horizontal','LabelHorizontalAlignment','center'
@@ -161,13 +165,14 @@ legend("Re(q_{F})","Im(q_{F})","q_F = 2\pif/a ")
 
 %%% S-MATRIX
 figure(2);
-plot(p.freq, abs(s11).^2, 'DisplayName', '|s_{11}|^2','LineWidth',2);
+plot(freq, abs(s11).^2, 'DisplayName', '|s_{11}|^2','LineWidth',2);
 hold on;
-plot(p.freq, abs(s21).^2, 'DisplayName', '|s_{21}|^2','LineWidth',2);
-plot(p.freq, abs(s12).^2, 'DisplayName', '|s_{12}|^2','LineWidth',2);
-plot(p.freq, abs(s22).^2, 'DisplayName', '|s_{22}|^2','LineWidth',2);
+plot(freq, abs(s21).^2, 'DisplayName', '|s_{21}|^2','LineWidth',2);
+plot(freq, abs(s12).^2, 'DisplayName', '|s_{12}|^2','LineWidth',2);
+plot(freq, abs(s22).^2, 'DisplayName', '|s_{22}|^2','LineWidth',2);
 xline(638,'--',{'Topological','interface'}) % 
 legend show
+xlim([0,p.freq_fin])
 ylim([0,1])
 xlabel("Frequency (Hz)")
 title("Transmission/reflection coefficients")
@@ -176,11 +181,12 @@ grid on
 
 %Correlation (C-files)
 figure(3);
-plot(p.freq, processed_data_a.C21, 'DisplayName', 'C_{21}','LineWidth',2);
+plot(freq, processed_data_a.C21, 'DisplayName', 'C_{21}','LineWidth',2);
 hold on;
-plot(p.freq, processed_data_a.C31, 'DisplayName', 'C_{31}','LineWidth',2);
-plot(p.freq, processed_data_a.C41, 'DisplayName', 'C_{41}','LineWidth',2);
+plot(freq, processed_data_a.C31, 'DisplayName', 'C_{31}','LineWidth',2);
+plot(freq, processed_data_a.C41, 'DisplayName', 'C_{41}','LineWidth',2);
 legend show;
+xlim([0,p.freq_fin])
 ylim([0, 1.2])
 xlabel("Frequency (Hz)")
 title("Correlation w/r to mic. 1 of run A")
@@ -194,11 +200,11 @@ autoArrangeFigures
 %{
 figure(4);
 %hold on;
-plot(p.freq, abs(t11).^2, 'DisplayName', 't11');
+plot(freq, abs(t11).^2, 'DisplayName', 't11');
 hold on;
-plot(p.freq, abs(t21).^2, 'DisplayName', 't21');
-plot(p.freq, abs(t12).^2, 'DisplayName', 't12');
-plot(p.freq, abs(t22).^2, 'DisplayName', 't22');
+plot(freq, abs(t21).^2, 'DisplayName', 't21');
+plot(freq, abs(t12).^2, 'DisplayName', 't12');
+plot(freq, abs(t22).^2, 'DisplayName', 't22');
 legend show;
 ylim([0,1])
 xlabel("Frequency (Hz)")
@@ -211,20 +217,20 @@ grid on
 figure(2);
 subplot(2,1,1);
 %hold on;
-plot(p.freq, abs(s11).^2, 'DisplayName', 's11');
+plot(freq, abs(s11).^2, 'DisplayName', 's11');
 hold on;
-plot(p.freq, abs(s21).^2, 'DisplayName', 's21');
-plot(p.freq, abs(s12).^2, 'DisplayName', 's12');
-plot(p.freq, abs(s22).^2, 'DisplayName', 's22');
+plot(freq, abs(s21).^2, 'DisplayName', 's21');
+plot(freq, abs(s12).^2, 'DisplayName', 's12');
+plot(freq, abs(s22).^2, 'DisplayName', 's22');
 legend show;
 ylim([0,1])
 
 subplot(2,1,2);
-plot(p.freq, angle(s11), 'DisplayName', 's11');
+plot(freq, angle(s11), 'DisplayName', 's11');
 hold on
-plot(p.freq, angle(s21), 'DisplayName', 's21');
-plot(p.freq, angle(s12), 'DisplayName', 's12');
-plot(p.freq, angle(s22), 'DisplayName', 's22');
+plot(freq, angle(s21), 'DisplayName', 's21');
+plot(freq, angle(s12), 'DisplayName', 's12');
+plot(freq, angle(s22), 'DisplayName', 's22');
 legend show;
 %}
 
