@@ -274,8 +274,10 @@ function params = param_struct();
     params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(2*params.tmax))*t; %%%linear frequency vector;
     %params.freq = params.freq_ini + ((params.freq_fin - params.freq_ini)/(params.tmax))*t; % use with homemade sweep
     %% CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.i2u = 0; % bypass impedance synthesis
-
+    % bypass impedance synthesis
+    params.i2u = 0; 
+    
+    % coupling
     kappa    = 0*(params.Sd); % coupling (front pressure) MAX 1;
     kappa_nl = 0e-2*(params.Sd); % NL coupling (front pressure) MAX 5e-2*x(params.Sd) @ A = 0.2
     kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
@@ -289,6 +291,33 @@ function params = param_struct();
 
     params.cpl_nl_L = kappa_nl*cpl;% Nonlinear coupling
     params.cpl_nl_R = kappa_nl*cpl;% Nonlinear coupling
+    
+    % reciprocal coupling disorder
+    params.lambda_cpl = 0; % from 0 to 1
+    for ii = 1:numel(cpl)
+        cpl(ii) = cpl(ii)*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
+    end
+    
+    % nonreciprocal coupling disorder
+    params.lambda_cpl_NR = 0; % from 0 to 1
+    for ii = 1:numel(cpl)
+        params.cpl_L(ii) =  params.cpl_L*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
+        params.cpl_R(ii) =  params.cpl_R*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
+        params.cpl_nl_L(ii) = params.cpl_nl_L(ii)*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
+        params.cpl_nl_R(ii) = params.cpl_nl_R(ii)*2*(1 + lambda_cpl*2*(rand(1) - 0.5));
+    end
+
+    % Local disorder
+    params.lambda_loc = 0; % from 0 to 1
+    for ii = 1:8
+        for jj = 1:2
+             params.Bl(ii,jj) =  params.Bl(ii,jj)*(1 + lambda_loc*2*(rand(1) - 0.5)); %1 pm 0.5 max!
+            params.Rms(ii,jj) = params.Rms(ii,jj)*(1 + lambda_loc*2*(rand(1) - 0.5));
+            params.Mms(ii,jj) = params.Mms(ii,jj)*(1 + lambda_loc*2*(rand(1) - 0.5)); 
+            params.Cmc(ii,jj) = params.Cmc(ii,jj)*(1 + lambda_loc*2*(rand(1) - 0.5)); 
+        end
+    end
+
 
     % 4 unit cells
     %{
