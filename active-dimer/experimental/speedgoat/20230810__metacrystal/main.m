@@ -68,6 +68,14 @@ freq = processed_data_a.freq; %corresponding wave vector
 k = 2*pi*freq/p.c0; %corresponding wave vector
 N = numel(k);
 
+%%% CORRECTION SMOOTHING HERE!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% cf 20231212
+%
+cal.H21_corr = smoothdata(cal.H21_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));% average over nearest neighbors
+cal.H31_corr = smoothdata(cal.H31_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
+cal.H41_corr = smoothdata(cal.H41_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
+%}
+
 H11_a = ones(N,1);
 H21_a=  processed_data_a.H21./cal.H21_corr; 
 H31_a = processed_data_a.H31./cal.H31_corr;
@@ -105,11 +113,12 @@ s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 %}
 
 %%% DATA SMOOTHING HERE!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%{
-s11 = smoothdata(s11,"movmean", 9/(freq(2)-freq(1)));% average over 9 Hz
-s12 = smoothdata(s12,"movmean", 9/(freq(2)-freq(1)));
-s21 = smoothdata(s21,"movmean", 9/(freq(2)-freq(1)));
-s22 = smoothdata(s22,"movmean", 9/(freq(2)-freq(1)));
+%%% cf 20231212
+%
+s11 = smoothdata(s11,"movmean", 2/(freq(2)-freq(1)));% average over nearest neighbors
+s12 = smoothdata(s12,"movmean", 2/(freq(2)-freq(1)));
+s21 = smoothdata(s21,"movmean", 2/(freq(2)-freq(1)));
+s22 = smoothdata(s22,"movmean", 2/(freq(2)-freq(1)));
 %}
 
 
@@ -193,6 +202,20 @@ title("Correlation w/r to mic. 1 of run A")
 box on
 grid on
 
+%
+figure(4);
+plot(cal.freq, abs(cal.H21_corr), 'DisplayName', 'H_{21,corr}','LineWidth',2);
+hold on;
+plot(cal.freq, abs(cal.H31_corr), 'DisplayName', 'H_{31,corr}','LineWidth',2);
+plot(cal.freq, abs(cal.H41_corr), 'DisplayName', 'H_{41,corr}','LineWidth',2);
+legend show;
+xlim([0,p.freq_fin])
+ylim([0, 1.2])
+xlabel("Frequency (Hz)")
+title("Transfer function corrections w/r to mic. 1")
+box on
+grid on
+%}
 autoArrangeFigures
 %% Other...
 
