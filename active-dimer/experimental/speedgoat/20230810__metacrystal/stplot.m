@@ -9,8 +9,20 @@ addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projec
 %%% RUN PARAMETERS FILE
 addpath('./__fun/')
 addpath('./__data/')
-load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
-%load './__data/signal_control_raw_a_638Hz_notopo.mat' signal_control_raw ;
+
+directory = "C:/Speedgoat/temp/";
+filename = "signal_control_raw_a.mat";
+
+load(strcat(directory,filename), 'signal_control_raw') ;
+
+
+%load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
+if isfile(strcat(directory,filename))
+    fprintf("File Exists. Cannot save data. \n")
+else
+    save(strcat(directory,filename),'signal_control_raw');
+end
+
 sys_param = param_struct();
 sys_param.N_cell = 8;
 
@@ -75,26 +87,39 @@ set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
 grid("off")
 %box("on")
 xlim([0.5,2*sys_param.N_cell+0.5])
-ylim([t_out(1),300])
-%zlim([0, 1.5])
+%ylim([t_out(1),300])
+%ylim([t_out(1),sys_param.tmax*1.2]*1000)
+%zlim([2.6, 4.5])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-%clim([0, 1.5]);
-view(135,60)
-view(180,0)
-
+%clim([2.5, 4.3]);
+view(135,50)
+%view(180,0)
 
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
-t_vec = t_out; %already omited
+t_vec = t_out; 
 p_vec = p_out;
 
-Y = fft2(p_vec,2^(nextpow2(size(p_vec,1))),size(p_vec,2))/length(p_vec);% size(p_vec,2) = number of sites %0 padding up to next power normalized to get amplitude in (Pa) 
-%Y = fft2(p_vec,2^12,size(p_vec,2))/length(p_vec);% TRUNCATED SIGNAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% SPLIT SIGNAL INTO PARTS FOR SPECTRAL AVERAGING
+% sys_param.freq_res
+parts = 50*sys_param.avg_num_wind; % number of parts to split the time domain signal (reduces frequency resolution)
+part_size = floor(size(p_vec,1)/parts) * ones(1, parts); % Determine the size of each part
+part_size(end) = size(p_vec,1) - sum(part_size(1:end-1)); % removes last bit to have equal-sized matrices
+p_vec_split = mat2cell(p_vec, part_size, size(p_vec,2)); % Split the matrix into sys_param.avg_num_wind parts
+Y_split = {}; %
+for nn = 1:parts
+    Y_split{nn} = fft2(p_vec,2^(nextpow2(size(p_vec_split{nn},1))),size(p_vec_split{nn},2))/length(p_vec_split{nn});
+end
+Y = cat(3, Y_split{:}); % Concatenate the cell array of numeric arrays into a 3D numeric array
+Y = mean(Y, 3); % Take the average along the third dimension --> in Fourier space
+%
+%Y = fft2(p_vec,2^(nextpow2(size(p_vec,1))),size(p_vec,2))/length(p_vec);% size(p_vec,2) = number of sites %0 padding up to next power normalized to get amplitude in (Pa) 
+
 Y = fftshift(Y); %filters out DC component
 
 NFFT_f = length(t_vec); % signal length
@@ -109,7 +134,7 @@ Y_inner = [Y(:,sys_param.N_cell/2+1:3*sys_param.N_cell/2)];
 Y_outer = flip([Y(:,3*sys_param.N_cell/2+1:2*sys_param.N_cell) Y(:,1:sys_param.N_cell/2)],2);
 Y_fold = (Y_inner+Y_outer);
 %}
-Y_fold = Y; %Bypass
+Y_fold = Y; %Bypass folding
 
 %%% CUT OFF HIGH FREQUENCIES
 fig3 = figure(3);
@@ -124,7 +149,7 @@ hold on
 %imagesc(abs(Y_fold));
 imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
 %yline([422.380/1000 sys_param.c0/sys_param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
-yline([444/1000 638/1000],'w-',{'Local','Bragg'},'LineWidth',2,'alpha',0.3,'LabelHorizontalAlignment', 'center');
+yline([440/1000 638/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'LabelHorizontalAlignment', 'center');
 %yline([444/1000 595/1000],'w-',{'Local','Bragg'},'LineWidth',2,'alpha',0.3,'LabelHorizontalAlignment', 'center');
 hold off
 %colormap('hot');
@@ -132,7 +157,7 @@ colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-%clim([0, 2]);
+clim([0, 3]);
 xlabel("qa/\pi")% full unitcell
 ylabel("f (kHz)")
 xlim([-1,1])
@@ -140,7 +165,6 @@ ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 
 %title("Transmission peak as a function of local disorder")
 box on
-
 hold off
 
 %% NONLINEARITY TEST 

@@ -129,8 +129,22 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     tg.setparam('', 'rec', false);
    
     % wait until the signal 'acq' is false, meaning the acquisition is over
+   
+    %tic
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
-        pause(0.1);
+        pause(0.05);
+        %{
+        if toc<p.tmax/4
+            p.kappa = 0;
+        elseif toc>p.tmax/4 && toc<3*p.tmax/4
+            p.kappa = (p.kappa + (1/(p.tmax/2))*0.05); % increment every 0.05 seconds
+            p.cpl_L = p.kappa*p.cpl;   % Linear coupling
+            p.cpl_R = p.kappa*p.cpl;   % Linear coupling
+        else
+            p.kappa = 0;
+        end
+        tg.setparam('','k_mat',   diag(p.cpl_L,-1)    + diag(p.cpl_R,1));    %linear coupling matrix k 
+        %}
         if dlg.CancelRequested %%% Check if cancel button is pressed
             dlg.Message = 'Measurement aborted.';
             tg.stop;% stops target
