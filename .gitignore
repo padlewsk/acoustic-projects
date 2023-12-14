@@ -4,6 +4,7 @@
 *.png
 *.pdf
 *.svg
+*.txt
 
 # OS files
 Thumbs.db
