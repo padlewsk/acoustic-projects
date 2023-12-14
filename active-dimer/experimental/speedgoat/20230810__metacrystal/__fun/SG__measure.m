@@ -133,6 +133,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     %tic
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
         pause(0.05);
+         %%%% LIVE KAPPA VARIATION
         %{
         if toc<p.tmax/4
             p.kappa = 0;
@@ -145,6 +146,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
         end
         tg.setparam('','k_mat',   diag(p.cpl_L,-1)    + diag(p.cpl_R,1));    %linear coupling matrix k 
         %}
+         
         if dlg.CancelRequested %%% Check if cancel button is pressed
             dlg.Message = 'Measurement aborted.';
             tg.stop;% stops target

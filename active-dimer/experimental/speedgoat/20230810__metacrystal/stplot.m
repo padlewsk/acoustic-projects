@@ -107,12 +107,12 @@ p_vec = p_out;
 
 %%% SPLIT SIGNAL INTO PARTS FOR SPECTRAL AVERAGING
 % sys_param.freq_res
-parts = 50*sys_param.avg_num_wind; % number of parts to split the time domain signal (reduces frequency resolution)
-part_size = floor(size(p_vec,1)/parts) * ones(1, parts); % Determine the size of each part
+parts = 100*sys_param.avg_num_wind; % number of parts to split the time domain signal (reduces frequency resolution)
+part_size = floor(size(p_vec,1)/parts)*ones(1, parts); % Determine the size of each part
 part_size(end) = size(p_vec,1) - sum(part_size(1:end-1)); % removes last bit to have equal-sized matrices
 p_vec_split = mat2cell(p_vec, part_size, size(p_vec,2)); % Split the matrix into sys_param.avg_num_wind parts
 Y_split = {}; %
-for nn = 1:parts
+for nn = 1:parts-1 %%% -1 bc last cell is not always the right size...
     Y_split{nn} = fft2(p_vec,2^(nextpow2(size(p_vec_split{nn},1))),size(p_vec_split{nn},2))/length(p_vec_split{nn});
 end
 Y = cat(3, Y_split{:}); % Concatenate the cell array of numeric arrays into a 3D numeric array
@@ -129,15 +129,16 @@ NFFT_qa = length(p_vec); % signal length
 qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1))'+ 0.25 ; %%% WHY THIS 0.5???'
 
 %%% BAND FOLDING %%% RMK: sys_param.N_cell must be EVEN
+Y_fold = Y;%Bypass folding
 %{
 Y_inner = [Y(:,sys_param.N_cell/2+1:3*sys_param.N_cell/2)];
 Y_outer = flip([Y(:,3*sys_param.N_cell/2+1:2*sys_param.N_cell) Y(:,1:sys_param.N_cell/2)],2);
 Y_fold = (Y_inner+Y_outer);
 %}
-Y_fold = Y; %Bypass folding
 
 %%% CUT OFF HIGH FREQUENCIES
 fig3 = figure(3);
+%{
 set(gcf,'position',fig_param.window_size);
 set(gcf, 'InvertHardCopy', 'off'); % to make black figure
 set(gcf,'Color',[0 0 0]);% to make black figure
@@ -145,27 +146,31 @@ set(gca,fig_param.fig_prop{:},'XColor','w','YColor','w');
 %set(gca,'FontSize',20)
 %set(gcf,'position',[50, 50, 800, 1000]);
 hold on
-%imagesc(qa/pi,omega/(2*pi),abs(Y)); 
-%imagesc(abs(Y_fold));
 imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
-%yline([422.380/1000 sys_param.c0/sys_param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
+%imshow(abs(Y_fold));
 yline([440/1000 638/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'LabelHorizontalAlignment', 'center');
-%yline([444/1000 595/1000],'w-',{'Local','Bragg'},'LineWidth',2,'alpha',0.3,'LabelHorizontalAlignment', 'center');
 hold off
+
 %colormap('hot');
 colormap(magma);
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-clim([0, 3]);
+%clim([0, 3]);
 xlabel("qa/\pi")% full unitcell
 ylabel("f (kHz)")
 xlim([-1,1])
 ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
-
 %title("Transmission peak as a function of local disorder")
 box on
 hold off
+%}
+
+surf(-8:7,(1:1024)/(2*pi),abs(Y_fold)+1)
+hold on 
+image(qa/(pi),omega/(2*pi)/1000,abs(Y_fold),'CDataMapping','scaled')
+xlim([-1,1])
+ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 
 %% NONLINEARITY TEST 
 

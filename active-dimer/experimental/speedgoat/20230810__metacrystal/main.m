@@ -106,8 +106,8 @@ s22 = +(A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 %}
 
 s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
-s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be +!
-s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be -!
+s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be +! ????
+s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be -!
 s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 
 %}
@@ -221,7 +221,7 @@ autoArrangeFigures
 
 %%% T-MATRIX
 %{
-figure(4);
+figure(5);
 %hold on;
 plot(freq, abs(t11).^2, 'DisplayName', 't11');
 hold on;
@@ -229,6 +229,7 @@ plot(freq, abs(t21).^2, 'DisplayName', 't21');
 plot(freq, abs(t12).^2, 'DisplayName', 't12');
 plot(freq, abs(t22).^2, 'DisplayName', 't22');
 legend show;
+xlim([0,p.freq_fin])
 ylim([0,1])
 xlabel("Frequency (Hz)")
 box on

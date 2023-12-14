@@ -16,14 +16,14 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 2; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
+    params.A = 10; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     
-    params.avg_num_wind = 5; %The number of windows with 0% overlap (x2-1 for 50% overlap) 30 for cal
+    params.avg_num_wind = 20; %The number of windows with 0% overlap (x2-1 for 50% overlap) 30 for cal
     %freq_max = params.freq_fin - 0*params.freq_ini;
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz
@@ -279,7 +279,7 @@ function params = param_struct();
     %params.i2u = 0; % comment out to bypass impedance synthesis
     
     % coupling
-    params.kappa    = 0.8; % coupling (front pressure) MAX 1;
+    params.kappa    = 0.5; % coupling (front pressure) MAX 1;
     params.kappa_nl = 0e-2; % NL coupling (front pressure) MAX 5e-2*x(params.Sd) @ A = 0.2
     %kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
     
@@ -299,20 +299,22 @@ function params = param_struct();
     params.cpl_nl_R = params.kappa_nl*params.cpl;% Nonlinear coupling
     
     rng(1); %sets the seed such that the random functions are the same for both A and B runs!!
+    
     % lambda_cpl: reciprocal coupling disorder
     for ii = 1:numel(params.cpl)
         params.cpl(ii) = params.cpl(ii)*(1 + params.lambda_cpl*2*(rand(1) - 0.5));
     end
-    params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
-    params.cpl_R    = params.kappa*params.cpl;   % Linear coupling
-    
     % lambda_cpl_NR: nonreciprocal coupling disorder
     for ii = 1:numel(params.cpl)
-        params.cpl_L(ii)    =    params.cpl_L(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
+        params.cpl_L(ii)    =    params.cpl_L(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));%linear coupling
         params.cpl_R(ii)    =    params.cpl_R(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
-        params.cpl_nl_L(ii) = params.cpl_nl_L(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
+        params.cpl_nl_L(ii) = params.cpl_nl_L(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));%nonlinear coupling
         params.cpl_nl_R(ii) = params.cpl_nl_R(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
-    end
+    end 
+    
+    params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
+    params.cpl_R    = params.kappa*params.cpl;   % Linear coupling
+
     params.cpl_nl_L = params.kappa_nl*params.cpl;% Nonlinear coupling
     params.cpl_nl_R = params.kappa_nl*params.cpl;% Nonlinear coupling
     
