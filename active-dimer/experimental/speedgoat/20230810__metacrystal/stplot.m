@@ -138,7 +138,7 @@ Y_fold = (Y_inner+Y_outer);
 
 %%% CUT OFF HIGH FREQUENCIES
 fig3 = figure(3);
-%{
+%
 set(gcf,'position',fig_param.window_size);
 set(gcf, 'InvertHardCopy', 'off'); % to make black figure
 set(gcf,'Color',[0 0 0]);% to make black figure
@@ -146,9 +146,10 @@ set(gca,fig_param.fig_prop{:},'XColor','w','YColor','w');
 %set(gca,'FontSize',20)
 %set(gcf,'position',[50, 50, 800, 1000]);
 hold on
+%
 imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
 %imshow(abs(Y_fold));
-yline([440/1000 638/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'LabelHorizontalAlignment', 'center');
+yline([440/1000 645/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'LabelHorizontalAlignment', 'center');
 hold off
 
 %colormap('hot');
@@ -165,12 +166,33 @@ ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 box on
 hold off
 %}
-
-surf(-8:7,(1:1024)/(2*pi),abs(Y_fold)+1)
-hold on 
-image(qa/(pi),omega/(2*pi)/1000,abs(Y_fold),'CDataMapping','scaled')
+%%% 3D
+%{
+c = colorbar;
+NFFT_f = size(Y_fold,1);
+[X,Y] = meshgrid(flip(-7.5:7.5)/7.5,((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1))');
+Y = Y*sys_param.fs_log/1000;
+Z = abs(Y_fold); 
+surf(X,Y,Z,'EdgeColor','none','FaceAlpha',1)
+yline([440/1000 635/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'LabelHorizontalAlignment', 'center');
+%hold on
+%image(qa/(pi),omega/(2*pi)/1000,abs(Y_fold),'CDataMapping','scaled')
+c = colorbar;
+colormap(magma);
+c = colorbar;
+c.Label.String = 'Amplitude (Pa)';
+c.Color = 'w';
+%clim([0, 3]);
+xlabel("qa/\pi")% full unitcell
+ylabel("f (kHz)")
 xlim([-1,1])
 ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
+%title("Transmission peak as a function of local disorder")
+box on
+hold off
+
+
+%}
 
 %% NONLINEARITY TEST 
 
