@@ -3,7 +3,7 @@ close all; pause(0);
 clear all; 
 clc;
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));
+addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox'));
 
 %% PARAMETERS, FUNCTIONS AND DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% RUN PARAMETERS FILE
@@ -153,7 +153,7 @@ yline([440/1000 645/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'Lab
 hold off
 
 %colormap('hot');
-colormap(magma);
+colormap('magma');
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';

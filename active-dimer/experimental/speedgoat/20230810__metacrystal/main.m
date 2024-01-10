@@ -6,7 +6,7 @@ clc
 clf
 
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath('\\files7\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));%
+addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller'));%
 addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
@@ -198,7 +198,7 @@ legend show;
 xlim([0,p.freq_fin])
 ylim([0, 1.2])
 xlabel("Frequency (Hz)")
-title("Correlation w/r to mic. 1 of run A")
+title("Coherence w/r to mic. 1 of run A")
 box on
 grid on
 
