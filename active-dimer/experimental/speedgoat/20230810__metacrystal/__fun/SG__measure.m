@@ -129,23 +129,27 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     tg.setparam('', 'rec', false);
    
     % wait until the signal 'acq' is false, meaning the acquisition is over
-   
-    %tic
+    
+    kappa_0 = 0;
+    kappa_1 = p.kappa;
+    tmr = tic;
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
         pause(0.05);
          %%%% LIVE KAPPA VARIATION
         %{
-        if toc<p.tmax/4
-            p.kappa = 0;
-        elseif toc>p.tmax/4 && toc<3*p.tmax/4
-            p.kappa = (p.kappa + (1/(p.tmax/2))*0.05); % increment every 0.05 seconds
-            p.cpl_L = p.kappa*p.cpl;   % Linear coupling
-            p.cpl_R = p.kappa*p.cpl;   % Linear coupling
-        else
-            p.kappa = 0;
+        t = toc(tmr);
+        if t < 0.25*p.tmax % first quarter set kappa = 0
+            kappa = kappa_0;
+        elseif t < 0.75*p.tmax
+            kappa = kappa_0 + (t - 0.25*tmax)*(kappa_1 - kappa_0)/(0.5*tmax);
+        else 
+            kappa = kappa_1;
         end
-        tg.setparam('','k_mat',   diag(p.cpl_L,-1)    + diag(p.cpl_R,1));    %linear coupling matrix k 
+        p.cpl_L = kappa*p.cpl;   % Linear coupling
+        p.cpl_R = kappa*p.cpl;   % Linear coupling
+        tg.setparam('','k_mat',   diag(p.cpl_L,-1)  + diag(p.cpl_R,1));    %linear coupling matrix k 
         %}
+
          
         if dlg.CancelRequested %%% Check if cancel button is pressed
             dlg.Message = 'Measurement aborted.';
@@ -157,6 +161,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     tg.setparam('', 'enable_source', false); %turn source off
     tg.stopRecording();
     fprintf('done.\n');
+    toc (tmr)
     toc
     
 

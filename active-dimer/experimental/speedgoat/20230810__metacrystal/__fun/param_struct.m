@@ -16,18 +16,18 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 1; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
+    params.A = 5; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     
-    params.avg_num_wind = 5; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: SET 30 FOR CAL
+    params.avg_num_wind = 1; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: SET 30 FOR CAL
     %freq_max = params.freq_fin - 0*params.freq_ini;
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
-    params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz
-    params.tmax = params.avg_num_wind/params.freq_res; %0.3% sweep up time (s) measurement time = 2 x tmax
+    params.freq_res = 5; %freq_max/N_lines; %frequency resolution Hz
+    params.tmax = 0.3;% params.avg_num_wind/params.freq_res; %0.3% sweep up time (s) measurement time = 2 x tmax
     
     nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -232,7 +232,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; %target
-    muR_tgt = 0.3;%0.22
+    muR_tgt = 0.25; %0.25
     muC_tgt = 1;
 
     % Synthesize all to a same average:
@@ -279,8 +279,8 @@ function params = param_struct();
     %params.i2u = 0; % comment out to bypass impedance synthesis
     
     % coupling
-    params.kappa    = 0.8; % coupling (front pressure) MAX 1;
-    params.kappa_nl = 0e-2; % NL coupling (front pressure) MAX 5e-2*x(params.Sd) @ A = 0.2
+    params.kappa    = 0; % coupling (front pressure) MAX 1;
+    params.kappa_nl = 0.8*1e-2; % NL coupling (front pressure) MAX 1e-2 @ A = 5
     %kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
     
     %disorder
@@ -288,10 +288,10 @@ function params = param_struct();
     params.lambda_cpl_NR = 0; % from 0 to 1
     params.lambda_loc = 0; % from 0 to 1
 
-    %params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd);% interfaceless
-    params.cpl = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]*(params.Sd);% interfaceless
+    %params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd);% interfaceless 0
+    %params.cpl = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]*(params.Sd);% interfaceless
     %params.cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0]*(params.Sd);% interface 1 
-    %params.cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1]*(params.Sd);% interface 2 better results !!
+    params.cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1]*(params.Sd);% interface 2 better results !!
 
     params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
     params.cpl_R    = params.kappa*params.cpl;   % Linear coupling

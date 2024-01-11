@@ -15,7 +15,6 @@ filename = "signal_control_raw_a.mat";
 
 load(strcat(directory,filename), 'signal_control_raw') ;
 
-
 %load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
 if isfile(strcat(directory,filename))
     fprintf("File Exists. Cannot save data. \n")
