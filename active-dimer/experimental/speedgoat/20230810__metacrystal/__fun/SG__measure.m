@@ -50,7 +50,17 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     varList = whos(mdlWks); % list all variables in the model workspace
     varList.name % list all variable names in the model workspace
     %}
+
+    %SET RECORDING TIME 
+    app = slrealtime.Application(p.MDL); % reference to the built application
+    % Find the signal 'acq' in the application which will later be polled.
+    sigInfo = app.getSignals; % list of all the signals in the application
+    sigInfo = sigInfo(strcmp({sigInfo.SignalLabel}, 'acq')); % keep only one with the acq signal (test point!)
+    tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
     
+    setparam(p); %sets the parameters p on the target
+    
+    %{
     % SOURCE PARAMETERS 
     tg.setparam('', 'freq_sine', p.freq_sine);% 
     tg.setparam('', 'src_select_type', p.src_select_type); % 1 random 0 cte
@@ -108,10 +118,10 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
 
     % back pressure to displacement transfer function
     tg.setparam('','pb2disp', reshape(p.pb2disp',[] ,1));%
-    
+    %}
+
     Simulink.sdi.clear(); % clear previous run
     Simulink.sdi.view; % view the data
-    
     pause(0.1)
     %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %initialize
@@ -132,6 +142,9 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     
     kappa_0 = 0;
     kappa_1 = p.kappa;
+
+    
+    idx_rng = 1; %seed index
     tmr = tic;
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
         pause(0.05);
@@ -147,10 +160,13 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
         end
         p.cpl_L = kappa*p.cpl;   % Linear coupling
         p.cpl_R = kappa*p.cpl;   % Linear coupling
-        tg.setparam('','k_mat',   diag(p.cpl_L,-1)  + diag(p.cpl_R,1));    %linear coupling matrix k 
+        %tg.setparam('','k_mat',   diag(p.cpl_L,-1)  + diag(p.cpl_R,1));    %linear coupling matrix k 
+        setdisorder(p); %sets the new disorder and sends it to target
         %}
+        
+         %%%% RANDOM DISORDER
+        %setdisorder(p,idx_rng);  idx_rng = idx_rng + 1; sets the disorder and changes with every step
 
-         
         if dlg.CancelRequested %%% Check if cancel button is pressed
             dlg.Message = 'Measurement aborted.';
             tg.stop;% stops target

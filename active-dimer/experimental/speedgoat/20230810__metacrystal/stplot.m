@@ -189,8 +189,6 @@ ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 %title("Transmission peak as a function of local disorder")
 box on
 hold off
-
-
 %}
 
 %% NONLINEARITY TEST 

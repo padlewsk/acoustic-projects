@@ -16,7 +16,7 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 5; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
+    params.A = 4; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
@@ -280,18 +280,19 @@ function params = param_struct();
     
     % coupling
     params.kappa    = 0; % coupling (front pressure) MAX 1;
-    params.kappa_nl = 0.8*1e-2; % NL coupling (front pressure) MAX 1e-2 @ A = 5
-    %kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
+    params.kappa_nl = 0.9e-2; % NL coupling (front pressure) MAX 1e-2 @ A = 5
+    %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12;
     
     %disorder
     params.lambda_cpl = 0; % from 0 to 1
-    params.lambda_cpl_NR = 0; % from 0 to 1
+    params.lambda_cpl_NR = 2; % from 0 to 1 and even 2???? %nonreciprocal (use with params.kappa_nl = 0.9e-2 and A=4)
     params.lambda_loc = 0; % from 0 to 1
 
     %params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd);% interfaceless 0
     %params.cpl = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]*(params.Sd);% interfaceless
     %params.cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0]*(params.Sd);% interface 1 
     params.cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1]*(params.Sd);% interface 2 better results !!
+    %params.cpl = [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]*(params.Sd); %saturate test
 
     params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
     params.cpl_R    = params.kappa*params.cpl;   % Linear coupling
@@ -313,11 +314,11 @@ function params = param_struct();
         params.cpl_nl_R(ii) = params.cpl_nl_R(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
     end 
     
-    params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
-    params.cpl_R    = params.kappa*params.cpl;   % Linear coupling
+    %params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
+    %params.cpl_R    = params.kappa*params.cpl;   % Linear coupling
 
-    params.cpl_nl_L = params.kappa_nl*params.cpl;% Nonlinear coupling
-    params.cpl_nl_R = params.kappa_nl*params.cpl;% Nonlinear coupling
+    %params.cpl_nl_L = params.kappa_nl*params.cpl;% Nonlinear coupling
+    %params.cpl_nl_R = params.kappa_nl*params.cpl;% Nonlinear coupling
     
     % lambda_loc: Local disorder
     for ii = 1:8
