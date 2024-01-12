@@ -142,8 +142,6 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     
     kappa_0 = 0;
     kappa_1 = p.kappa;
-
-    
     idx_rng = 1; %seed index
     tmr = tic;
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)

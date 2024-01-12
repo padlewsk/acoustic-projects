@@ -26,6 +26,10 @@ function [] = setparam(p)
     tg.setparam('','k_mat',   diag(p.cpl_L,-1)    + diag(p.cpl_R,1));    %linear coupling matrix k 
     tg.setparam('','k_mat_NL',diag(p.cpl_nl_L,-1) + diag(p.cpl_nl_R,1)); % nonlinear coupling matrix k_nl
 
+    % coupling disorder
+    tg.setparam('','sigma_T', p.sigma_T);    %set temperature variance
+    tg.setparam('','isnonreciprocal',p.isnonreciprocal); 
+
     % Bl
     tg.setparam('','Bl',reshape(p.Bl',[] ,1)); %RMK: the reshape is simply to change the 8x2 matrix to a 16x1 
 
