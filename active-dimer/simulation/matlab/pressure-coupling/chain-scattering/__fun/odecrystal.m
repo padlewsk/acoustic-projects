@@ -1,9 +1,11 @@
 %RMK: SAVE PARAMS FILE BEFORE RUNNING SIMULATION
 
-function dydt = odecrystal(t,y,temp)
+function dydt = odecrystal(t,y,sys_param)
     %%% TEST y = ones(1,2*sys_param.mat_size);
-    sys_param = sys_params();
+    %sys_param = sys_params();
 
+    
+    %{
     %% TRANSFER MATRIX UNIT CELL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% BETWEEN RESONATORS
     M_b = [% specific acoustic mass term
@@ -70,10 +72,18 @@ function dydt = odecrystal(t,y,temp)
     for nn = [1:sys_param.N_cell]  %RMK M(1:9,1:9) =  M_cell(:,:)% first block
         nn = nn-1;
         mat_seg = [1+nn*8:9+nn*8];   
-        M(mat_seg, mat_seg) = M(mat_seg, mat_seg)+  M_cell(:,:);
-        R(mat_seg, mat_seg) = R(mat_seg, mat_seg)+  R_cell(:,:);
-        K(mat_seg, mat_seg) = K(mat_seg, mat_seg)+  K_cell(:,:);
+        M(mat_seg, mat_seg) = M(mat_seg, mat_seg) +  M_cell(:,:); % where disorder should be put!
+        R(mat_seg, mat_seg) = R(mat_seg, mat_seg) +  R_cell(:,:);
+        K(mat_seg, mat_seg) = K(mat_seg, mat_seg) +  K_cell(:,:);
     end
+
+    %ADDING LOCAL DISORDER:
+    M = M*normrnd(1,sys_param.sigma_loc,size(M,1));
+    R = R*normrnd(1,sys_param.sigma_loc,size(R,1));
+    K = K*normrnd(1,sys_param.sigma_loc,size(M,1));
+    %}
+
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%y = [x1,...,xn,q1,...qn]
     x = y(1:sys_param.mat_size);            % acoustic charge at each node
@@ -146,8 +156,8 @@ function dydt = odecrystal(t,y,temp)
     p_s = 1/sys_param.Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); %size = 2*sys_param.N_cell
 
     %%% coupling matrix
-    cpl_mat = diag(sys_param.cpl,-1) + diag(sys_param.cpl,1);  %linear coupling matrix k 
-    cpl_mat_nl = diag(sys_param.cpl_nl,-1) + diag(sys_param.cpl_nl,1); % nonlinear coupling matrix k_nl
+    cpl_mat = diag(sys_param.cpl_L,-1) + diag(sys_param.cpl_R,1);  %linear coupling matrix k 
+    cpl_mat_nl = diag(sys_param.cpl_nl_L,-1) + diag(sys_param.cpl_nl_R,1); % nonlinear coupling matrix k_nl
 
     i_s = sys_param.Sd/sys_param.Bl*(cpl_mat*p_s + cpl_mat_nl*p_s.^3);
 
@@ -156,7 +166,7 @@ function dydt = odecrystal(t,y,temp)
     A(3:4:end) = +sys_param.Bl*i_s/sys_param.Sd; % 3rd node is speaker node
     
     % Acoustic volumetric acceleration
-    a = inv(M)*(P - A - R*q - K*x); %acceleration
+    a = inv(sys_param.M)*(P - A - sys_param.R*q - sys_param.K*x); %acceleration
     
     dydt = zeros(2*sys_param.mat_size,1); % initialize
     dydt(1:sys_param.mat_size) = q;            %[v1,v2,...,vn]

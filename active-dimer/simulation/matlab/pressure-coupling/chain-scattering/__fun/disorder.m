@@ -37,16 +37,11 @@ function [param_new] = disorder(p,idx_rng)
             p.cpl_nl_R(ii) = p.cpl_nl_L(ii);
         end 
     end
-    
-    % lambda_loc: Local disorder (Bl disorder too?)
-    for ii = 1:8
-        for jj = 1:2
-             %p.Bl(ii,jj) =  p.Bl(ii,jj)*normrnd(1,p.sigma_loc); %*(1 + p.lambda_loc*2*(rand(1) - 0.5)); %1 pm 0.5 max! 
-            p.Rms(ii,jj) = p.Rms(ii,jj)*normrnd(1,p.sigma_loc); %*(1 + p.lambda_loc*2*(rand(1) - 0.5));
-            p.Mms(ii,jj) = p.Mms(ii,jj)*normrnd(1,p.sigma_loc); %*(1 + p.lambda_loc*2*(rand(1) - 0.5)); 
-            p.Cmc(ii,jj) = p.Cmc(ii,jj)*normrnd(1,p.sigma_loc); %*(1 + p.lambda_loc*2*(rand(1) - 0.5)); 
-        end
-    end
-    %setparam(p); %sets the new parameters p
+
+    % lambda_loc: Local disorder 
+    p.M = p.M.*normrnd(1,p.sigma_loc,size(p.M,1)); % multiply crystal matrices by large random matrices.
+    p.R = p.R.*normrnd(1,p.sigma_loc,size(p.R,1));
+    p.K = p.K.*normrnd(1,p.sigma_loc,size(p.K,1));
+
     param_new = p;
 end

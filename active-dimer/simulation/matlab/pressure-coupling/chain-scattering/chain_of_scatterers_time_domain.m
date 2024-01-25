@@ -35,8 +35,7 @@ if ~exist("t_out") % skips simulation if data has been loaded
     tic
     %'NormControl','on'
     opts = odeset('InitialStep', 1e-5, 'Refine', 10,'Stats','on'); % use refine to compute additional points
-    temp = 0; %Future settings?
-    [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,temp),[0,sys_param.t_fin], y0, opts);%dynamically adjusts sampling time
+    [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,sys_param),[0,sys_param.t_fin], y0, opts);%dynamically adjusts sampling time
     toc
     fprintf("### DONE.\n")
 else
@@ -214,11 +213,6 @@ xlabel("f (Hz)")
 ylabel("|P1(f)|")
 
 
-
-
-
-
-
 %omit first data points
 %%% single pulse
 %{
@@ -273,17 +267,18 @@ hold on
 yline([415/1000 644.5/1000],'w-',{'Local','Bragg'},'LineWidth',2,'alpha',0.3);
 %imagesc(qa/pi,omega/(2*pi),abs(Y));
 %imagesc(abs(Y_fold));
-imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
+imagesc(qa/(pi),omega/(2*pi)/1000,(abs(Y_fold)));
 %yline([422.380/1000 param.c0/param.a/2/1000],'r--',{'Local','Bragg'},'LineWidth',2);
 
 hold off
 %colormap('hot');
 colormap(magma);
 c = colorbar;
-c.Label.String = 'Amplitude (Pa)';
+c.Label.String = 'Amplitude (Pa) in dB';
 c.Color = 'w';
 %clim([0, sys_param.A_src*0.5]);
 %clim([0, 1.5]);
+%clim([-10, 10]);
 xlabel("qa/\pi")% full unitcell
 %ylabel("$(\omega-\omega_0)/(2\pi)$",'Interpreter','latex')
 %xlabel("$qa/(2\pi)$",'Interpreter','latex')% halved unitcell
@@ -422,9 +417,23 @@ box on
 
 hold off
 
+%{
 fig4 = figure(4);
 plot(t_out(2:end)-t_out(1:end-1))
 title("step size (s)")
+%}
+
+%%
+fig6 = figure(6);%inverse participation ratio
+%IPR = 1/sum(norm(p_s(500,:)).^2);
+for idx = 1:numel(t_out)
+    IPR(idx) = 1/sum(norm(p_s(idx,:)).^2);
+end
+plot(t_out,IPR)
+xlim([0 0.12])
+ylim([0 1e-2])
+xlabel("t")
+ylabel("IPR")
 
 autoArrangeFigures
 toc
