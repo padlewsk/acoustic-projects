@@ -3,7 +3,7 @@ close all; pause(0);
 clear all; 
 clc;
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));
+addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox'));
 
 %% PARAMETERS, FUNCTIONS AND DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% RUN PARAMETERS FILE
@@ -14,7 +14,6 @@ directory = "C:/Speedgoat/temp/";
 filename = "signal_control_raw_a.mat";
 
 load(strcat(directory,filename), 'signal_control_raw') ;
-
 
 %load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
 if isfile(strcat(directory,filename))
@@ -153,7 +152,7 @@ yline([440/1000 645/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'Lab
 hold off
 
 %colormap('hot');
-colormap(magma);
+colormap('magma');
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
@@ -190,8 +189,6 @@ ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 %title("Transmission peak as a function of local disorder")
 box on
 hold off
-
-
 %}
 
 %% NONLINEARITY TEST 

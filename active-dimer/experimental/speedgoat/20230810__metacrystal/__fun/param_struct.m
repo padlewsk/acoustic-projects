@@ -16,18 +16,18 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 10; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
+    params.A = 4; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     
-    params.avg_num_wind = 20; %The number of windows with 0% overlap (x2-1 for 50% overlap) 30 for cal
+    params.avg_num_wind = 1; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: SET 30 FOR CAL
     %freq_max = params.freq_fin - 0*params.freq_ini;
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
-    params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz
-    params.tmax = params.avg_num_wind/params.freq_res; %0.3% sweep up time (s) measurement time = 2 x tmax
+    params.freq_res = 5; %freq_max/N_lines; %frequency resolution Hz
+    params.tmax = 0.3;% params.avg_num_wind/params.freq_res; %0.3% sweep up time (s) measurement time = 2 x tmax
     
     nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -232,7 +232,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; %target
-    muR_tgt = 0.2;%0.22
+    muR_tgt = 0.25; %0.25
     muC_tgt = 1;
 
     % Synthesize all to a same average:
@@ -279,18 +279,28 @@ function params = param_struct();
     %params.i2u = 0; % comment out to bypass impedance synthesis
     
     % coupling
-    params.kappa    = 0.5; % coupling (front pressure) MAX 1;
-    params.kappa_nl = 0e-2; % NL coupling (front pressure) MAX 5e-2*x(params.Sd) @ A = 0.2
-    %kerr_nl  = 0e12; % local non-linearity (backpressure   ) MAX 5e12;
-    
-    %disorder
-    params.lambda_cpl = 0; % from 0 to 1
-    params.lambda_cpl_NR = 0; % from 0 to 1
-    params.lambda_loc = 0; % from 0 to 1
+    params.kappa    = 0; % coupling (front pressure) use 0.8 MAX 1;
+    params.kappa_nl = 0*0.9e-2; % NL coupling (front pressure) MAX 1e-2 @ A = 5
+    %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
-    params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd);% interfaceless
+    %constant disorder variance (time-independant)
+    params.sigma_cpl = 0; % from 0 to 1
+    params.sigma_loc = 0; % from 0 to 1
+
+    %temperature disorder variance (time-dependant)
+    params.sigma_T = 0; % from 0 to 1 %%% MUST REBUILD FOR NOW
+    
+    %non-reciprocal disorder switch:
+    params.isnonreciprocal = 0; %%% MUST REBUILD FOR NOW
+
+    %normrnd seed in disorder function:
+    idx_rng = 1;
+
+    % INTERFACE TYPE SELECTOR
+    %params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd);% interfaceless 0
+    %params.cpl = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]*(params.Sd);% interfaceless
     %params.cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0]*(params.Sd);% interface 1 
-    %params.cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1]*(params.Sd);% interface 2 better results !!
+    params.cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1]*(params.Sd);% interface 2 better results !!
 
     params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
     params.cpl_R    = params.kappa*params.cpl;   % Linear coupling
@@ -298,35 +308,41 @@ function params = param_struct();
     params.cpl_nl_L = params.kappa_nl*params.cpl;% Nonlinear coupling
     params.cpl_nl_R = params.kappa_nl*params.cpl;% Nonlinear coupling
     
+    % UPDATE DISORDERED PARAMS
+    params = disorder(params,idx_rng); 
+
+    %{
     rng(1); %sets the seed such that the random functions are the same for both A and B runs!!
     
     % lambda_cpl: reciprocal coupling disorder
     for ii = 1:numel(params.cpl)
-        params.cpl(ii) = params.cpl(ii)*(1 + params.lambda_cpl*2*(rand(1) - 0.5));
+        params.cpl(ii) = params.cpl(ii)*normrnd(1,params.sigma_cpl);%(1 + params.lambda_cpl*2*(rand(1) - 0.5));
     end
     % lambda_cpl_NR: nonreciprocal coupling disorder
     for ii = 1:numel(params.cpl)
-        params.cpl_L(ii)    =    params.cpl_L(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));%linear coupling
-        params.cpl_R(ii)    =    params.cpl_R(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
-        params.cpl_nl_L(ii) = params.cpl_nl_L(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));%nonlinear coupling
-        params.cpl_nl_R(ii) = params.cpl_nl_R(ii)*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
-    end 
+        params.cpl_L(ii)    =    params.cpl_L(ii)*normrnd(1,params.sigma_cpl_NR);%*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));%linear coupling
+        params.cpl_R(ii)    =    params.cpl_R(ii)*normrnd(1,params.sigma_cpl_NR);%*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
+        params.cpl_nl_L(ii) = params.cpl_nl_L(ii)*normrnd(1,params.sigma_cpl_NR);%*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));%nonlinear coupling
+        params.cpl_nl_R(ii) = params.cpl_nl_R(ii)*normrnd(1,params.sigma_cpl_NR);%*(1 + params.lambda_cpl_NR*2*(rand(1) - 0.5));
+    end %
     
-    params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
-    params.cpl_R    = params.kappa*params.cpl;   % Linear coupling
+    %params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
+    %params.cpl_R    = params.kappa*params.cpl;   % Linear coupling
 
-    params.cpl_nl_L = params.kappa_nl*params.cpl;% Nonlinear coupling
-    params.cpl_nl_R = params.kappa_nl*params.cpl;% Nonlinear coupling
+    %params.cpl_nl_L = params.kappa_nl*params.cpl;% Nonlinear coupling
+    %params.cpl_nl_R = params.kappa_nl*params.cpl;% Nonlinear coupling
     
     % lambda_loc: Local disorder
     for ii = 1:8
         for jj = 1:2
-             params.Bl(ii,jj) =  params.Bl(ii,jj)*(1 + params.lambda_loc*2*(rand(1) - 0.5)); %1 pm 0.5 max!
-            params.Rms(ii,jj) = params.Rms(ii,jj)*(1 + params.lambda_loc*2*(rand(1) - 0.5));
-            params.Mms(ii,jj) = params.Mms(ii,jj)*(1 + params.lambda_loc*2*(rand(1) - 0.5)); 
-            params.Cmc(ii,jj) = params.Cmc(ii,jj)*(1 + params.lambda_loc*2*(rand(1) - 0.5)); 
+             params.Bl(ii,jj) =  params.Bl(ii,jj)*sigma(1,params.lambda_loc); %*(1 + params.lambda_loc*2*(rand(1) - 0.5)); %1 pm 0.5 max!
+            params.Rms(ii,jj) = params.Rms(ii,jj)*sigma(1,params.lambda_loc); %*(1 + params.lambda_loc*2*(rand(1) - 0.5));
+            params.Mms(ii,jj) = params.Mms(ii,jj)*sigma(1,params.lambda_loc); %*(1 + params.lambda_loc*2*(rand(1) - 0.5)); 
+            params.Cmc(ii,jj) = params.Cmc(ii,jj)*sigma(1,params.lambda_loc); %*(1 + params.lambda_loc*2*(rand(1) - 0.5)); 
         end
     end
     % MAKE KERR CPL
+
+    %}
 end
 
