@@ -29,11 +29,20 @@ s2 = abs(p.x4-p.x3);%mic separation
 %% SYMMETRIC + RECIPROCAL CASE
 %{
 %%% CORRECTION DATA
-fstruct = dir('./__data/*90us*.mat');% change manually!!!
+fstruct = dir('./__data/*70us*.mat');% change manually!!!
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
 load('C:/Speedgoat/temp/processed_data_a.mat');
+freq = processed_data_a.freq; %corresponding wave vector
+
+k = 2*pi*freq/p.c0; %corresponding wave vector
+N = numel(k);
+
+%%% CORRECTION DATA INTERPOLATION
+cal.H21_corr = interp1(cal.freq, cal.H21_corr, freq, 'spline');
+cal.H31_corr = interp1(cal.freq, cal.H31_corr, freq, 'spline');
+cal.H41_corr = interp1(cal.freq, cal.H41_corr, freq, 'spline');
 
 %%% CORRECTION 
 H11_a = ones(N,1);
@@ -65,16 +74,19 @@ load('C:/Speedgoat/temp/processed_data_a.mat');
 load('C:/Speedgoat/temp/processed_data_b.mat');
 freq = processed_data_a.freq; %corresponding wave vector
 
+%%% CORRECTION DATA INTERPOLATION
+cal.H21_corr = interp1(cal.freq, cal.H21_corr, freq, 'spline');
+cal.H31_corr = interp1(cal.freq, cal.H31_corr, freq, 'spline');
+cal.H41_corr = interp1(cal.freq, cal.H41_corr, freq, 'spline');
+
+
 k = 2*pi*freq/p.c0; %corresponding wave vector
 N = numel(k);
 
-%%% CORRECTION SMOOTHING HERE!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% cf 20231212
-%
+%%% CORRECTION SMOOTHING HERE!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% cf 20231212
 cal.H21_corr = smoothdata(cal.H21_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));% average over nearest neighbors
 cal.H31_corr = smoothdata(cal.H31_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
 cal.H41_corr = smoothdata(cal.H41_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
-%}
 
 H11_a = ones(N,1);
 H21_a=  processed_data_a.H21./cal.H21_corr; 
@@ -97,13 +109,7 @@ B_b = 1i*(H21_b.*exp(-1i*k*(l1-s1)) - H11_b.*exp(-1i*k* l1))./(2*sin(k*s1));
 C_b = 1i*(H31_b.*exp(+1i*k*(l2+s2)) - H41_b.*exp(+1i*k*l2))./(2*sin(k*s2));
 D_b = 1i*(H41_b.*exp(-1i*k*l2)      - H31_b.*exp(-1i*k*(l2+s2)))./(2*sin(k*s2));
 
-%%% COMPUTE SCATTERING MATRIX --> RECHECK THIS!
-%{
-s11 = +(D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
-s21 = +(D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
-s12 = +(A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);
-s22 = +(A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
-%}
+%%% COMPUTE SCATTERING MATRIX
 
 s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
 s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be +! ????
@@ -120,7 +126,6 @@ s12 = smoothdata(s12,"movmean", 2/(freq(2)-freq(1)));
 s21 = smoothdata(s21,"movmean", 2/(freq(2)-freq(1)));
 s22 = smoothdata(s22,"movmean", 2/(freq(2)-freq(1)));
 %}
-
 
 %%% COMPUTE TRANSFER MATRIX 
 t11 = 1./conj(s12);%s21-(s11.*s22./s12); ????????????????????????????????
@@ -204,10 +209,10 @@ grid on
 
 %
 figure(4);
-plot(cal.freq, abs(cal.H21_corr), 'DisplayName', 'H_{21,corr}','LineWidth',2);
+plot(freq, abs(cal.H21_corr), 'DisplayName', 'H_{21,corr}','LineWidth',2);
 hold on;
-plot(cal.freq, abs(cal.H31_corr), 'DisplayName', 'H_{31,corr}','LineWidth',2);
-plot(cal.freq, abs(cal.H41_corr), 'DisplayName', 'H_{41,corr}','LineWidth',2);
+plot(freq, abs(cal.H31_corr), 'DisplayName', 'H_{31,corr}','LineWidth',2);
+plot(freq, abs(cal.H41_corr), 'DisplayName', 'H_{41,corr}','LineWidth',2);
 legend show;
 xlim([0,p.freq_fin])
 ylim([0, 1.2])

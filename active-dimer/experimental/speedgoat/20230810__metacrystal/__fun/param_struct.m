@@ -16,7 +16,7 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 4; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker:MAX 5V cf 20231129
+    params.A = 3; %Duct speaker:MAX 5V cf 20231129
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
@@ -26,8 +26,8 @@ function params = param_struct();
     params.avg_num_wind = 1; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: SET 30 FOR CAL
     %freq_max = params.freq_fin - 0*params.freq_ini;
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
-    params.freq_res = 5; %freq_max/N_lines; %frequency resolution Hz
-    params.tmax = 0.3;% params.avg_num_wind/params.freq_res; %0.3% sweep up time (s) measurement time = 2 x tmax
+    params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz (0.5 for s-matrix and 5 for stplot)
+    params.tmax = params.avg_num_wind/params.freq_res; %0.3 for pulse% sweep up time (s) measurement time = 2 x tmax
     
     nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -231,7 +231,7 @@ function params = param_struct();
     %% CONTROL TARGET IMPEDENCE PARAMETERS 
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
-    muM_tgt = 1; %target
+    muM_tgt = 1; 
     muR_tgt = 0.25; %0.25
     muC_tgt = 1;
 
@@ -242,7 +242,6 @@ function params = param_struct();
     Cmc_avg = mean(params.Cmc(:,:),"all");
 
     %Target resonnance frequency
-    %fst_A = 1/(2*pi*sqrt(Mms_avg*Cmc_avg))*sqrt(muC/muM); 
     for ii = 1:8
         for jj = 1:2
         muM(ii,jj) = muM_tgt*Mms_avg/params.Mms(ii,jj);
@@ -266,6 +265,8 @@ function params = param_struct();
         end
     end
     params.fst = params.f0(1,1)*sqrt(muC(1,1)/muM(1,1));%same value for all atms
+    
+
     %%% Frequency vector
     %%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% NECESSARY? YES.
@@ -280,7 +281,7 @@ function params = param_struct();
     
     % coupling
     params.kappa    = 0; % coupling (front pressure) use 0.8 MAX 1;
-    params.kappa_nl = 0*0.9e-2; % NL coupling (front pressure) MAX 1e-2 @ A = 5
+    params.kappa_nl = 15e-2; % NL coupling (front pressure) MAX 0.9e-2 @ A = 5 for sine
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
@@ -297,10 +298,9 @@ function params = param_struct();
     idx_rng = 1;
 
     % INTERFACE TYPE SELECTOR
-    %params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd);% interfaceless 0
-    %params.cpl = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]*(params.Sd);% interfaceless
-    %params.cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0]*(params.Sd);% interface 1 
-    params.cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1]*(params.Sd);% interface 2 better results !!
+    params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd); %0: interfaceless 
+    %params.cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0]*(params.Sd); %1: interface 
+    %params.cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1]*(params.Sd); %2: interface --> better results !
 
     params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
     params.cpl_R    = params.kappa*params.cpl;   % Linear coupling

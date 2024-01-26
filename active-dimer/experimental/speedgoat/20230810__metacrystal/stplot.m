@@ -4,14 +4,14 @@ clear all;
 clc;
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox'));
-addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));
+%addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));
 
 %% PARAMETERS, FUNCTIONS AND DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% RUN PARAMETERS FILE
 addpath('./__fun/')
 addpath('./__data/')
 
-%{
+%
 directory = "C:/Speedgoat/temp/";
 filename = "signal_control_raw_a.mat";
 load(strcat(directory,filename), 'signal_control_raw') ;
@@ -23,7 +23,7 @@ else
 end
 %}
 
-load('./__data/signal_control_raw_a.mat', 'signal_control_raw') ;
+%load('./__data/signal_control_raw_a.mat', 'signal_control_raw') ; Manual Load 
 
 sys_param = param_struct();
 sys_param.N_cell = 8;
@@ -104,7 +104,7 @@ view(135,50)
 %view(180,0)
 %exportgraphics(gcf,"myplot.png",'BackgroundColor','none')
 
-vecrast(fig2, '20240111__src_A635__A_5__interface_2__kappaNL_0', 600, 'bottom', 'pdf');
+%vecrast(fig2, '20240111__src_A635__A_5__interface_2__kappaNL_0', 600, 'bottom', 'pdf');
 
 
 
