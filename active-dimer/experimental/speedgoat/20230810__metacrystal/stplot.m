@@ -4,23 +4,26 @@ clear all;
 clc;
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox'));
+addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));
 
 %% PARAMETERS, FUNCTIONS AND DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% RUN PARAMETERS FILE
 addpath('./__fun/')
 addpath('./__data/')
 
+%{
 directory = "C:/Speedgoat/temp/";
 filename = "signal_control_raw_a.mat";
-
 load(strcat(directory,filename), 'signal_control_raw') ;
 
-%load 'C:/Speedgoat/temp/signal_control_raw_a_b.mat' signal_control_raw ;
 if isfile(strcat(directory,filename))
     fprintf("File Exists. Cannot save data. \n")
 else
     save(strcat(directory,filename),'signal_control_raw');
 end
+%}
+
+load('./__data/signal_control_raw_a.mat', 'signal_control_raw') ;
 
 sys_param = param_struct();
 sys_param.N_cell = 8;
@@ -75,29 +78,35 @@ fig2 = figure(2); % \Delta t simulation time step
 h = ribbon(Y,Z,0.5);
 [h(:).EdgeColor] = deal('none');
 set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
-%}
+%{
 set(gcf,'position',fig_param.window_size);
 set(gcf, 'InvertHardCopy', 'off'); % to make black figure
 set(gcf,'Color',[0 0 0]);% to make black figure
+set(gca,'XColor','w','YColor','w','ZColor','w') %dark mode
+%}
 
 set(gca,fig_param.fig_prop{:});
-set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
-%set(gca,'color','none','YDir','normal')
+set(gca,'color','none','YDir','normal')
+
 grid("off")
-%box("on")
 xlim([0.5,2*sys_param.N_cell+0.5])
 %ylim([t_out(1),300])
 %ylim([t_out(1),sys_param.tmax*1.2]*1000)
-%zlim([2.6, 4.5])
+zlim([0, 12])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
-c.Color = 'w';
-%clim([2.5, 4.3]);
+%c.Color = 'w';%dark mode
+clim([2, 12]);
 view(135,50)
 %view(180,0)
+%exportgraphics(gcf,"myplot.png",'BackgroundColor','none')
+
+vecrast(fig2, '20240111__src_A635__A_5__interface_2__kappaNL_0', 600, 'bottom', 'pdf');
+
+
 
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
@@ -139,15 +148,17 @@ Y_fold = (Y_inner+Y_outer);
 fig3 = figure(3);
 %
 set(gcf,'position',fig_param.window_size);
+%{
 set(gcf, 'InvertHardCopy', 'off'); % to make black figure
 set(gcf,'Color',[0 0 0]);% to make black figure
-set(gca,fig_param.fig_prop{:},'XColor','w','YColor','w');
+set(gca,'XColor','w','YColor','w');% to make black figure
+%}
+set(gca,fig_param.fig_prop{:});
 %set(gca,'FontSize',20)
 %set(gcf,'position',[50, 50, 800, 1000]);
 hold on
 %
 imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
-%imshow(abs(Y_fold));
 yline([440/1000 645/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'LabelHorizontalAlignment', 'center');
 hold off
 
@@ -155,7 +166,7 @@ hold off
 colormap('magma');
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
-c.Color = 'w';
+%c.Color = 'w'; % to make black figure
 %clim([0, 3]);
 xlabel("qa/\pi")% full unitcell
 ylabel("f (kHz)")
@@ -164,6 +175,9 @@ ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 %title("Transmission peak as a function of local disorder")
 box on
 hold off
+
+%saveas(fig3,'test','epsc')
+
 %}
 %%% 3D
 %{
@@ -221,3 +235,4 @@ ylabel("|P1(f)|")
 
 autoArrangeFigures
 toc
+%plot2svg('test1.svg', fig2)
