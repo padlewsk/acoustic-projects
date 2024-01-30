@@ -89,6 +89,7 @@ cal.H21_corr = smoothdata(cal.H21_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(
 cal.H31_corr = smoothdata(cal.H31_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
 cal.H41_corr = smoothdata(cal.H41_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
 
+
 H11_a = ones(N,1);
 H21_a=  processed_data_a.H21./cal.H21_corr; 
 H31_a = processed_data_a.H31./cal.H31_corr;
