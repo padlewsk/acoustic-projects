@@ -26,7 +26,7 @@ l2 = p.x3 - p.offset ; %distance between left edge of specimen and mic 3
 s1 = abs(p.x2-p.x1); %mic  separation
 s2 = abs(p.x4-p.x3);%mic separation
 
-%% SYMMETRIC + RECIPROCAL CASE
+%% SYMMETRIC + RECIPROCAL CASE (use with anechoic terminal and src A)
 %{
 %%% CORRECTION DATA
 fstruct = dir('./__data/*70us*.mat');% change manually!!!
@@ -72,7 +72,7 @@ load(strcat(fstruct.folder,'\',fstruct.name));
 %%% TRANSFER FUNCTION DATA
 load('C:/Speedgoat/temp/processed_data_a.mat');
 load('C:/Speedgoat/temp/processed_data_b.mat');
-freq = processed_data_a.freq; %corresponding wave vector
+freq = processed_data_b.freq; %corresponding wave vector
 
 %%% CORRECTION DATA INTERPOLATION
 cal.H21_corr = interp1(cal.freq, cal.H21_corr, freq, 'spline');
@@ -84,9 +84,11 @@ k = 2*pi*freq/p.c0; %corresponding wave vector
 N = numel(k);
 
 %%% CORRECTION SMOOTHING HERE!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% cf 20231212
+
 cal.H21_corr = smoothdata(cal.H21_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));% average over nearest neighbors
 cal.H31_corr = smoothdata(cal.H31_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
 cal.H41_corr = smoothdata(cal.H41_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
+
 
 H11_a = ones(N,1);
 H21_a=  processed_data_a.H21./cal.H21_corr; 
@@ -121,10 +123,10 @@ s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 %%% DATA SMOOTHING HERE!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% cf 20231212
 %
-s11 = smoothdata(s11,"movmean", 2/(freq(2)-freq(1)));% average over nearest neighbors
-s12 = smoothdata(s12,"movmean", 2/(freq(2)-freq(1)));
-s21 = smoothdata(s21,"movmean", 2/(freq(2)-freq(1)));
-s22 = smoothdata(s22,"movmean", 2/(freq(2)-freq(1)));
+s11 = smoothdata(s11,"movmean", 10/(freq(2)-freq(1)));% average over 5 nearest neighbors
+s12 = smoothdata(s12,"movmean", 10/(freq(2)-freq(1)));
+s21 = smoothdata(s21,"movmean", 10/(freq(2)-freq(1)));
+s22 = smoothdata(s22,"movmean", 10/(freq(2)-freq(1)));
 %}
 
 %%% COMPUTE TRANSFER MATRIX 

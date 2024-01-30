@@ -24,7 +24,8 @@ Data = sigData.Variables;
 close all
 %t_scope = sc.Time;
 t = seconds(sigData.Time);%time in secondsè
-p = Data(:,p_channel+1); %ai1
+p = Data(t>0.5,p_channel+1); % OMIT FIRST HALF SECOND --> stabilization 
+t_seg = t(t>0.5);
 
 
 %%% Proportionality factor between displacement and back-pressure (within a
@@ -93,7 +94,7 @@ fprintf('\nSensitivity = %.1f mV/Pa \n', round(sens_est*10^3,1)); % round to one
 clf
 figure(1);
 hold on
-plot(t,p,'LineWidth',1)
+plot(t_seg,p,'LineWidth',1)
 hold off
 
 %xlim([1 ff]);
