@@ -92,14 +92,14 @@ grid("off")
 xlim([0.5,2*sys_param.N_cell+0.5])
 %ylim([t_out(1),300])
 %ylim([t_out(1),sys_param.tmax*1.2]*1000)
-zlim([0, 12])
+%zlim([0, 12])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 %c.Color = 'w';%dark mode
-clim([2, 12]);
+%clim([2, 12]);
 view(135,50)
 %view(180,0)
 %exportgraphics(gcf,"myplot.png",'BackgroundColor','none')

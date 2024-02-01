@@ -27,7 +27,7 @@ function params = param_struct();
     %freq_max = params.freq_fin - 0*params.freq_ini;
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz (0.5 for s-matrix and 5 for stplot)
-    params.tmax = params.avg_num_wind/params.freq_res; %0.3 for pulse% sweep up time (s) measurement time = 2 x tmax
+    params.tmax = 0.3;%params.avg_num_wind/params.freq_res; %0.3 for pulse% sweep up time (s) measurement time = 2 x tmax
     
     nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -273,8 +273,8 @@ function params = param_struct();
     %params.i2u = 0; % comment out to bypass impedance synthesis
     
     % coupling
-    params.kappa    = 0.7; % coupling (front pressure) use 0.8 MAX 1;
-    params.kappa_nl = 0e-2; % NL coupling (front pressure) MAX 0.9e-2 @ A = 5 for sine
+    params.kappa    = 0; % coupling (front pressure) use 0.8 MAX 1;
+    params.kappa_nl = 1*0.9e-2; % NL coupling (front pressure) MAX 0.9e-2 @ A = 5 for sine
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
@@ -282,13 +282,13 @@ function params = param_struct();
     params.sigma_loc = 0; % from 0 to 1
 
     %temperature disorder variance (time-dependant)
-    params.sigma_T = 0; % from 0 to 1 %%% MUST REBUILD FOR NOW
+    params.sigma_T = 0; % from 0 to 10 %%% MUST REBUILD FOR NOW
     
     %non-reciprocal disorder switch:
-    params.isnonreciprocal = 0; %%% MUST REBUILD FOR NOW
+    params.isnonreciprocal = 0; %%% MUST REBUILD FOR NOW %sigma_T*not(isnonreciprocal)
 
     %normrnd seed in disorder function:
-    idx_rng = 1;
+    idx_rng = 2;
 
     % INTERFACE TYPE SELECTOR
     %params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd); %0: interfaceless  
