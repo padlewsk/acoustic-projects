@@ -13,7 +13,7 @@ addpath('./__fun/')
 sys_param = sys_params();
 
 %%% SAVE DATA FOR PLOTS
-sim_name = "L_ref";
+sim_name = "sim_A4p5LL";
 
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INITIALISATION
@@ -44,7 +44,8 @@ else
 end
 %%% y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
-%% SAVE DATA
+%% SAVE RAW DATA (every node)
+%{
 tic
 if ~exist("__data", 'dir')
    mkdir("__data")
@@ -55,13 +56,27 @@ else
     fprintf("### FILE NOT SAVED: FILE NAME ALREADY EXISTS\n")
 end
 toc
-
+%}
 %% EXCTRACT DATA
 x = y_out(:,1:sys_param.mat_size);   % acoustic charge
 q = y_out(:,sys_param.mat_size+1:end);% acoustic flow
 x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
 p_s = 1/(sys_param.Caa)*(x(:,2:4:end) - x(:,3:4:end) - x(:,4:4:end)); %(xi-xs-xo)
 
+%% SAVE DATA
+tic
+% make timetable
+sim_raw = array2timetable(abs(p_s),'RowTimes',seconds(t_out)); 
+if ~exist("__data", 'dir')
+   mkdir("__data")
+end
+if ~isfile(string("./__data/" + sim_name + ".mat"))
+    save(string("./__data/" + sim_name + ".mat"),"sim_raw")
+else
+    fprintf("### FILE NOT SAVED: FILE NAME ALREADY EXISTS\n")
+end
+toc
+%}
 %% FIGURES
 %%% LOAD FIGURE PARAMETERS
 fig_param = fig_params();
