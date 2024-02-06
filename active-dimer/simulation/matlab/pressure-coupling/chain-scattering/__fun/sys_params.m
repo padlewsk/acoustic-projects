@@ -8,7 +8,7 @@ function sys_param = sys_params()
     
     %% PHYSICAL PARAMETERS
     %%% Mechanical
-    sys_param.Rms = 0.261*0.25;  %% mechanical resistance %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    sys_param.Rms = 0.261*0.25;  %% mechanical resistance 0.25 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 0.05
     sys_param.Mms = 6.671e-04; %% moving mass
     
     %Cms = 1/((2*pi*f0)^2*Mms);
@@ -133,7 +133,7 @@ function sys_param = sys_params()
     %%% SOURCE
     sys_param.fi = 300; %% initial frequency
     sys_param.ff = 1300; %% final frequency
-    sys_param.A_src = 4.5; %%% incident pressure amplitude (Pa) %%% NL
+    sys_param.A_src = 8; %%% incident pressure amplitude (Pa) %%% NL
     sys_param.f_src  = 644.5;%644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse 
     sys_param.src_select = 0; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1  %%% PULSE CENTERED AT sys_param.f_src %%% 2 white noise (doesn't work)
     sys_param.src_loc = [1];%source location
@@ -149,7 +149,7 @@ function sys_param = sys_params()
     %%% COUPLING MATRIX
   % coupling
     sys_param.kappa    = 0; % coupling (front pressure) use 0.8 MAX 1;
-    sys_param.kappa_nl = 0.8*0.9e-2; % NL coupling (front pressure) MAX 1e-2 @ A = 5
+    sys_param.kappa_nl = 0.8*(0.9e-2); % NL coupling (front pressure) MAX 1e-2 @ A = 5
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
@@ -169,8 +169,8 @@ function sys_param = sys_params()
     %sys_param.cpl = mod(0:2*sys_param.N_cell-2,2); %interfaceless
     %sys_param.cpl = [mod(0:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-3,2)];% interface 1 
     sys_param.cpl = [mod(0:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell-1,2)];% interface 2 
-    %sys_param.cpl = [0 1 0 1 0 1 0 0 1 0 1 0 1 0 1];% CORRECT INTERFACE 2!!!
-    %sys_param.cpl = [mod(1:sys_param.N_cell-1,2) mod(sys_param.N_cell+1:2*sys_param.N_cell,2)];% interface  with double link 
+    %sys_param.cpl = [0 1 0 1 0 1 0 0 1 0 1 0 1 0 1];% CORRECT INTERFACE 2!!! 
+
 
     sys_param.cpl_L    = sys_param.kappa*sys_param.cpl;   % Linear coupling
     sys_param.cpl_R    = sys_param.kappa*sys_param.cpl;   % Linear coupling
@@ -179,7 +179,7 @@ function sys_param = sys_params()
     sys_param.cpl_nl_R = sys_param.kappa_nl*sys_param.cpl;% Nonlinear coupling
     
     % UPDATE DISORDERED PARAMS
-    sys_param = disorder(sys_param,idx_rng); 
+    sys_param = disorder(sys_param,idx_rng);
 
     %{
     sys_param.kappa    = 0  ;%0.8

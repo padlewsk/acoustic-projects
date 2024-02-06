@@ -13,7 +13,7 @@ addpath('./__fun/')
 sys_param = sys_params();
 
 %%% SAVE DATA FOR PLOTS
-sim_name = "sim_A4p5LL";
+sim_name = "sim_A9_64cells";
 
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INITIALISATION
@@ -182,14 +182,14 @@ xlim([0.5,2*sys_param.N_cell+0.5])
 %ylim([t_out(1),t_out(end)/5]*1000)
 %zlim([0,sys_param.A_src*1.5])
 %zlim([0,10])
+%zlim([0 sys_param.A_src*3])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-
-%clim([0, sys_param.A_src*1.5]);
+%clim([0, sys_param.A_src*3]);
 view(135,60)
 %view(180,0)
 
