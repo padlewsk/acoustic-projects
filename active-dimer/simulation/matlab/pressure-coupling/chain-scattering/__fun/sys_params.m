@@ -133,7 +133,7 @@ function sys_param = sys_params()
     %%% SOURCE
     sys_param.fi = 300; %% initial frequency
     sys_param.ff = 1300; %% final frequency
-    sys_param.A_src = 8; %%% incident pressure amplitude (Pa) %%% NL
+    sys_param.A_src = 2; %%% incident pressure amplitude (Pa) %%% NL
     sys_param.f_src  = 644.5;%644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse 
     sys_param.src_select = 0; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1  %%% PULSE CENTERED AT sys_param.f_src %%% 2 white noise (doesn't work)
     sys_param.src_loc = [1];%source location

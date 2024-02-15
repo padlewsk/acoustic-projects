@@ -112,7 +112,6 @@ function dydt = odecrystal(t,y,sys_param)
         %}
        
 
-
     elseif sys_param.src_select == 2  %%% White noise  (temporal cutoff)
         p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*rand(1)*1/(1+exp(1000*(t-sys_param.t_fin/2)));
     else
@@ -158,8 +157,9 @@ function dydt = odecrystal(t,y,sys_param)
     %%% coupling matrix
     cpl_mat = diag(sys_param.cpl_L,-1) + diag(sys_param.cpl_R,1);  %linear coupling matrix k 
     cpl_mat_nl = diag(sys_param.cpl_nl_L,-1) + diag(sys_param.cpl_nl_R,1); % nonlinear coupling matrix k_nl
+    %cpl_mat_nl = diag(sys_param.cpl_nl_L,-1) + diag(sys_param.cpl_nl_R,1) + diag(sys_param.kappa_nl*ones(sys_param.N_cell*2,1)); % nonlinear local + coupling matrix k_nl 
 
-    i_s = sys_param.Sd/sys_param.Bl*(cpl_mat*p_s + cpl_mat_nl*p_s.^3);
+    i_s = sys_param.Sd/sys_param.Bl*(cpl_mat*p_s + cpl_mat_nl*p_s.^3); 
 
     % Active control A
     A = zeros(sys_param.mat_size,1);
