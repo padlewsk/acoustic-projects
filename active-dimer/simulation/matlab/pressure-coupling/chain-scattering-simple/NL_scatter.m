@@ -1,4 +1,4 @@
-%% NONLINEAR SCATTERING CHAIN (-> PSEUDO SSH)
+%% NONLINEAR SCATTERING CHAIN (-> PSEUDO SSH, OMIT LOCAL RESONANCE)
 clear all
 close all
 clc
@@ -9,8 +9,8 @@ c0 = 347;
 a = 0.28; %unitcell size
 % excitation angular frequency
 global N freq_samp  t_0 t_1 tspan
-freq_cutoff =  c0/a;
-freq_samp =  freq_cutoff; % ??? Why does the dispersion change if sample freq changes...
+freq_cutoff = c0/a;
+freq_samp =  2*freq_cutoff; % ??? Why does the dispersion change if sample freq changes...
 N = 64;
 t_0 = 0;    
 t_1 = 1*N/freq_cutoff  ; %also in function of K
@@ -77,15 +77,32 @@ view(45,60)
 p_seg = p_interp(:,:);
 t_seg = t_interp;
 
+%% amplitude difference between a and b sites
+delta = abs(p_seg(:,2:2:end)) - abs(p_seg(:,1:2:end-1)); %amplitude difference between a and b sites
+Y = fft(delta,2^(nextpow2(length(delta(:,1)))));
+L = length(t_seg);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1,:);
+P1(:,2:end-1) = 2*P1(:,2:end-1);
+freq = freq_samp/L*(0:(L/2));
+
+figure(4)
+for ii = 1:N
+plot(freq,P1(:,ii))
+hold on
+end
+hold off
+
+%% DISPERSION
 Y = fft2(p_seg,2^(nextpow2(size(p_seg,1))+2),size(p_seg,2))/length(p_seg); %2D FFT --> normalized to get amplitude in (Pa). Extra points are for zero padding.
 %Y = fft2(p_seg)/length(p_seg); 
-Y = fftshift(Y); %filters out DC component
+%Y = fftshift(Y); %filters out DC component
 
 NFFT_f = size(Y,1); % signal length
 %omega = 2*pi*freq_samp*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1))'+ pi*c0/a; %
-omega = 2*pi*freq_samp*((0:(NFFT_f-1))/(NFFT_f-1));
+omega = -2*pi*freq_samp*((0:(NFFT_f-1))/(NFFT_f-1)) + 2*pi*c0/a;
 NFFT_qa = size(Y,2); % signal length
-qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
+qa = 2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1));
 
 %{
 Y = fft2(p_seg);
@@ -111,17 +128,17 @@ c.Label.String = 'Amplitude';
 xlabel("$q/\pi$",'Interpreter','latex')
 ylabel("$\omega/(2\pi)$",'Interpreter','latex')
 xlim([-1,1])
-ylim([-freq_samp/2+ c0/a/2 freq_samp/2+ c0/a/2])
+ylim([-freq_samp/2 + c0/a/2 freq_samp/2 + c0/a/2])
 
 autoArrangeFigures
 %% FUNCTIONS
 function dpdt = nl_nh_ssh(t,p)
-    global N;
+    global N t_0 t_1;
     
     % number of cells
     c0 = 347;
     a = 0.28;
-    omega_0 = (2*pi)*(c0/a)*1; % self-resonnance of unitcell cavity (fundamental cavity energy --> first mode)??
+    omega_0 = (2*pi)*(c0/(2*a))*1; % self-resonnance of unitcell cavity (fundamental cavity energy --> first mode)
 
     %%% CENTER PULSE 
     %
@@ -132,13 +149,26 @@ function dpdt = nl_nh_ssh(t,p)
     tau = 0.1*T_src/sqrt(2);% width
     A_src = 1; % 1 
     p_src = A_src*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); %single pulse
-    p(1) = p(1) + p_src;
+    p(1) = p(1)+ p_src;
     %}
-    lambda_L  = -0.1; % -1 --> v = 0; 0 --> v = w; 1 --> w = 0
+    %%% LINEAR SWEEP
+    %{
+    f_0 = 1;
+    f_1 = c0/a;
+    c = (f_1-f_0)/(t_1-t_0);
+    p_src =  sin(2*pi*(c*t^2/2 + f_0*t));
+    %}
+    %%% CONSTANT
+    %{
+    p_src = sin(2*pi*1200*t); %dispersion is upside down and halved==
+    %}
+
+    p(1) = p(1) + p_src;
+    lambda_L  = 0.1; % -1 --> v = 0; 0 --> v = w; 1 --> w = 0
     lambda_NL = 0; %
     
     K = (2*pi)*(c0/a)/4;  %--> omega_cutoff/2 --> lambda_L = 1 --> v = (2*pi)*(c0/a)/2 (symmetric coupling)
-    K_NL = 3e-3*K;
+    K_NL = 0*3e-3*K;
 
     v = K*(1+lambda_L);
     w = K*(1-lambda_L);

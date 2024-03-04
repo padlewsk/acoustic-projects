@@ -1,4 +1,6 @@
-%%% UPDATED: 08.01.2024
+%%% FOR EXPORTING GRAPHICS
+%%% UPDATED: 08.01.2024 
+%%%
 %%% DISPERSION VIA TRANSFER MATRIX METHOD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
@@ -208,7 +210,7 @@ box on
 %grid on
 set(gca,fig_param.fig_prop{:});
 %set(gca,'color','none','YDir','normal')
-vecrast(fig2 , '20240130__src_AW__A_5__interface_0__kappa_0', 600, 'bottom', 'pdf');
+%vecrast(fig2 , '20240130__src_AW__A_5__interface_0__kappa_0', 600, 'bottom', 'pdf');
 
 %Correlation (C-files)
 figure(3);

@@ -15,7 +15,7 @@ t = seconds(t);
 t = t-t(1); %reset t_o = 0;
 %t_cut_idx = logical((t<250e-3).*(t>=150e-3)); %
 t_cut_idx = logical((t<t_max).*(t>=t_min)); %
-t = t(t_cut_idx);
+t = t(t_cut_idx); % RMK: if simulation crashes - this will be empty...
 t = t-t(1); %reset t_o = 0;
 p = p(t_cut_idx,:);
 

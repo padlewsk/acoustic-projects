@@ -55,7 +55,7 @@ function sys_param = sys_params()
     
     %%% SIMULATION PARAMETERS    
     %%% SYSTEM SIZE
-    sys_param.N_cell = 8; %number of unit cells (= half the number of sites)
+    sys_param.N_cell = 32; %number of unit cells (= half the number of sites)
     sys_param.mat_size = sys_param.N_cell*8+1; %number of nodes in the acoustic circuit
 
     %% TRANSFER MATRIX UNIT CELL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -131,25 +131,26 @@ function sys_param = sys_params()
 
     
     %%% SOURCE
-    sys_param.fi = 300; %% initial frequency
-    sys_param.ff = 1300; %% final frequency
-    sys_param.A_src = 2; %%% incident pressure amplitude (Pa) %%% NL
+    sys_param.fi = 630; %% initial frequency 300
+    sys_param.ff = 660; %% final frequency 1300
+    sys_param.A_src = 8; %%% incident pressure amplitude (Pa) %%% NL
     sys_param.f_src  = 644.5;%644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse 
-    sys_param.src_select = 0; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1  %%% PULSE CENTERED AT sys_param.f_src %%% 2 white noise (doesn't work)
-    sys_param.src_loc = [1];%source location
-    %sys_param.src_loc =[1 sys_param.mat_size];% [round(sys_param.mat_size/2)]; %%%%%%%
+    sys_param.src_select = 0; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1  %%% PULSE CENTERED AT sys_param.f_src %%% 2 sweep 
+    sys_param.src_loc = [1];%source location (at each circuit node)
+    %sys_param.src_loc = [1 sys_param.mat_size];% [round(sys_param.mat_size/2)]; %%%%%%%
+    %sys_param.src_loc = [1:sys_param.mat_size]; % All nodes are sources
 
     %%% SAMPLING (for post processing --> doesn't affect sim time alot)
     sys_param.f_samp = 3*(sys_param.ff); %must be at least over 2*niquist %% even higher
     sys_param.t_samp = 1/sys_param.f_samp;
 
-    %%% SIMULATION TIME (MATLAB odes use adaptive step size)
-    sys_param.t_fin =  2*0.3;%5*sys_param.N_cell*sys_param.a/sys_param.c0; % 5 for pulse dynamics, 30 for cte %simulation time in seconds (time for sound to go from source to end of crystal)
+    %%% SIMULATION TIME (MATLAB odes use adaptive step size)2*0.3;%
+    sys_param.t_fin =  0.5;%20*sys_param.N_cell*sys_param.a/sys_param.c0; % 5 for pulse dynamics, 30 for cte %simulation time in seconds (time for sound to go from source to end of crystal)
     
     %%% COUPLING MATRIX
   % coupling
     sys_param.kappa    = 0; % coupling (front pressure) use 0.8 MAX 1;
-    sys_param.kappa_nl = 0.8*(0.9e-2); % NL coupling (front pressure) MAX 1e-2 @ A = 5
+    sys_param.kappa_nl = 0.8*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
@@ -166,9 +167,10 @@ function sys_param = sys_params()
     idx_rng = 1;
 
     % INTERFACE TYPE SELECTOR %20240201 CORRECTION
-    %sys_param.cpl = mod(0:2*sys_param.N_cell-2,2); %interfaceless
+    %sys_param.cpl = mod(0:2*sys_param.N_cell-2,2); %interfaceless trivial
+    %sys_param.cpl = mod(1:2*sys_param.N_cell-1,2); %interfaceless topological
     %sys_param.cpl = [mod(0:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-3,2)];% interface 1 
-    sys_param.cpl = [mod(0:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell-1,2)];% interface 2 
+    sys_param.cpl = [mod(0:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell-1,2)];% interface 2 best
     %sys_param.cpl = [0 1 0 1 0 1 0 0 1 0 1 0 1 0 1];% CORRECT INTERFACE 2!!! 
 
 

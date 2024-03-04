@@ -3,8 +3,8 @@ close all; pause(0);
 clear all; 
 clc;
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox'));
-%addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));
+%addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox'));
+addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox'));
 addpath('./__fun/')
 %%% LOAD FIGURE PARAMETERS
 fig_param = fig_params(); % must be done to utilize the structure
@@ -56,13 +56,13 @@ p_A1(p_A1==0) = NaN;
 p_A1_max = mean(islocalmax(p_A1).*p_A1,"omitnan");
 %}
 
-%
+%{
 for ii = 1:size(exp_A,2)
-    [p_exp_amp{ii},p_exp{ii},t_exp{ii}] = findamplitude(exp_A{ii},150e-3,250e-3);
+    [p_exp_amp{ii},p_exp{ii},t_exp{ii}] = findamplitude(exp_A{ii},150e-3,250e-3); %%% FINDS AMPLITUDE
     % 14 mic correction !!!!
     p_exp_amp{ii}(14) = 1.15*p_exp_amp{ii}(14);
 end
-
+%}
 for ii = 1:size(sim_A,2)
     [p_sim_amp{ii},p_sim{ii},t_sim{ii}] = findamplitude(sim_A{ii},150e-3,250e-3);
 end
@@ -79,7 +79,7 @@ hold off
 %}
 
 
-%INTERPOLATION
+%SPACE INTERPOLATION
 x = linspace(1, 16, 500);
 for ii = 1:size(exp_A,2)
     p_exp_amp_interp{ii} = interp1([1:16],p_exp_amp{ii},x,'spline');%,'spline'
@@ -93,7 +93,7 @@ end
 
 fig1 = figure(1);
 % Define the colormap
-cmap = parula(256);
+cmap = magma(256);
 p_cmax = max(p_exp_amp_interp{5})+1;
 p_cmin = min(p_exp_amp_interp{1})-1;
 % Calculate the color index based on the amplitude
@@ -117,7 +117,7 @@ for ii =1:size(sim_A,2)
    plot_sim = plot(x, p_sim_amp_interp{ii},'--','Color', 'r', 'LineWidth', 2);
 end
 
-legend([plot_exp(1),plot_sim(1)],'Exp.','Mdl.')  
+legend([plot_exp(1),plot_sim(1)],'Exp.','Th.')  
 hold off
 
 %{
@@ -143,7 +143,7 @@ ylim([0, 14])
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:},'YGrid','off','GridLineStyle', '--');
 
-%vecrast(fig1, 'MDL_VS_EXP', 600, 'bottom', 'pdf'); %%% SAVE GRAPHICS 
+%vecrast(fig1, ['MDL_VS_EXP_magma'], 600, 'bottom', 'pdf'); %%% SAVE GRAPHICS 
 
 %% INVERSE PARTICIPATION RATIO ON TOPO MODE 
 for ii = 1:size(exp_A,2)
@@ -163,18 +163,56 @@ box on
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:});
 
-figure(3)
-plot(1:5,flip(cell2mat(IPR_exp)),'--o','LineWidth', 3)%% TEMP FIX SEE UP
+fig3 = figure(3)
 hold on
-yline(1/16,'--','LineWidth', 3)%1/N --> Delocalised regime
+plot([2.5 4.5 6 8 9],100*flip(cell2mat(IPR_exp)),'-*','LineWidth', 4)%% TEMP FIX SEE UP
+plot([9 11],[100*flip(cell2mat(IPR_exp(1))) 8],'--','LineWidth', 4)%% TEMP FIX SEE UP
+yline(100*1/16,'--','LineWidth', 3)%1/N --> Delocalised regime
 hold off
 xlabel('A_{src}')
-ylabel('IPR')
-xlim([0 6])
-ylim([0.062 0.072])
-grid on
+ylabel('IPR(\times10^{-2}) ')
+xlim([1.5 12])
+ylim(100*[0.06 0.08])
+grid off
 box on
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:});
 
-autoArrangeFigures
+%vecrast(fig3, 'IPR_FOR_SHOWCASE_FIG', 600, 'bottom', 'pdf'); %%% SAVE GRAPHICS 
+
+
+%%%%%%%%%%% 
+%{
+fig5 = figure(5);
+% Define the colormap
+cmap = magma(256);
+p_cmax = max(p_exp_amp_interp{5})+1;
+p_cmin = min(p_exp_amp_interp{5})-1;
+%p_cmin = min(p_exp_amp_interp{1})-1;
+% Calculate the color index based on the amplitude
+for ii = 1:size(exp_A,2)
+    c_exp{5} = round((p_exp_amp_interp{5} - p_cmin*ones(1,500)) / (p_cmax - p_cmin) * 255) + 1;
+end
+
+% Plot each segment with its color
+hold on
+for jj = 1:length(x)-1
+    for ii =5 %1:size(exp_A,2)
+        plot_exp = plot(x(jj:jj+1), p_exp_amp_interp{ii}(jj:jj+1), 'Color', cmap(c_exp{ii}(jj),:), 'LineWidth', 6);
+    end
+    %for ii =1:size(sim_A,2)
+    %    plot(x(jj:jj+1), p_sim_amp_interp{ii}(jj:jj+1), 'Color', cmap(c_sim{ii}(jj),:), 'LineWidth', 5);
+    %end
+end
+%{
+for ii =1:size(sim_A,2)
+   plot_sim = plot(x, p_sim_amp_interp{ii},'--','Color', 'r', 'LineWidth', 2);
+end
+%}
+legend([plot_exp(1),plot_sim(1)],'Exp.','Mdl.')  
+hold off
+%vecrast(fig5, 'PLOT_FOR_SHOWCASE_FIG', 600, 'bottom', 'pdf'); %%% SAVE GRAPHICS 
+
+%autoArrangeFigures
+%}
+

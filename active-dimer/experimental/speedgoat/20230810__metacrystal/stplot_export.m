@@ -56,7 +56,8 @@ t_cut_idx = t_out>=0*50e-3; %cf 20231025 with fix at 20231128
 %t_cut_idx = t_out<8000e-3; 
 t_out = t_out(t_cut_idx);
 t_out = t_out-t_out(1); %reset t_o = 0;
-p_out = p_out(t_cut_idx,:)*2.1;
+p_out = p_out(t_cut_idx,:)*2.2;
+%p_out = p_out(t_cut_idx,:)*0.85;
 
 %surface plot
 [X,Y] = meshgrid(1:2*sys_param.N_cell,t_out*1000);
@@ -64,6 +65,7 @@ Z = abs(p_out);
 Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fig2 = figure(2); % \Delta t simulation time step
+colormap('magma');
 h = ribbon(Y,Z,0.5);
 [h(:).EdgeColor] = deal('none');
 set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
@@ -94,10 +96,11 @@ set(gca,'color','none','YDir','normal')
 
 grid("off")
 xlim([0.5,2*sys_param.N_cell+0.5])
-%ylim([t_out(1),300])
-ylim([t_out(1),5000])
+ylim([t_out(1),600])
+%ylim([t_out(1),5000])
 %ylim([t_out(1),sys_param.tmax*1.2]*1000)
-zlim([4, 12])
+zlim([0, 12])
+%zlim([4, 12])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
@@ -109,7 +112,7 @@ view(135,50)
 %view(180,0)
 %exportgraphics(gcf,"myplot.png",'BackgroundColor','none')
 
-%vecrast(fig2, '20240111__src_A635__A_5__interface_2__kappaNL_0to1_v2', 600, 'bottom', 'pdf');
+vecrast(fig2, '20240111__src_A635__A_2__interface_0__kappa_0p8__kappaNL_0', 600, 'bottom', 'pdf');
 
 
 
