@@ -20,7 +20,7 @@ sim_name = "sim_sigmasweep_cells";
 %%% load data
 %load('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\active-dimer\simulation\matlab\pressure-coupling\chain-scattering\__data\20240304__sigma_0_1__20_20.mat')
 
-%
+%{
 idx_dis_max = 60;
 sigma_list = linspace(0,1,idx_dis_max); %  disorder w/r to initial value (0 to 1) (must be ascending)
 idx_rng_max = 20; % average over different seeds
@@ -112,7 +112,7 @@ for idx_dis = 1:idx_dis_max%%%%%% WTF 1 is same as 3?
     locmin = islocalmin(p_sim_amp_temp);
     locmin(1) = 1; locmin(end) = 1;%takes into accont first and last points
     patch([site_vec(locmax) flip(site_vec(locmin))], [1.05*p_sim_amp_temp(locmax) 0.95*flip(p_sim_amp_temp(locmin))],cmap(idx_dis,:),'EdgeColor','None','FaceAlpha',0.1,'HandleVisibility','off')
-    plot([1:sys_param.N_cell*2], p_sim_amp_avg(idx_dis,:),'-*','Color',cmap(idx_dis,:),'LineWidth',2,'DisplayName',strcat("\sigma = ",string(100*sigma_list(idx_dis)),'%'));
+    %plot([1:sys_param.N_cell*2], p_sim_amp_avg(idx_dis,:),'-*','Color',cmap(idx_dis,:),'LineWidth',2,'DisplayName',strcat("\sigma = ",string(100*sigma_list(idx_dis)),'%'));
 end
 %}
 hold off

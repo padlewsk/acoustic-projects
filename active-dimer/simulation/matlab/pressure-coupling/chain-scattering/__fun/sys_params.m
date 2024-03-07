@@ -135,7 +135,7 @@ function sys_param = sys_params()
     sys_param.ff = 660; %% final frequency 1300
     sys_param.A_src = 8; %%% incident pressure amplitude (Pa) %%% NL
     sys_param.f_src  = 644.5;%644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse 
-    sys_param.src_select = 0; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1  %%% PULSE CENTERED AT sys_param.f_src %%% 2 sweep 
+    sys_param.src_select = 1; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1 = PULSE CENTERED AT sys_param.f_src %%% 2 sweep 
     sys_param.src_loc = [1];%source location (at each circuit node)
     %sys_param.src_loc = [1 sys_param.mat_size];% [round(sys_param.mat_size/2)]; %%%%%%%
     %sys_param.src_loc = [1:sys_param.mat_size]; % All nodes are sources
@@ -145,12 +145,12 @@ function sys_param = sys_params()
     sys_param.t_samp = 1/sys_param.f_samp;
 
     %%% SIMULATION TIME (MATLAB odes use adaptive step size)2*0.3;%
-    sys_param.t_fin =  0.5;%20*sys_param.N_cell*sys_param.a/sys_param.c0; % 5 for pulse dynamics, 30 for cte %simulation time in seconds (time for sound to go from source to end of crystal)
+    sys_param.t_fin =  5*sys_param.N_cell*sys_param.a/sys_param.c0; % 5 for pulse dynamics, 30 for cte %simulation time in seconds (time for sound to go from source to end of crystal)
     
     %%% COUPLING MATRIX
   % coupling
-    sys_param.kappa    = 0; % coupling (front pressure) use 0.8 MAX 1;
-    sys_param.kappa_nl = 0.8*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
+    sys_param.kappa    = 0.8; % ADDED coupling (front pressure) use 0.8 MAX 1;
+    sys_param.kappa_nl = 0*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
@@ -162,16 +162,16 @@ function sys_param = sys_params()
     
     %non-reciprocal disorder switch:
     sys_param.isnonreciprocal = 0; %%% MUST REBUILD FOR NOW
-
+   
     %normrnd seed in disorder function:
     idx_rng = 1;
 
     % INTERFACE TYPE SELECTOR %20240201 CORRECTION
-    %sys_param.cpl = mod(0:2*sys_param.N_cell-2,2); %interfaceless trivial
+    sys_param.cpl = mod(0:2*sys_param.N_cell-2,2); %interfaceless trivial
     %sys_param.cpl = mod(1:2*sys_param.N_cell-1,2); %interfaceless topological
     %sys_param.cpl = [mod(0:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-3,2)];% interface 1 
-    sys_param.cpl = [mod(0:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell-1,2)];% interface 2 best
-    %sys_param.cpl = [0 1 0 1 0 1 0 0 1 0 1 0 1 0 1];% CORRECT INTERFACE 2!!! 
+    %sys_param.cpl = [mod(0:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell-1,2)];% interface 2 best
+
 
 
     sys_param.cpl_L    = sys_param.kappa*sys_param.cpl;   % Linear coupling
@@ -179,9 +179,15 @@ function sys_param = sys_params()
 
     sys_param.cpl_nl_L = sys_param.kappa_nl*sys_param.cpl;% Nonlinear coupling
     sys_param.cpl_nl_R = sys_param.kappa_nl*sys_param.cpl;% Nonlinear coupling
-    
+
+    lambda = 1; %from 0 to 1
+
+    sys_param.cpl_L    = sys_param.kappa*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
+    sys_param.cpl_R    = sys_param.kappa*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
+    sys_param.cpl_nl_L = sys_param.kappa_nl*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
+    sys_param.cpl_nl_R = sys_param.kappa_nl*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
     % UPDATE DISORDERED PARAMS
-    sys_param = disorder(sys_param,idx_rng);
+    %sys_param = disorder(sys_param,idx_rng); %%%%%%% TEMP
 
     %{
     sys_param.kappa    = 0  ;%0.8

@@ -180,7 +180,7 @@ plot(f,P(1:1:sys_param.N_cell*2,:),"LineWidth",2)
 hold off
 box on
 grid on
-xlim([sys_param.fi ,sys_param.ff])
+%xlim([sys_param.fi ,sys_param.ff])
 %xlim([0 ,sys_param.ff])
 colorbar
 %legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location','eastoutside', 'NumColumns', 2)
