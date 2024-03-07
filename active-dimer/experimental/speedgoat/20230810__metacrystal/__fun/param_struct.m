@@ -16,18 +16,18 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 5; %Duct speaker:MAX 5V cf 20231129
+    params.A = 2; %Duct speaker:MAX 5V cf 20231129
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     
-    params.avg_num_wind = 15; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: 30 FOR CAL
+    params.avg_num_wind = 5; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: 15 FOR CAL
     %freq_max = params.freq_fin - 0*params.freq_ini;
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz (0.5 for s-matrix and 5 for stplot)
-    params.tmax = 0.3;%params.avg_num_wind/params.freq_res; %0.3 for pulse% sweep up time (s) measurement time = 2 x tmax
+    params.tmax = params.avg_num_wind/params.freq_res; %0.3 for pulse% sweep up time (s) measurement time = 2 x tmax
     
     nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,7 +225,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; 
-    muR_tgt = 0.25; %0.25 0.15
+    muR_tgt = 0.25; %0.25 
     muC_tgt = 1;%0.85
 
     % Synthesize all to a same average:
@@ -273,8 +273,8 @@ function params = param_struct();
     %params.i2u = 0; % comment out to bypass impedance synthesis
     
     % coupling
-    params.kappa    = 0; % coupling (front pressure) use 0.8 MAX 1;
-    params.kappa_nl = 1*0.9e-2; % NL coupling (front pressure) MAX 0.9e-2 @ A = 5 for sine
+    params.kappa    = 0.5; % coupling (front pressure) use 0.75 MAX 1;
+    params.kappa_nl = 0*0.9e-2; % NL coupling (front pressure) MAX 0.9e-2 @ A = 5 for sine
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
@@ -291,9 +291,11 @@ function params = param_struct();
     idx_rng = 2;
 
     % INTERFACE TYPE SELECTOR
-    %params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd); %0: interfaceless  
-    %params.cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0]*(params.Sd); %1: interface 
-    params.cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1]*(params.Sd); %2: interface --> better results !
+    params.cpl = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]*(params.Sd); %0:interfaceless TRIVAL
+    %params.cpl = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]*(params.Sd); %0: interfaceless TOPO
+    %params.cpl = [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0]*(params.Sd); %1: interface 1
+    %params.cpl = [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1]*(params.Sd); %2: interface --> better results !
+    %params.cpl = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]*(params.Sd);
 
     params.cpl_L    = params.kappa*params.cpl;   % Linear coupling
     params.cpl_R    = params.kappa*params.cpl;   % Linear coupling
@@ -301,8 +303,19 @@ function params = param_struct();
     params.cpl_nl_L = params.kappa_nl*params.cpl;% Nonlinear coupling
     params.cpl_nl_R = params.kappa_nl*params.cpl;% Nonlinear coupling
     
-    % UPDATE DISORDERED PARAMS
-    params = disorder(params,idx_rng); 
+    %nonreciprocal test use without interface
+    %{
+    lambda = 1; %0 Trivial %1 Topo
+    params.cpl_R    = params.kappa*[params.cpl(1:end/2)    (-1)^lambda*params.cpl((end/2):end)]
+    params.cpl_L    = params.kappa*[(-1)^lambda*params.cpl(1:end/2)    params.cpl((end/2):end)]
+
+    %params.cpl_nl_L = params.kappa_nl*[params.cpl(1:end/2) (-1)^lambda*params.cpl((end/2):end)]
+    %params.cpl_nl_R = params.kappa_nl*[(-1)^lambda*params.cpl(1:end/2) params.cpl((end/2):end)]
+    %}
+
+    %%% UPDATE DISORDERED PARAMS
+    %params = disorder(params,idx_rng);  %%%%%%%%%%%%%%%%% !!!! careful
+    %with this
 
     %{
     rng(1); %sets the seed such that the random functions are the same for both A and B runs!!

@@ -181,7 +181,6 @@ function sys_param = sys_params()
     sys_param.cpl_nl_R = sys_param.kappa_nl*sys_param.cpl;% Nonlinear coupling
 
     lambda = 1; %from 0 to 1
-
     sys_param.cpl_L    = sys_param.kappa*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
     sys_param.cpl_R    = sys_param.kappa*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
     sys_param.cpl_nl_L = sys_param.kappa_nl*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
