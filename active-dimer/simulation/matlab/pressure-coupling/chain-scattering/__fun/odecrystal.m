@@ -112,29 +112,34 @@ function dydt = odecrystal(t,y,sys_param)
         %}
        
 
-
-    elseif sys_param.src_select == 2  %%% White noise  (temporal cutoff)
-        p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*rand(1)*1/(1+exp(1000*(t-sys_param.t_fin/2)));
+    elseif sys_param.src_select == 2  %%% SWEEP  (temporal cutoff)
+        %p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*rand(1)*1/(1+exp(1000*(t-sys_param.t_fin/2)));
+           
+        if t < sys_param.t_fin %sys_param.t_fin/2
+            % linear %%% https://en.wikipedia.org/wiki/Chirp
+             chirp_rate = (sys_param.ff-sys_param.fi)/sys_param.t_fin;
+             phi =  2*pi*(chirp_rate/2*t^2 + sys_param.fi*t);
+             p_src =  sys_param.A_src*sin(phi); 
+            %p_src = param.A_src*sin(2*pi*param.f_src*t); 
+                
+            % logarithmic 
+            %chirp rate = log(( sys_param.ff/ sys_param.fi)^(1/(sys_param.t_fin/2)));
+            %phi = 2*pi*sys_param.fi*(exp(k*t) - 1)/k;
+            %f_src =  sys_param.fi*exp(k*t);
+            %p_src =  sys_param.A_src*sin(2*pi*f_src*t); 
+            p_src =  sys_param.A_src*sin(phi); 
+        else
+            p_src = 0;
+        end
     else
         fprintf("%%% No source selected.\n")
     end
 
-    %%%%%% SWEEP %doesn't work
-     %{
-    if t < sys_param.t_fin/2
-        %p_src = param.A_src*sin(2*pi*param.f_src*t); 
-            % logarithmic %%% https://en.wikipedia.org/wiki/Chirp
-        k = log((param.ff/param.fi)^(1/(sys_param.t_fin/2)));
-        phi = 2*pi*param.fi*(exp(k*t) - 1)/k;
-        f_src = param.fi*exp(k*t);
-        p_src = param.A_src*sin(2*pi*f_src*t); 
-    else
-        p_src = 0;
-    end
-    %} 
+ 
 
     %%% BOUNDARY CONDITIONS
-    P = zeros(sys_param.mat_size,1); %P vector
+    P = zeros(sys_param.mat_size,1); % acoustic pressure at each node
+
     %%%%%% HARDWALL
     % comment out anechoic.
 
@@ -153,13 +158,14 @@ function dydt = odecrystal(t,y,sys_param)
         end
     end
     %% SPEAKER PRESSURE AND CONTROL CURRENT --> c.f. 20230516__
-    p_s = 1/sys_param.Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); %size = 2*sys_param.N_cell
+    p_s = 1/sys_param.Caa*(x(2:4:end) - x(3:4:end) - x(4:4:end)); 
 
     %%% coupling matrix
     cpl_mat = diag(sys_param.cpl_L,-1) + diag(sys_param.cpl_R,1);  %linear coupling matrix k 
     cpl_mat_nl = diag(sys_param.cpl_nl_L,-1) + diag(sys_param.cpl_nl_R,1); % nonlinear coupling matrix k_nl
+    %cpl_mat_nl = diag(sys_param.cpl_nl_L,-1) + diag(sys_param.cpl_nl_R,1) + diag(sys_param.kappa_nl*ones(sys_param.N_cell*2,1)); % nonlinear local + coupling matrix k_nl 
 
-    i_s = sys_param.Sd/sys_param.Bl*(cpl_mat*p_s + cpl_mat_nl*p_s.^3);
+    i_s = sys_param.Sd/sys_param.Bl*(cpl_mat*p_s + cpl_mat_nl*p_s.^3); 
 
     % Active control A
     A = zeros(sys_param.mat_size,1);

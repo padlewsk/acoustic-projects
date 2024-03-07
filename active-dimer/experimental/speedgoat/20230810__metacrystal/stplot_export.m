@@ -11,19 +11,7 @@ addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-tool
 addpath('./__fun/')
 addpath('./__data/')
 
-%
-directory = "C:/Speedgoat/temp/";
-filename = "signal_control_raw_a.mat";
-load(strcat(directory,filename), 'signal_control_raw') ;
-
-if isfile(strcat(directory,filename))
-    fprintf("File Exists. Cannot save data. \n")
-else
-    save(strcat(directory,filename),'signal_control_raw');
-end
-%}
-
-%load('./__data/signal_control_raw_a.mat', 'signal_control_raw') ; %Manual Load 
+load('./__data/signal_control_raw_a.mat', 'signal_control_raw') ; %Manual Load 
 
 sys_param = param_struct();
 sys_param.N_cell = 8;
@@ -38,7 +26,7 @@ t_out = seconds(t_out);
 
 %% FIGURES
 %%% LOAD FIGURE PARAMETERS
-fig_param = fig_params();
+fig_param = fig_params(); % must be done to utilize the structure
 
 %%% PLOT
 tic
@@ -65,9 +53,11 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
 t_cut_idx = t_out>=0*50e-3; %cf 20231025 with fix at 20231128
+%t_cut_idx = t_out<8000e-3; 
 t_out = t_out(t_cut_idx);
 t_out = t_out-t_out(1); %reset t_o = 0;
-p_out = p_out(t_cut_idx,:);
+p_out = p_out(t_cut_idx,:)*2.2;
+%p_out = p_out(t_cut_idx,:)*0.85;
 
 %surface plot
 [X,Y] = meshgrid(1:2*sys_param.N_cell,t_out*1000);
@@ -75,6 +65,7 @@ Z = abs(p_out);
 Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fig2 = figure(2); % \Delta t simulation time step
+colormap('magma');
 h = ribbon(Y,Z,0.5);
 [h(:).EdgeColor] = deal('none');
 set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
@@ -85,30 +76,48 @@ set(gcf,'Color',[0 0 0]);% to make black figure
 set(gca,'XColor','w','YColor','w','ZColor','w') %dark mode
 %}
 
+%add interface position
+p1 = [sys_param.N_cell 0 0];
+p2 = [sys_param.N_cell t_out(end)*1000 0];
+%p3 = [sys_param.N_cell t_out(end)*1000 max(Z(:))/2];
+%p4 = [sys_param.N_cell 0 max(Z(:))/2];  
+p3 = [sys_param.N_cell t_out(end)*1000 5];
+p4 = [sys_param.N_cell 0 5];
+xx = [p1(1) p2(1) p3(1) p4(1)];
+yy = [p1(2) p2(2) p3(2) p4(2)];
+zz = [p1(3) p2(3) p3(3) p4(3)];
+hold on;
+fill3(xx, yy, zz,'k', 'EdgeColor', 'none', 'FaceAlpha',0.5);
+hold off
+%%% figure style
+
 set(gca,fig_param.fig_prop{:});
 set(gca,'color','none','YDir','normal')
 
 grid("off")
 xlim([0.5,2*sys_param.N_cell+0.5])
-%ylim([t_out(1),300])
+ylim([t_out(1),600])
+%ylim([t_out(1),5000])
 %ylim([t_out(1),sys_param.tmax*1.2]*1000)
-%zlim([0, 12])
+zlim([0, 12])
+%zlim([4, 12])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 %c.Color = 'w';%dark mode
-%clim([2, 12]);
+clim([4, 12]);
 view(135,50)
 %view(180,0)
 %exportgraphics(gcf,"myplot.png",'BackgroundColor','none')
 
-%vecrast(fig2, '20240111__src_A635__A_5__interface_2__kappaNL_0', 600, 'bottom', 'pdf');
+vecrast(fig2, '20240111__src_A635__A_2__interface_0__kappa_0p8__kappaNL_0', 600, 'bottom', 'pdf');
 
 
 
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %%% OMIT FIRST DATA POINTS
 t_vec = t_out; 
 p_vec = p_out;

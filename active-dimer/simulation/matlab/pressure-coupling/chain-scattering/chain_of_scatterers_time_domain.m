@@ -1,4 +1,4 @@
-%%% SCATTERING THROUGH AN ACOUSTIC LINER IN TIME DOMAIN %%%%%%%%%%%%%%%%%%
+%%% CHAIN OF RESONATORS: TIME DOMAIN %%%%%%%%%%%%%%%%%%
 %RMK: SAVE PARAMS FILE BEFORE RUNNING SIMULATION
 %rng(1);%specifies the seed for the MATLAB® random number generator TEST
 close all;  
@@ -13,7 +13,7 @@ addpath('./__fun/')
 sys_param = sys_params();
 
 %%% SAVE DATA FOR PLOTS
-sim_name = "L_ref";
+sim_name = "sim_A9_64cells";
 
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INITIALISATION
@@ -35,7 +35,7 @@ if ~exist("t_out") % skips simulation if data has been loaded
     tic
     %'NormControl','on'
     opts = odeset('InitialStep', 1e-5, 'Refine', 10,'Stats','on'); % use refine to compute additional points
-    [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,sys_param),[0,sys_param.t_fin], y0, opts);%dynamically adjusts sampling time
+    [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,sys_param),[0,sys_param.t_fin], y0, opts); %dynamically adjusts sampling time
     toc
     fprintf("### DONE.\n")
 else
@@ -44,7 +44,8 @@ else
 end
 %%% y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
-%% SAVE DATA
+%% SAVE RAW DATA (every node)
+%{
 tic
 if ~exist("__data", 'dir')
    mkdir("__data")
@@ -55,21 +56,35 @@ else
     fprintf("### FILE NOT SAVED: FILE NAME ALREADY EXISTS\n")
 end
 toc
-
-%% EXCTRACT DATA
+%}
+%% EXCTRACT AND SAVE DATA
 x = y_out(:,1:sys_param.mat_size);   % acoustic charge
 q = y_out(:,sys_param.mat_size+1:end);% acoustic flow
-x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
+%x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
 p_s = 1/(sys_param.Caa)*(x(:,2:4:end) - x(:,3:4:end) - x(:,4:4:end)); %(xi-xs-xo)
+
+tic
+% 
+sim_raw = array2timetable(abs(p_s),'RowTimes',seconds(t_out)); % make timetable
+if ~exist("__data", 'dir')
+   mkdir("__data")
+end
+if ~isfile(string("./__data/" + sim_name + ".mat"))
+    save(string("./__data/" + sim_name + ".mat"),"sim_raw")
+else
+    fprintf("### FILE NOT SAVED: FILE NAME ALREADY EXISTS\n")
+end
+toc
+%}
 
 %% FIGURES
 %%% LOAD FIGURE PARAMETERS
 fig_param = fig_params();
 
-%%% PLOT
 tic
 close all
-%%% Time domain plot of edge sites
+%%% TIME DOMAIN PLOT - FIRST SITES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{
 fig1 = figure(1);
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:});
@@ -88,56 +103,13 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 %ylim([-1,1])
 %}
 
-%%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %surface plot
 [X,Y] = meshgrid(1:2*sys_param.N_cell,t_out*1000);
 Z = abs(p_s); 
 Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA!
-%{
-    fig2 = figure(2); % \Delta t simulation time step
-    %colormap("pink");
-    surface(X,Y,Z,'EdgeColor','none')
-    set(gcf,'position',fig_param.window_size);
-    set(gca,fig_param.fig_prop{:});
-    set(gca,'color','none','YDir','normal')
-    %set(gcf,'InvertHardcopy','off','Color','none')
-    %{
-    c = imagesc(t_out*1000,1:2*sys_param.N_cell,abs(p_s)'); %clims = [4 18];
-    c = colorbar;
-    c.Label.String = "AER pressure (Pa)";
-    c.Label.Interpreter = 'latex';
-    %}
-    %set(h, 'EdgeColor', 'none');
-    %{
-    for nn = 1:2*sys_param.N_cell
-    plot3(nn*ones(numel(t_out)),t_out*1000,Z(:,nn))
-    hold on
-    end
-    hold off
-    %}
-    %xlim([0.5,2*sys_param.N_cell-0.5])
-    ylim([t_out(1),t_out(end)/5]*1000)%
-    zlim([0,sys_param.A_src*2])
-    xlabel('site n')
-    ylabel('t (ms)')
-    %zlabel("$|p_n| (Pa)$",'Interpreter','latex')
-    %box on
-    %grid on
-    %colormap(jet(50))
-    c = colorbar;
-    c.Label.String = 'Amplitude (Pa)';
-    clim([0, sys_param.A_src*1]);
-    view(135,60)
-%}
 
 fig2 = figure(2); % \Delta t simulation time step
-%waterfall
-%{
-h = waterfall(X',Y',Z');
-set( h, 'LineWidth', 2);
-%hidden off; %removes white separator
-%}
-%ribbon
 h = ribbon(Y,Z,0.5);
 [h(:).EdgeColor] = deal('none');
 set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
@@ -167,52 +139,85 @@ xlim([0.5,2*sys_param.N_cell+0.5])
 %ylim([t_out(1),t_out(end)/5]*1000)
 %zlim([0,sys_param.A_src*1.5])
 %zlim([0,10])
+%zlim([0 sys_param.A_src*3])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-
-%clim([0, sys_param.A_src*1.5]);
+%clim([0, sys_param.A_src*3]);
 view(135,60)
 %view(180,0)
 
 
-%%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 t_vec =  (0:sys_param.t_samp:sys_param.t_fin)'; %need to create another time vector because the output of the simulation isn't with constant sampling.
 p_vec = interp1(t_out,p_s,t_vec); % Interpolate data 
-
-
-%% NONLINEARITY TEST 
 
 L = length(t_vec);             % Length of signal
 t = t_vec;        % Time vector
 
+%%% SPECTRUM OF EACH SITE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FFT = fft(real(p_vec(:,:)));
-P2 = abs(FFT/L);
-P1 = P2(1:L/2+1,:)';
-P1(2:end-1) = 2*P1(2:end-1);
+P = abs(FFT/L);
+P = P(1:L/2+1,:)';
+P(2:end-1) = 2*P(2:end-1);
 f = (0:(L/2))./(sys_param.t_samp*L);
 
 fig5 = figure(5);
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:});
-cmp = flip(copper(sys_param.N_cell*2));
+cmp = (twilight(sys_param.N_cell*2));
+colormap(cmp)
 colororder(cmp);
 hold on
-plot(f,P1(1:1:16,:),"LineWidth",2) 
+plot(f,P(1:1:sys_param.N_cell*2,:),"LineWidth",2) 
+%plot(f,P1(sys_param.N_cell/2:1:3/2*sys_param.N_cell,:),"LineWidth",2) %center
 hold off
 box on
 grid on
 xlim([sys_param.fi ,sys_param.ff])
-xlim([0 ,sys_param.ff])
-legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location', 'NorthEast', 'NumColumns', 2)
+%xlim([0 ,sys_param.ff])
+colorbar
+%legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location','eastoutside', 'NumColumns', 2)
 %title("Single-Sided Amplitude Spectrum of S(t)")
 xlabel("f (Hz)")
-ylabel("|P1(f)|")
+ylabel("|p_n(f)|")
+
+%{
+%%% T MATRIX%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% interpolation
+pL = 1/(sys_param.Caa)*interp1(t_out,x(:,1),t_vec); % first node
+qL = interp1(t_out,q(:,1),t_vec);
+pR = 1/(sys_param.Caa)*interp1(t_out,x(:,end),t_vec);% last node
+qR = interp1(t_out,q(:,end),t_vec);
+
+FFT = fft(real(pL(:,:)));
+P = abs(FFT/L);
+P = P(1:L/2+1,:)';
+P(2:end-1) = 2*P(2:end-1);
+f = (0:(L/2))./(sys_param.t_samp*L);
+
+%{
+M11 = (pR.*qR + pL.*qL)./(pL.*qR + pR.*qR);
+M22 = M11;
+M12 = (pL.^2 - pR.^2)./(pL.*qR + pR.*qR);
+M21 = (qL.^2 - qR.^2)./(pL.*qR + pR.*qR);
+%}
+%t_coef = 2*exp() 
+figure()
+hold on
+plot(f,P)
+ylim([-1 100])
+
+%}
 
 
+%%% DISPERSION %%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %omit first data points
 %%% single pulse
 %{
@@ -422,19 +427,9 @@ fig4 = figure(4);
 plot(t_out(2:end)-t_out(1:end-1))
 title("step size (s)")
 %}
+%}
 
 %%
-fig6 = figure(6);%inverse participation ratio
-%IPR = 1/sum(norm(p_s(500,:)).^2);
-for idx = 1:numel(t_out)
-    IPR(idx) = 1/sum(norm(p_s(idx,:)).^2);
-end
-plot(t_out,IPR)
-xlim([0 0.12])
-ylim([0 1e-2])
-xlabel("t")
-ylabel("IPR")
-
 autoArrangeFigures
 toc
 

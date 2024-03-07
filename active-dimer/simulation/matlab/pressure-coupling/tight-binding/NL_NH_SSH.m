@@ -266,7 +266,7 @@ for ii = 1:2*N %row
                 M(ii,jj-1)  =  v*(1+disorder*2*(rand-0.5)); 
                 %M(ii,1)  =  w; %Born–von Karman boundary conditions
             else
-                W = (w + lambda_NL*K*(abs(p(jj+1))^2 + abs(p(jj))^2)); % check this!
+                W = (w + lambda_NL*K*(abs(p(jj+1))^2 + abs(p(jj))^2)); % TEST
                 if mod(ii,2) == 1 && mod(jj,2) == 1  % A site 
                     M(ii,jj+1)  =  v*(1+disorder*2*(rand-0.5)); 
                     M(ii,jj-1)  =  W*(1+disorder*2*(rand-0.5)) ; 
