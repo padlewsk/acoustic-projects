@@ -149,8 +149,8 @@ function sys_param = sys_params()
     
     %%% COUPLING MATRIX
   % coupling kappa>0 => v>w; kappa <0 => v>w; 
-    sys_param.kappa_A    = 0.4; % ADDED coupling (front pressure) kappa>0 => v>w; kappa <0 v>w; 
-    sys_param.kappa_B    = 0.8; 
+    sys_param.kappa_A    = 0; % ADDED coupling (front pressure) kappa>0 => v>w; kappa <0 v>w; 
+    sys_param.kappa_B    = 0; 
     sys_param.kappa_nl_A = 0*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
     sys_param.kappa_nl_B = 0*(0.9e-2);
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
@@ -174,8 +174,8 @@ function sys_param = sys_params()
     %sys_param.cpl = [mod(0:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-3,2)];% interface 1 
     %sys_param.cpl = [mod(0:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell-1,2)];% interface 2 best
     
-    gamma_A = 0; % v asymmetry (actually gamma/2 following https://doi.org/10.1103/PhysRevLett.121.086803 Coupling to right if >0
-    gamma_B = -0.4; % v asymmetry (actually gamma/2 following https://doi.org/10.1103/PhysRevLett.121.086803  Coupling to right
+    gamma_A = +0.8; % v asymmetry (actually gamma/2 following https://doi.org/10.1103/PhysRevLett.121.086803 Coupling to right if >0
+    gamma_B = -0.8; % v asymmetry (actually gamma/2 following https://doi.org/10.1103/PhysRevLett.121.086803  Coupling to right
 
     %LINEAR
     sys_param.cpl = zeros(1, 2*sys_param.N_cell-1); % initialize
@@ -183,18 +183,18 @@ function sys_param = sys_params()
     sys_param.cpl_R    = sys_param.cpl;   % initialize
     % A crystal
     sys_param.cpl_L(1:2:sys_param.N_cell)     = abs(sys_param.kappa_A + gamma_A)*heaviside(+(sys_param.kappa_A + gamma_A)) % v
-    sys_param.cpl_L(2:2:sys_param.N_cell)     = abs(sys_param.kappa_A + gamma_A)*heaviside(-(sys_param.kappa_A + gamma_A)) % w
+    sys_param.cpl_L(2:2:sys_param.N_cell)     = abs(sys_param.kappa_A)*heaviside(-(sys_param.kappa_A)) % w
     sys_param.cpl_R(1:2:sys_param.N_cell)     = abs(sys_param.kappa_A - gamma_A)*heaviside(+(sys_param.kappa_A - gamma_A)) % v
-    sys_param.cpl_R(2:2:sys_param.N_cell)     = abs(sys_param.kappa_A - gamma_A)*heaviside(-(sys_param.kappa_A - gamma_A)) % w
+    sys_param.cpl_R(2:2:sys_param.N_cell)     = abs(sys_param.kappa_A)*heaviside(-(sys_param.kappa_A)) % w
     % B crystal
-    sys_param.cpl_L(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_B + gamma_B)*heaviside((+sys_param.kappa_B + gamma_B)) % v
-    sys_param.cpl_L(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_B + gamma_B)*heaviside((-sys_param.kappa_B + gamma_B)) % w
-    sys_param.cpl_R(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_B - gamma_B)*heaviside((+sys_param.kappa_B - gamma_B)) % v
-    sys_param.cpl_R(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_B - gamma_B)*heaviside((-sys_param.kappa_B - gamma_B)) % w
+    sys_param.cpl_L(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_B + gamma_B)*heaviside(+(sys_param.kappa_B + gamma_B)) % v
+    sys_param.cpl_L(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_B)*heaviside(-(sys_param.kappa_B)) % w
+    sys_param.cpl_R(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_B - gamma_B)*heaviside(+(sys_param.kappa_B - gamma_B)) % v
+    sys_param.cpl_R(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_B)*heaviside(-(sys_param.kappa_B)) % w
     
 
     gamma_nl = 0; % v asymmetry
-    %%% NONLINEAR
+    %%% NONLINEAR %%% FIX!!!!
     sys_param.cpl = zeros(1, 2*sys_param.N_cell-1); % initialize
     sys_param.cpl_nl_L    = sys_param.cpl;   % initialize
     sys_param.cpl_nl_R    = sys_param.cpl;   % initialize
