@@ -182,6 +182,7 @@ box on
 grid on
 %xlim([sys_param.fi ,sys_param.ff])
 %xlim([0 ,sys_param.ff])
+%ylim([0 ,0.4])
 colorbar
 %legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location','eastoutside', 'NumColumns', 2)
 %title("Single-Sided Amplitude Spectrum of S(t)")

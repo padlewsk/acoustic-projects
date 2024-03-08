@@ -55,7 +55,7 @@ function sys_param = sys_params()
     
     %%% SIMULATION PARAMETERS    
     %%% SYSTEM SIZE
-    sys_param.N_cell = 32; %number of unit cells (= half the number of sites)
+    sys_param.N_cell = 32; %number of unit cells (= half the number of sites) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     sys_param.mat_size = sys_param.N_cell*8+1; %number of nodes in the acoustic circuit
 
     %% TRANSFER MATRIX UNIT CELL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -148,9 +148,11 @@ function sys_param = sys_params()
     sys_param.t_fin =  5*sys_param.N_cell*sys_param.a/sys_param.c0; % 5 for pulse dynamics, 30 for cte %simulation time in seconds (time for sound to go from source to end of crystal)
     
     %%% COUPLING MATRIX
-  % coupling
-    sys_param.kappa    = 0.8; % ADDED coupling (front pressure) use 0.8 MAX 1;
-    sys_param.kappa_nl = 0*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
+  % coupling kappa>0 => v>w; kappa <0 => v>w; 
+    sys_param.kappa_A    = 0.4; % ADDED coupling (front pressure) kappa>0 => v>w; kappa <0 v>w; 
+    sys_param.kappa_B    = 0.8; 
+    sys_param.kappa_nl_A = 0*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
+    sys_param.kappa_nl_B = 0*(0.9e-2);
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
@@ -167,26 +169,49 @@ function sys_param = sys_params()
     idx_rng = 1;
 
     % INTERFACE TYPE SELECTOR %20240201 CORRECTION
-    sys_param.cpl = mod(0:2*sys_param.N_cell-2,2); %interfaceless trivial
+    %sys_param.cpl = mod(0:2*sys_param.N_cell-2,2); %interfaceless trivial
     %sys_param.cpl = mod(1:2*sys_param.N_cell-1,2); %interfaceless topological
     %sys_param.cpl = [mod(0:sys_param.N_cell,2) mod(sys_param.N_cell:2*sys_param.N_cell-3,2)];% interface 1 
     %sys_param.cpl = [mod(0:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell-1,2)];% interface 2 best
+    
+    gamma_A = 0; % v asymmetry (actually gamma/2 following https://doi.org/10.1103/PhysRevLett.121.086803 Coupling to right if >0
+    gamma_B = -0.4; % v asymmetry (actually gamma/2 following https://doi.org/10.1103/PhysRevLett.121.086803  Coupling to right
+
+    %LINEAR
+    sys_param.cpl = zeros(1, 2*sys_param.N_cell-1); % initialize
+    sys_param.cpl_L    = sys_param.cpl;   % initialize
+    sys_param.cpl_R    = sys_param.cpl;   % initialize
+    % A crystal
+    sys_param.cpl_L(1:2:sys_param.N_cell)     = abs(sys_param.kappa_A + gamma_A)*heaviside(+(sys_param.kappa_A + gamma_A)) % v
+    sys_param.cpl_L(2:2:sys_param.N_cell)     = abs(sys_param.kappa_A + gamma_A)*heaviside(-(sys_param.kappa_A + gamma_A)) % w
+    sys_param.cpl_R(1:2:sys_param.N_cell)     = abs(sys_param.kappa_A - gamma_A)*heaviside(+(sys_param.kappa_A - gamma_A)) % v
+    sys_param.cpl_R(2:2:sys_param.N_cell)     = abs(sys_param.kappa_A - gamma_A)*heaviside(-(sys_param.kappa_A - gamma_A)) % w
+    % B crystal
+    sys_param.cpl_L(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_B + gamma_B)*heaviside((+sys_param.kappa_B + gamma_B)) % v
+    sys_param.cpl_L(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_B + gamma_B)*heaviside((-sys_param.kappa_B + gamma_B)) % w
+    sys_param.cpl_R(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_B - gamma_B)*heaviside((+sys_param.kappa_B - gamma_B)) % v
+    sys_param.cpl_R(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_B - gamma_B)*heaviside((-sys_param.kappa_B - gamma_B)) % w
+    
+
+    gamma_nl = 0; % v asymmetry
+    %%% NONLINEAR
+    sys_param.cpl = zeros(1, 2*sys_param.N_cell-1); % initialize
+    sys_param.cpl_nl_L    = sys_param.cpl;   % initialize
+    sys_param.cpl_nl_R    = sys_param.cpl;   % initialize
+    % A crystal
+    sys_param.cpl_nl_L(1:2:sys_param.N_cell)     = abs(sys_param.kappa_nl_A + gamma_nl)*heaviside(+(sys_param.kappa_nl_A + gamma_nl)) % v
+    sys_param.cpl_nl_L(2:2:sys_param.N_cell)     = abs(sys_param.kappa_nl_A + gamma_nl)*heaviside(-(sys_param.kappa_nl_A + gamma_nl)) % w
+    sys_param.cpl_nl_R(1:2:sys_param.N_cell)     = abs(sys_param.kappa_nl_A - gamma_nl)*heaviside(+(sys_param.kappa_nl_A - gamma_nl)) % v
+    sys_param.cpl_nl_R(2:2:sys_param.N_cell)     = abs(sys_param.kappa_nl_A - gamma_nl)*heaviside(-(sys_param.kappa_nl_A - gamma_nl)) % w
+    % B crystal
+    sys_param.cpl_nl_L(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_nl_B + gamma_nl)*heaviside((+sys_param.kappa_nl_B + gamma_nl)) % v
+    sys_param.cpl_nl_L(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_nl_B + gamma_nl)*heaviside((-sys_param.kappa_nl_B + gamma_nl)) % w
+    sys_param.cpl_nl_R(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_nl_B - gamma_nl)*heaviside((+sys_param.kappa_nl_B - gamma_nl)) % v
+    sys_param.cpl_nl_R(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_nl_B - gamma_nl)*heaviside((-sys_param.kappa_nl_B - gamma_nl)) % w
 
 
-
-    sys_param.cpl_L    = sys_param.kappa*sys_param.cpl;   % Linear coupling
-    sys_param.cpl_R    = sys_param.kappa*sys_param.cpl;   % Linear coupling
-
-    sys_param.cpl_nl_L = sys_param.kappa_nl*sys_param.cpl;% Nonlinear coupling
-    sys_param.cpl_nl_R = sys_param.kappa_nl*sys_param.cpl;% Nonlinear coupling
-
-    lambda = 1; %from 0 to 1
-    sys_param.cpl_L    = sys_param.kappa*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
-    sys_param.cpl_R    = sys_param.kappa*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
-    sys_param.cpl_nl_L = sys_param.kappa_nl*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
-    sys_param.cpl_nl_R = sys_param.kappa_nl*[lambda*sys_param.cpl(1:end/2) -lambda*sys_param.cpl((end/2):end)]
     % UPDATE DISORDERED PARAMS
-    %sys_param = disorder(sys_param,idx_rng); %%%%%%% TEMP
+    %sys_param = disorder(sys_param,idx_rng); %%%%%%% TEMP !!
 
     %{
     sys_param.kappa    = 0  ;%0.8
