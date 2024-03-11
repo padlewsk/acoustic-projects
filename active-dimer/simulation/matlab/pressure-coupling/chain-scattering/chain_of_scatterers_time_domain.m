@@ -21,6 +21,10 @@ y0 = zeros(2*sys_param.mat_size,1);% solver initial condition %y = [x1,...,xn,q1
 %y0 = zeros(1,6)%RES 
 %y0(sys_param.mat_size + 3) = Caa*Sd;
  
+%set disorder
+idx_rng = 1;
+sys_param = disorder(sys_param,idx_rng);
+
 %%% TODO: CRYSTAL S-MATRIX ANALYSIS
 %{ 
 F = [];     %frequency

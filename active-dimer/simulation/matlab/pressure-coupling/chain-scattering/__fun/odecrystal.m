@@ -142,7 +142,7 @@ function dydt = odecrystal(t,y,sys_param)
 
     %%%%%% HARDWALL
     % comment out anechoic.
-
+    %q(end)= 0;
     %%%%%% ANECHOIC
     %
     P(1)   =  sys_param.Zc*q(1)/sys_param.S;  % RMK: opposite sign 

@@ -14,23 +14,24 @@ addpath('./__fun/')
 sys_param = sys_params();
 
 %%% SAVE DATA FOR PLOTS
-sim_name = "sim_sigmasweep_cells";
+sim_name = "20240311__sigma_0_0p5__20_20";
 
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% load data
 %load('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\active-dimer\simulation\matlab\pressure-coupling\chain-scattering\__data\20240304__sigma_0_1__20_20.mat')
 
-%{
-idx_dis_max = 60;
-sigma_list = linspace(0,1,idx_dis_max); %  disorder w/r to initial value (0 to 1) (must be ascending)
-idx_rng_max = 20; % average over different seeds
+%
+idx_dis_max = 5;
+sigma_list = linspace(0,0.5,idx_dis_max); %  disorder w/r to initial value (0 to 0.2) (must be ascending)
+idx_rng_max = 5; % average over different seeds
 fprintf("### SIMULATING PULSE DYNAMICS ON METACRYSTAL...\n")
 idx_rng_temp = idx_rng_max + 1; % initialize fail seed.
 for idx_dis = 1:idx_dis_max
     for idx_rng = (0 + (1:idx_rng_max))
         %%% INITIALISATION
+        sys_param = sys_params(); %RESET to prevent disorder propagation
         sys_param.sigma_cpl = sigma_list(idx_dis); % change sigma value and run simulation LOC OR CPL!
-        sys_param = disorder(sys_param,idx_rng);
+        sys_param = disorder(sys_param,idx_rng)
         y0 = zeros(2*sys_param.mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
         
         %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,7 +58,8 @@ for idx_dis = 1:idx_dis_max
         x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
         p_s = 1/(sys_param.Caa)*(x(:,2:4:end) - x(:,3:4:end) - x(:,4:4:end)); %(xi-xs-xo)
         sim_raw = array2timetable(abs(p_s),'RowTimes',seconds(t_out)); 
-        p_sim_amp(idx_dis,idx_rng,:) = findamplitude(sim_raw ,150e-3,250e-3); % find mean pressure amplitude in 150-250 ms interval
+        p_sim_amp(idx_dis,idx_rng,:) = findamplitude(sim_raw ,sys_param.t_fin/2 - 50e-3,sys_param.t_fin/2); % find mean pressure amplitude in 50ms before excitation end (where equilibrium is reached)
+        %p_sim_amp(idx_dis,idx_rng,:) = findamplitude(sim_raw,sys_param.t_fin/2,sys_param.t_fin); % find mean pressureamplitude in when excitation is over (only works for linear coupling where
     end
     p_sim_amp_temp = squeeze(p_sim_amp(idx_dis,:,:)); % sqz rmvs unused dimension
     p_sim_amp_avg(idx_dis,:) = mean(p_sim_amp_temp,1); % averaging over different runs
@@ -112,7 +114,7 @@ for idx_dis = 1:idx_dis_max%%%%%% WTF 1 is same as 3?
     locmin = islocalmin(p_sim_amp_temp);
     locmin(1) = 1; locmin(end) = 1;%takes into accont first and last points
     patch([site_vec(locmax) flip(site_vec(locmin))], [1.05*p_sim_amp_temp(locmax) 0.95*flip(p_sim_amp_temp(locmin))],cmap(idx_dis,:),'EdgeColor','None','FaceAlpha',0.1,'HandleVisibility','off')
-    %plot([1:sys_param.N_cell*2], p_sim_amp_avg(idx_dis,:),'-*','Color',cmap(idx_dis,:),'LineWidth',2,'DisplayName',strcat("\sigma = ",string(100*sigma_list(idx_dis)),'%'));
+    plot([1:sys_param.N_cell*2], p_sim_amp_avg(idx_dis,:),'-*','Color',cmap(idx_dis,:),'LineWidth',2,'DisplayName',strcat("\sigma = ",string(100*sigma_list(idx_dis)),'%'));
 end
 %}
 hold off
@@ -144,14 +146,14 @@ patch(100*[sigma_list flip(sigma_list)], 100*[(IPR_exp_avg+IPR_exp_std)' flip(IP
 yline(100*1/(sys_param.N_cell*2),'--','Fully delocalized baseline','LabelHorizontalAlignment','center','LabelVerticalAlignment','bottom','FontSize',20,'LineWidth', 3)%1/N --> Delocalised regime
 hold off
 xlabel('Disorder \sigma (%)')
-ylabel('IPR(%)')
+ylabel('IPR (\times 10^{-2})')
 %xlim([1.5 12])
-ylim([1 2.5])
+%ylim([1 2.5])
 grid off
 box on
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:});
 %}
-vecrast(fig2, 'IPR_vs_sigma', 600, 'bottom', 'pdf'); %%% SAVE GRAPHICS 
+%vecrast(fig2, 'IPR_vs_sigma', 600, 'bottom', 'pdf'); %%% SAVE GRAPHICS 
 
 autoArrangeFigures
