@@ -25,6 +25,7 @@ y0 = zeros(2*sys_param.mat_size,1);% solver initial condition %y = [x1,...,xn,q1
 idx_rng = 1;
 sys_param = disorder(sys_param,idx_rng);
 
+lag = sys_param.a/sys_param.c0/2*[1e-100]; % phase delay bewteen two speakers in terms of time delay between two speakers!!!
 %%% TODO: CRYSTAL S-MATRIX ANALYSIS
 %{ 
 F = [];     %frequency
@@ -39,7 +40,8 @@ if ~exist("t_out") % skips simulation if data has been loaded
     tic
     %'NormControl','on'
     opts = odeset('InitialStep', 1e-5, 'Refine', 10,'Stats','on'); % use refine to compute additional points
-    [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,sys_param),[0,sys_param.t_fin], y0, opts); %dynamically adjusts sampling time
+    %[t_out,y_out] = ode89(@(t,y) odecrystal(t,y,sys_param),[0,sys_param.t_fin], y0, opts); %dynamically adjusts sampling time
+    sol = dde23(@(t,y,Z) dodecrystal(t,y,Z,sys_param),lag,@(t) history(t,sys_param),[0,sys_param.t_fin], opts); %delayed dynamics % history holds the intial values
     toc
     fprintf("### DONE.\n")
 else
@@ -48,6 +50,8 @@ else
 end
 %%% y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
+t_out = sol.x'; %DELAYED
+y_out = sol.y';
 %% SAVE RAW DATA (every node)
 %{
 tic

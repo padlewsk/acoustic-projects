@@ -163,7 +163,7 @@ function sys_param = sys_params();
     sys_param.sigma_T = 0; % from 0 to 1 %%% MUST REBUILD FOR NOW
     
     %non-reciprocal disorder switch:
-    sys_param.isnonreciprocal = 0; %%% MUST REBUILD FOR NOW
+    sys_param.isnonreciprocal = 1; %%% MUST REBUILD FOR NOW
    
     %normrnd seed in disorder function:
     idx_rng = 1;
