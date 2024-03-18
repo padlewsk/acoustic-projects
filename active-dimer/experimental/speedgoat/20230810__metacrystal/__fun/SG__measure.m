@@ -58,7 +58,8 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     sigInfo = sigInfo(strcmp({sigInfo.SignalLabel}, 'acq')); % keep only one with the acq signal (test point!)
     tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
     
-    setparam(p); %sets the parameters p on the target
+    %sets the parameters p on the target:
+    setparam(p);
     
     %{
     % SOURCE PARAMETERS 
