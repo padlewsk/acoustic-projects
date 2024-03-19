@@ -58,7 +58,8 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     sigInfo = sigInfo(strcmp({sigInfo.SignalLabel}, 'acq')); % keep only one with the acq signal (test point!)
     tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
     
-    setparam(p); %sets the parameters p on the target
+    %sets the parameters p on the target:
+    setparam(p);
     
     %{
     % SOURCE PARAMETERS 
@@ -140,13 +141,13 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
    
     % wait until the signal 'acq' is false, meaning the acquisition is over
     
-    kappa_0 = 0;
-    kappa_1 = p.kappa;
+    %kappa_0 = 0; % INITIAL LINEAR COUPLING
+    %kappa_1 = p.kappa; %LINEAR COUPLING
     idx_rng = 1; %seed index
     tmr = tic;
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
         pause(0.05);
-         %%%% LIVE KAPPA VARIATION
+         %%%% LIVE KAPPA VARIATION (don't forget to comment out initial vals)
         %{
         t = toc(tmr);
         if t < 0.25*p.tmax % first quarter set kappa = 0
