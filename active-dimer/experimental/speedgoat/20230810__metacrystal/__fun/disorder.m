@@ -25,7 +25,7 @@ function [param_new] = disorder(p,idx_rng)
     %positive
     
     if p.isnonreciprocal == true %non-reciprocal 
-        for ii = 1:numel(p.cpl)
+        for ii = 1:numel(p.cpl_L)
             %p.cpl_L(ii)    =    p.cpl_L(ii)*normrnd(1,p.sigma_cpl);%linear coupling
             %p.cpl_R(ii)    =    p.cpl_R(ii)*normrnd(1,p.sigma_cpl);
             
@@ -43,7 +43,7 @@ function [param_new] = disorder(p,idx_rng)
             %}
         end %
     else %%reciprocal 
-        for ii = 1:numel(p.cpl)
+        for ii = 1:numel(p.cpl_L)
             %phase preserving coupling
             %
             p.cpl_L(ii)    =    abs(p.cpl_L(ii)*(1 + p.sigma_cpl*2*(rand(1) - 0.5)));%linear coupling (all couplings)
@@ -61,13 +61,14 @@ function [param_new] = disorder(p,idx_rng)
         end 
     end
 
-    % lambda_loc: Local disorder 
+    % lambda_loc: Local disorder UPDATE FOR EXP MEASUREMENTS
     %p.M = p.M.*normrnd(1,p.sigma_loc,size(p.M,1)); % multiply crystal matrices by large random matrices.
     %p.R = p.R.*normrnd(1,p.sigma_loc,size(p.R,1));
     %p.K = p.K.*normrnd(1,p.sigma_loc,size(p.K,1));
-    p.M = p.M.*(1 + p.sigma_loc*2*(rand(size(p.M,1)) - 0.5)); % multiply crystal matrices by large random matrices.
-    p.R = p.R.*(1 + p.sigma_loc*2*(rand(size(p.R,1)) - 0.5));
-    p.K = p.K.*(1 + p.sigma_loc*2*(rand(size(p.K,1)) - 0.5));
+   
+    %p.M = p.M.*(1 + p.sigma_loc*2*(rand(size(p.M,1)) - 0.5)); % multiply crystal matrices by large random matrices.
+    %p.R = p.R.*(1 + p.sigma_loc*2*(rand(size(p.R,1)) - 0.5));
+    %p.K = p.K.*(1 + p.sigma_loc*2*(rand(size(p.K,1)) - 0.5));
 
     param_new = p;
 end
