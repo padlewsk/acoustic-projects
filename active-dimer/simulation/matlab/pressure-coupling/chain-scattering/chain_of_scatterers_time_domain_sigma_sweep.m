@@ -14,17 +14,17 @@ addpath('./__fun/')
 sys_param = sys_params();
 
 %%% SAVE DATA FOR PLOTS
-sim_name = "20240312__NR_sigma_0_0p5__6_20";
+sim_name = "20240318__sigma_phase__0_0p2__6";
 
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% load data
-%load('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\active-dimer\simulation\matlab\pressure-coupling\chain-scattering\__data\20240304__sigma_0_1__20_20.mat')
+%%% LOAD DATA
+load('.\__data\20240318__sigma_phase__0_0p2__6.mat')
 
 %%% COUPLING DISORDER Rmk: use 0.8
-%
+%{
 idx_dis_max = 6;
 sigma_list = linspace(0,0.5,idx_dis_max); %  coupling disorder w/r to initial value (0 to 0.2) (must be ascending)
-idx_rng_max = 4; % average over different seeds
+idx_rng_max = 2; % average over different seeds
 fprintf("### SIMULATING PULSE DYNAMICS ON METACRYSTAL...\n")
 idx_rng_temp = idx_rng_max + 1; % initialize fail seed.
 for idx_dis = 1:idx_dis_max
@@ -68,9 +68,9 @@ fprintf("### DONE.\n")
 %}
 
 %%% PHASE DISORDER RMK: Set kappa to 1e-2 to get similar as coupling disorder !
-%{
+%
 idx_dis_max = 6;
-sigma_list = linspace(1e-250,0.2,idx_dis_max); %  phase disorder w/r to initial value w/r to 
+sigma_list = linspace(1e-250,0.3,idx_dis_max); %  phase disorder w/r to initial value w/r to 
 idx_rng_max = 2; % average over different seeds (not necessary set to 1)
 fprintf("### SIMULATING PULSE DYNAMICS ON METACRYSTAL...\n")
 idx_rng_temp = idx_rng_max + 1; % initialize fail seed.
@@ -105,9 +105,8 @@ end
 fprintf("### DONE.\n")
 %}
 
-
-%% SAVE DATA
-%
+%%% SAVE RAW DATA
+%{
 tic
 % make timetable
 sim_raw = array2timetable(abs(p_s),'RowTimes',seconds(t_out)); 
@@ -188,7 +187,7 @@ hold off
 xlabel('Disorder \sigma (%)')
 ylabel('IPR (\times 10^{-2})')
 %xlim([1.5 12])
-ylim([6.1 6.9])
+%ylim([6.1 7.2])
 grid off
 box on
 set(gcf,'position',fig_param.window_size);
@@ -196,4 +195,5 @@ set(gca,fig_param.fig_prop{:});
 %}
 %vecrast(fig2, 'IPR_vs_sigma', 600, 'bottom', 'pdf'); %%% SAVE GRAPHICS 
 
+save("20240318__sigma_phase__0_0p2__6.mat","idx_dis_max","idx_rng_max","p_sim_amp","p_sim_amp_avg","sigma_list")
 autoArrangeFigures

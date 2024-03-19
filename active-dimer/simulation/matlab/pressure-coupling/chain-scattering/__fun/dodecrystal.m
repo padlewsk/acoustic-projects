@@ -82,8 +82,13 @@ function dydt = dodecrystal(t,y,Z,sys_param)
         end
     end
     %% SPEAKER PRESSURE AND CONTROL CURRENT --> c.f. 20240312__
-    %p_s = 1/sys_param.Caa*(xlag(2:4:end) - x(3:4:end) - xlag(4:4:end)); %SYMMETRIC DELAY IS HERE! x(3:4:end) is air at the speaker
-    p_s = 1/sys_param.Caa*(xlag(2:4:end) - x(3:4:end) - x(4:4:end)); %ASYMMETRIC DELAY IS HERE!
+    p_s = 1/sys_param.Caa*(lag(2:4:end) - lag(3:4:end) - lag(4:4:end)); %SYMMETRIC DELAY IS HERE! x(3:4:end) is air at the speaker
+    p_s_lag = 1/sys_param.Caa*(xlag(2:4:end) - xlag(3:4:end) - xlag(4:4:end)); %ASYMMETRIC DELAY IS HERE!
+    
+    %p_s = p_s.*mod(1:2*sys_param.N_cell,2)' + p_s_lag.*mod(2:2*sys_param.N_cell+1,2)';
+
+    %p_s = 1/sys_param.Caa*(xlag(2:4:end) - x(3:4:end) - x(4:4:end)); (UNPHYSICAL)
+    
     %%% coupling matrix
     cpl_mat = diag(sys_param.cpl_L,-1) + diag(sys_param.cpl_R,1);  %linear coupling matrix k 
     cpl_mat_nl = diag(sys_param.cpl_nl_L,-1) + diag(sys_param.cpl_nl_R,1); % nonlinear coupling matrix k_nl

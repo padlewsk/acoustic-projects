@@ -151,8 +151,8 @@ function sys_param = sys_params();
   % coupling kappa>0 => v>w; kappa <0 => v>w; 
     sys_param.kappa_A    = +0; % ADDED coupling (front pressure) kappa>0 => v>w; kappa <0 v<w; 
     sys_param.kappa_B    = -0; 
-    sys_param.kappa_nl_A = +0*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
-    sys_param.kappa_nl_B = -0*(0.9e-2);
+    sys_param.kappa_nl_A = +0.8*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
+    sys_param.kappa_nl_B = -0.8*(0.9e-2);
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
@@ -185,45 +185,37 @@ function sys_param = sys_params();
     sys_param.cpl_L    = sys_param.cpl;   % initialize
     sys_param.cpl_R    = sys_param.cpl;   % initialize
     % A crystal
-    sys_param.cpl_L(1:2:sys_param.N_cell-2)     = abs(sys_param.kappa_A + gamma_v_A)*heaviside(+(sys_param.kappa_A + gamma_v_A)) % v
-    sys_param.cpl_L(2:2:sys_param.N_cell-2)     = abs(sys_param.kappa_A - gamma_w_A)*heaviside(-(sys_param.kappa_A - gamma_w_A)) % w
-    sys_param.cpl_R(1:2:sys_param.N_cell-2)     = abs(sys_param.kappa_A - gamma_v_A)*heaviside(+(sys_param.kappa_A - gamma_v_A)) % v
-    sys_param.cpl_R(2:2:sys_param.N_cell-2)     = abs(sys_param.kappa_A + gamma_w_A)*heaviside(-(sys_param.kappa_A + gamma_w_A)) % w
+    sys_param.cpl_L(1:2:sys_param.N_cell)     = abs(sys_param.kappa_A + gamma_v_A)*heaviside(+(sys_param.kappa_A + gamma_v_A)) % v
+    sys_param.cpl_L(2:2:sys_param.N_cell)     = abs(sys_param.kappa_A - gamma_w_A)*heaviside(-(sys_param.kappa_A - gamma_w_A)) % w
+    sys_param.cpl_R(1:2:sys_param.N_cell)     = abs(sys_param.kappa_A - gamma_v_A)*heaviside(+(sys_param.kappa_A - gamma_v_A)) % v
+    sys_param.cpl_R(2:2:sys_param.N_cell)     = abs(sys_param.kappa_A + gamma_w_A)*heaviside(-(sys_param.kappa_A + gamma_w_A)) % w
     % B crystal
-    sys_param.cpl_L(sys_param.N_cell-1:2:end) = abs(sys_param.kappa_B + gamma_v_B)*heaviside(+(sys_param.kappa_B + gamma_v_B)) % v
-    sys_param.cpl_L(sys_param.N_cell:2:end) = abs(sys_param.kappa_B - gamma_w_B)*heaviside(-(sys_param.kappa_B - gamma_w_B)) % w
-    sys_param.cpl_R(sys_param.N_cell-1:2:end) = abs(sys_param.kappa_B - gamma_v_B)*heaviside(+(sys_param.kappa_B - gamma_v_B)) % v
-    sys_param.cpl_R(sys_param.N_cell:2:end) = abs(sys_param.kappa_B + gamma_w_B)*heaviside(-(sys_param.kappa_B + gamma_w_B)) % w
+    sys_param.cpl_L(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_B + gamma_v_B)*heaviside(+(sys_param.kappa_B + gamma_v_B)) % v
+    sys_param.cpl_L(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_B - gamma_w_B)*heaviside(-(sys_param.kappa_B - gamma_w_B)) % w
+    sys_param.cpl_R(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_B - gamma_v_B)*heaviside(+(sys_param.kappa_B - gamma_v_B)) % v
+    sys_param.cpl_R(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_B + gamma_w_B)*heaviside(-(sys_param.kappa_B + gamma_w_B)) % w
     
      %NON LINEAR
-    gamma_nl_v_A = +0*(0.9e-2); % v asymmetry (actually gamma/2 following https://doi.org/10.1103/PhysRevLett.121.086803 Coupling to left if >0
-    gamma_nl_w_A = +0*(0.9e-2);  % w asymmetry
-    gamma_nl_v_B = -0*(0.9e-2); % v asymmetry  Coupling to right
-    gamma_nl_w_B = -0*(0.9e-2); % w asymmetry 
+    gamma_nl_v_A = 0*(0.9e-2); % v asymmetry (actually gamma/2 following https://doi.org/10.1103/PhysRevLett.121.086803 Coupling to left if >0
+    gamma_nl_w_A = 0*(0.9e-2);  % w asymmetry
+    gamma_nl_v_B = 0*(0.9e-2); % v asymmetry  Coupling to right
+    gamma_nl_w_B = 0*(0.9e-2); % w asymmetry 
     
     %LINEAR
     sys_param.cpl = zeros(1, 2*sys_param.N_cell-1); % initialize
     sys_param.cpl_nl_L    = sys_param.cpl;   % initialize
     sys_param.cpl_nl_R    = sys_param.cpl;   % initialize
     % A crystal
-    sys_param.cpl_nl_L(1:2:sys_param.N_cell-2)     = abs(sys_param.kappa_nl_A + gamma_nl_v_A)*heaviside(+(sys_param.kappa_nl_A + gamma_nl_v_A)) % v
-    sys_param.cpl_nl_L(2:2:sys_param.N_cell-2)     = abs(sys_param.kappa_nl_A - gamma_nl_w_A)*heaviside(-(sys_param.kappa_nl_A - gamma_nl_w_A)) % w
-    sys_param.cpl_nl_R(1:2:sys_param.N_cell-2)     = abs(sys_param.kappa_nl_A - gamma_nl_v_A)*heaviside(+(sys_param.kappa_nl_A - gamma_nl_v_A)) % v
-    sys_param.cpl_nl_R(2:2:sys_param.N_cell-2)     = abs(sys_param.kappa_nl_A + gamma_nl_w_A)*heaviside(-(sys_param.kappa_nl_A + gamma_nl_w_A)) % w
+    sys_param.cpl_nl_L(1:2:sys_param.N_cell)     = abs(sys_param.kappa_nl_A + gamma_nl_v_A)*heaviside(+(sys_param.kappa_nl_A + gamma_nl_v_A)) % v
+    sys_param.cpl_nl_L(2:2:sys_param.N_cell)     = abs(sys_param.kappa_nl_A - gamma_nl_w_A)*heaviside(-(sys_param.kappa_nl_A - gamma_nl_w_A)) % w
+    sys_param.cpl_nl_R(1:2:sys_param.N_cell)     = abs(sys_param.kappa_nl_A - gamma_nl_v_A)*heaviside(+(sys_param.kappa_nl_A - gamma_nl_v_A)) % v
+    sys_param.cpl_nl_R(2:2:sys_param.N_cell)     = abs(sys_param.kappa_nl_A + gamma_nl_w_A)*heaviside(-(sys_param.kappa_nl_A + gamma_nl_w_A)) % w
     % B crystal
-    sys_param.cpl_nl_L(sys_param.N_cell-1:2:end) = abs(sys_param.kappa_nl_B + gamma_nl_v_B)*heaviside(+(sys_param.kappa_nl_B + gamma_nl_v_B)) % v
-    sys_param.cpl_nl_L(sys_param.N_cell:2:end) = abs(sys_param.kappa_nl_B - gamma_nl_w_B)*heaviside(-(sys_param.kappa_nl_B - gamma_nl_w_B)) % w
-    sys_param.cpl_nl_R(sys_param.N_cell-1:2:end) = abs(sys_param.kappa_nl_B - gamma_nl_v_B)*heaviside(+(sys_param.kappa_nl_B - gamma_nl_v_B)) % v
-    sys_param.cpl_nl_R(sys_param.N_cell:2:end) = abs(sys_param.kappa_nl_B + gamma_nl_w_B)*heaviside(-(sys_param.kappa_nl_B + gamma_nl_w_B)) % w
-    
+    sys_param.cpl_nl_L(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_nl_B + gamma_nl_v_B)*heaviside(+(sys_param.kappa_nl_B + gamma_nl_v_B)) % v
+    sys_param.cpl_nl_L(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_nl_B - gamma_nl_w_B)*heaviside(-(sys_param.kappa_nl_B - gamma_nl_w_B)) % w
+    sys_param.cpl_nl_R(sys_param.N_cell+1:2:end) = abs(sys_param.kappa_nl_B - gamma_nl_v_B)*heaviside(+(sys_param.kappa_nl_B - gamma_nl_v_B)) % v
+    sys_param.cpl_nl_R(sys_param.N_cell+2:2:end) = abs(sys_param.kappa_nl_B + gamma_nl_w_B)*heaviside(-(sys_param.kappa_nl_B + gamma_nl_w_B)) % w
 
-    %OVERRIDE FOR 8 CELL   
-    %
-    sys_param.cpl_L = 0*[1 0 1 0 1 0 0 1 0 1 0 1 0 1 0]; %flip(params.cpl_L);%%%%
-    sys_param.cpl_R = 0*[1 0 1 0 1 0 0 1 0 1 0 1 0 1 0];%flip(params.cpl_R);%%%%
-    sys_param.cpl_nl_L = 0.8*(0.9e-2)*[1 0 1 0 1 0 0 1 0 1 0 1 0 1 0];%flip(params.cpl_nl_L);%%%%
-    sys_param.cpl_nl_R = 0.8*(0.9e-2)*[1 0 1 0 1 0 0 1 0 1 0 1 0 1 0];%flip(params.cpl_nl_R);%%%%
-    %}
 % do not uncomment --> see main sweep code
     %sys_param = disorder(sys_param,idx_rng); %%%%%%% TEMP !!!!!!!!!!!!!!!!!!!!!
 
