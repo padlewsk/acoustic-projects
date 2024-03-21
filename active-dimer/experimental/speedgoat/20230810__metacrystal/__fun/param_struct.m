@@ -281,7 +281,7 @@ function params = param_struct();
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
-    params.sigma_cpl = 0.5; % from 0 to 1
+    params.sigma_cpl = 0; % from 0 to 1
     params.sigma_loc = 0; % from 0 to 1
 
     %temperature disorder variance (time-dependant)
@@ -349,7 +349,7 @@ function params = param_struct();
 
 
     %%% UPDATE DISORDERED PARAMS
-    params = disorder(params,idx_rng);  %%%%%%%%%%%%%%%%% !!!! careful
+    %params = disorder(params,idx_rng);  %%%%%%%%%%%%%%%%% !!!! careful
     %with this
     %%% FUNCTIONS
     function y= heavisidefun(x)
