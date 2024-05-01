@@ -15,18 +15,18 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 5; %Duct speaker:MAX 5V cf 20231129
+    params.A = 2; %Duct speaker:MAX 5V cf 20231129 5V for pulse
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     
-    params.avg_num_wind = 5; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: 15 FOR CAL
+    params.avg_num_wind = 1; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: 15 FOR CAL
     %freq_max = params.freq_fin - 0*params.freq_ini;
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz (0.5 for s-matrix and 5 for stplot)
-    params.tmax = 0.6; %params.avg_num_wind/params.freq_res; %0.3 for pulse% sweep up time (s) measurement time = 2 x tmax
+    params.tmax = 0.6; %params.avg_num_wind/params.freq_res; %0.6 for pulse ( back to default otherwise) % sweep up time (s) measurement time = 2 x tmax
     
     nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -276,8 +276,8 @@ function params = param_struct();
     % coupling kappa>0 => v>w; kappa <0 => v>w; 
     params.kappa_A    = +0; % ADDED coupling (front pressure) kappa>0 => v>w; kappa <0 v<w; 
     params.kappa_B    = -0; 
-    params.kappa_nl_A = +0.8*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
-    params.kappa_nl_B = -0.8*(0.9e-2);
+    params.kappa_nl_A = +0*(0.9e-2); % NL coupling (front pressure) MAX 0.8e-2 @ A = 8
+    params.kappa_nl_B = -0*(0.9e-2);
     %kerr_nl  = 0e12; % local non-linearity (backpressure) MAX 5e12; %TO IMPLEMENT
 
     %constant disorder variance (time-independant)
@@ -296,11 +296,11 @@ function params = param_struct();
     %normrnd seed in disorder function:
     idx_rng = 1;
     
-    %LINEAR ASYMMETRIC COUPLING --> Coupling to left if >0
-    gamma_v_A = 0; % v asymmetry 
-    gamma_w_A = 0;  % w asymmetry
-    gamma_v_B = 0; % v asymmetry  
-    gamma_w_B = 0; % w asymmetry 
+    %LINEAR ASYMMETRIC COUPLING --> Coupling to left if >0 
+    gamma_v_A = +0; % v asymmetry 
+    gamma_w_A = +0;  % w asymmetry
+    gamma_v_B = -0; % v asymmetry  
+    gamma_w_B = -0; % w asymmetry 
 
     cpl_vec = zeros(1, 2*params.N_cell-1); % initialize
     params.cpl_L    = cpl_vec;   % initialize
@@ -346,8 +346,14 @@ function params = param_struct();
     params.cpl_nl_L = 0.8*(0.9e-2)*[1 0 1 0 1 0 0 1 0 1 0 1 0 1 0];%flip(params.cpl_nl_L);%%%%
     params.cpl_nl_R = 0.8*(0.9e-2)*[1 0 1 0 1 0 0 1 0 1 0 1 0 1 0];%flip(params.cpl_nl_R);%%%%
     %}
+    
+    %OVERRIDE NON HERMITIAN
+    %params.cpl_L = 1.5*[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];
+    %params.cpl_R = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0];
 
-
+    %params.cpl_nl_L = 5*(1e-2)*[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]; %1.2
+    %params.cpl_nl_R = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0];
+    
     %%% UPDATE DISORDERED PARAMS
     %params = disorder(params,idx_rng);  %%%%%%%%%%%%%%%%% !!!! careful
     %with this
