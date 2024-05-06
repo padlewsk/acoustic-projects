@@ -56,7 +56,7 @@ p_A1(p_A1==0) = NaN;
 p_A1_max = mean(islocalmax(p_A1).*p_A1,"omitnan");
 %}
 
-%{
+%
 for ii = 1:size(exp_A,2)
     [p_exp_amp{ii},p_exp{ii},t_exp{ii}] = findamplitude(exp_A{ii},150e-3,250e-3); %%% FINDS AMPLITUDE
     % 14 mic correction !!!!
