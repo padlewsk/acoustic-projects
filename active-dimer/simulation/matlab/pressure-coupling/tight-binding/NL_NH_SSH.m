@@ -234,7 +234,7 @@ src =exp(+1i*(0.5*c*t^2));
 %gamma = diff(beta)./diff(t);% this is the "finite difference" derivative. Note it is  one element shorter than y and x
 %td = (t(2:end) + t(1:(end-1)))/2; % this is to assign yd an abscissa midway between two subsequent x
 
-lambda_L  = 0.2; % 0 --> v = w
+lambda_L  = -0.2; % =0 --> v = w, >0 --> triv, <0 --> topo
 lambda_NL = 0; % >0
 
 K = pi*(c0/a)/2; %0*1/2*(2*pi*freq_cut/2); %--> 1/2*(omega_cut/2) cutoff freq
