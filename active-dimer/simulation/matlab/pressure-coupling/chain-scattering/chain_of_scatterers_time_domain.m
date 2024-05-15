@@ -1,6 +1,7 @@
 %%% CHAIN OF RESONATORS: TIME DOMAIN %%%%%%%%%%%%%%%%%%
 %RMK: SAVE PARAMS FILE BEFORE RUNNING SIMULATION
 %rng(1);%specifies the seed for the MATLAB® random number generator TEST
+%DELAYED OR NOT --> must comment
 close all;  
 clear all; 
 clc;
@@ -18,8 +19,6 @@ sim_name = "sim_A9_64cells";
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INITIALISATION
 y0 = zeros(2*sys_param.mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
-%y0 = zeros(1,6)%RES 
-%y0(sys_param.mat_size + 3) = Caa*Sd;
  
 %set disorder
 idx_rng = 1;
@@ -40,8 +39,8 @@ if ~exist("t_out") % skips simulation if data has been loaded
     tic
     %'NormControl','on'
     opts = odeset('InitialStep', 1e-5, 'Refine', 10,'Stats','on'); % use refine to compute additional points
-    %[t_out,y_out] = ode89(@(t,y) odecrystal(t,y,sys_param),[0,sys_param.t_fin], y0, opts); %dynamically adjusts sampling time
-    sol = dde23(@(t,y,Z) dodecrystal(t,y,Z,sys_param),lag,@(t) history(t,sys_param),[0,sys_param.t_fin], opts); %delayed dynamics % history holds the intial values
+    [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,sys_param),[0,sys_param.t_fin], y0, opts); %dynamically adjusts sampling time
+    %sol = dde23(@(t,y,Z) dodecrystal(t,y,Z,sys_param),lag,@(t) history(t,sys_param),[0,sys_param.t_fin], opts); %delayed dynamics % history holds the intial values
     toc
     fprintf("### DONE.\n")
 else
@@ -50,8 +49,8 @@ else
 end
 %%% y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
-t_out = sol.x'; %DELAYED
-y_out = sol.y';
+%t_out = flip(sol.x'); %ONLY FOR DELAYED --> RMK: sol is inverted for ode89
+%y_out = flip(sol.y');
 %% SAVE RAW DATA (every node)
 %{
 tic
@@ -147,7 +146,6 @@ xlim([0.5,2*sys_param.N_cell+0.5])
 %ylim([t_out(1),t_out(end)/5]*1000)
 %zlim([0,sys_param.A_src*1.5])
 %zlim([0,10])
-%zlim([0 sys_param.A_src*3])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
