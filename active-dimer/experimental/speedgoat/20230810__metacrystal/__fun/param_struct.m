@@ -15,7 +15,7 @@ function params = param_struct();
     %params.use_random = true; % white noise
     params.src_select_type = 1; %1 = white; 2 = pulse centereds at freq_sine; 3 = constante sine
     params.src_select_ab = 1; % 1 = src A,  2 = src B and 3 = src A + src B (default is 1)
-    params.A = 1; %Duct speaker:MAX 5V cf 20231129 5V for pulse
+    params.A = 3; %Duct speaker:MAX 5V cf 20231129 5V for pulse
     %constant
     params.freq_sine = 500; %635 %cf 20231129
     %sweep
@@ -348,11 +348,11 @@ function params = param_struct();
     %}
     
     %OVERRIDE NON HERMITIAN
-    params.cpl_L = 1.5*[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];
-    params.cpl_R = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0];
+    %params.cpl_L = 1.5*[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];%1.5
+    %params.cpl_R = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0];
 
-    %params.cpl_nl_L = 4.5*(1e-2)*[0 1 1 1 1 1 1 1 1 1 1 1 1 1 0]; %1.2, max 5 for pulse
-    %params.cpl_nl_R = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0];
+    params.cpl_nl_L = 0.25*[+1 +1 +1 +1 +1 +1 +1 +1 +1 +1 +1 +1 +1 +1 +1]; %1.5*(1e-2) for 635Hz %cf 20240515__
+    params.cpl_nl_R = -params.cpl_nl_L;
     
     %%% UPDATE DISORDERED PARAMS
     %params = disorder(params,idx_rng);  %%%%%%%%%%%%%%%%% !!!! careful
