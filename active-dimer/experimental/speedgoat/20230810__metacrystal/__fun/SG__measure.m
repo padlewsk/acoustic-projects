@@ -60,7 +60,7 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     
     %sets the parameters p on the target:
     setparam(p);
-    
+    tg.setparam('', 'i2u', 0); % sets control current to 0 at the very start
     %{
     % SOURCE PARAMETERS 
     tg.setparam('', 'freq_sine', p.freq_sine);% 
@@ -127,12 +127,13 @@ function [signal_measure_raw, signal_control_raw] = SG__measure(p, dlg)
     %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %initialize
     tg.setparam('', 'rec', false);
-    tg.setparam('', 'enable_source', false); %turn source off
+    %tg.setparam('', 'enable_source', false); %turn source off
 
     fprintf('Measuring...'); 
     tic;
     tg.start('AutoImportFileLog', false); %starts the system and omits the log data file
     pause(0.5) % !!!  waits for the system to relax in the first moments cf 20231128
+    tg.setparam('', 'i2u', p.i2u); % re-enables control current
     % record data from start
     % make a short pulse of the Constant block 'rec'
     tg.setparam('', 'enable_source', true); %turn source on

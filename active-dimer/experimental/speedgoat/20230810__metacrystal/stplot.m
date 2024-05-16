@@ -90,7 +90,7 @@ set(gca,'color','none','YDir','normal')
 
 grid("off")
 xlim([0.5,2*sys_param.N_cell+0.5])
-%ylim([30,100])
+%ylim([t_out(1),110])
 %ylim([t_out(1),sys_param.tmax*1.2]*1000)
 %zlim([0, 12])
 xlabel('site n')
