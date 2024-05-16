@@ -6,25 +6,25 @@ clc
 % Hamiltonian
 M = 32;  % number of atoms in one dimension (rows)
 N = M;   % number of atoms in the other dimension (columns)
-E = 1;   % onsite energy
+U = 1;   % onsite energy
 t_h = -0.1; % hopping integral in the horizontal direction (left/right)
 t_v = -0.1; % hopping integral in the vertical direction (up/down)
-H = createHamiltonian(M, N, E, t_h, t_v);
+H = createHamiltonian(M, N, U, t_h, t_v);
 
 %eigen solver
-[U,E] = eigs(H);
+[psi,omega] = eigs(H); % subset of eigenvaluest
 
 %% FIGURES
 %plot 6 dominant eigenenergies
 figure(1)
-plot(diag(E));
+plot(diag(omega));
 
 % Assuming 'U' contains the eigenvectors from eig(H)
-numStates = size(U, 2); % Number of states (eigenvectors)
+numStates = size(psi, 2); % Number of states (eigenvectors)
 
 for stateIdx = 1:numStates
     % Reshape the eigenvector to a 2D matrix
-    state2D = reshape(U(:, stateIdx), [M, N]);%
+    state2D = reshape(psi(:, stateIdx), [M, N]);%
 
     % Create a new figure for each state
     figure;
@@ -40,7 +40,7 @@ autoArrangeFigures
 
 
 %% FUNCTIONS
-function H = createHamiltonian(M, N, E, t_h, t_v)
+function H = createHamiltonian(M, N, U, t_h, t_v)
     % M is the number of atoms in one dimension (rows)
     % N is the number of atoms in the other dimension (columns)
     % E is the onsite energy
@@ -52,7 +52,7 @@ function H = createHamiltonian(M, N, E, t_h, t_v)
     % Fill the Hamiltonian matrix
     for ii = 1:M*N
         % Onsite energy
-        H(ii,ii) = E;
+        H(ii,ii) = U;
 
         % Hopping integrals
         if mod(ii,N) ~= 0  
