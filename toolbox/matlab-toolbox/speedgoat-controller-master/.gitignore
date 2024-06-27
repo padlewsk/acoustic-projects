@@ -1,0 +1,25 @@
+# OS files
+Thumbs.db
+.DS_Store
+.vs
+*.log
+*.lnk
+
+# Matlab/Simulink build files, backups and cache
+*.p
+slprj/
+hdl_prj/
+*.asv
+*.autosave
+*.slxc
+*.slx.r20*
+*.mdl.r20*
+*.mldatx
+*_slrt_rtw/
+cpAnnotation.mat
+speedgoat_IO397_50k_all_io.mat
+speedgoat_IO397_50k_all_io_2.mat
+
+# Xilinx Vivado files
+*.mcs
+*.jou
