@@ -12,10 +12,16 @@ function params = param_struct();
     %params.Zc = params.c0*params.rho0; % characteristic specific acoustic impedence at 300K
     
     %% DEFAULT WAVEBIT STATE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.A = 0.5;% source gain (Pa)
+    params.A = 0.01;% source gain (Pa)
+
     params.rho = [1;1];
     params.theta = [0;0];
-    params.phi = [0;0];
+    params.phi = [0;0];  
+    
+    %correct wavebit amplitude difference and hamonics
+    params.rho_corr = [1;1];
+    params.harm_corr = [1;1];
+    
     %% SWEEP CALIBRATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %constant
@@ -98,7 +104,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; 
-    muR_tgt = 0.5; %0.25 
+    muR_tgt = 1; %0.25 
     muC_tgt = 1;%0.85
 
     % Synthesize all to a same average:

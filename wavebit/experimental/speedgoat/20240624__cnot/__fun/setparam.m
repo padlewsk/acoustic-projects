@@ -20,6 +20,8 @@ function [] = setparam(p)
     tg.setparam('', 'phi', p.phi); %
     tg.setparam('', 'src_gain', p.A);%
     
+    tg.setparam('', 'rho_corr', p.rho_corr);% 
+    tg.setparam('', 'harm_corr', p.harm_corr); % 
     %{
     %sweep not used for now
     tg.setparam('', 'tmax', p.tmax);%

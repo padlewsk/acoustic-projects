@@ -12,10 +12,14 @@ addpath('./__fun');
 
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
-p.A = 1;% source gain (Pa)
-p.rho = [1;1];
-p.theta = [0;0];
+p.A = 0.01;% source gain (Pa)
+p.rho = [1.4;1];
+p.theta = [pi/2;pi/2];
 p.phi = [0;0]; %only affects omega_1
+
+%correct wavebit amplitude difference and hamonics
+p.rho_corr = [1.25;1];
+p.harm_corr = [5;13];
 %% MEASURE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 signal_raw = SG__measure(p);
 
@@ -24,7 +28,6 @@ raw_data = signal_raw.Variables;
 %%  PROCESS 
 [F,P1] = onesideft(raw_data(:,1),p.fs_ctr,2);
 [F,P2] = onesideft(raw_data(:,2),p.fs_ctr,2);
-
 
 %% GRAPHICS 
 %%% see https://link.springer.com/content/pdf/10.1007/978-3-030-84300-7.pdf, p 69
