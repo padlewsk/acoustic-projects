@@ -10,13 +10,13 @@ function SG__build()
     
     
     %% ADD SG LIB PATH %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    addpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller');
+    %addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\control-schemes\MATLAB\Speedgoat'));
+    addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox\speedgoat-controller'));
     addpath('__fun');
     %%% UPLOAD PARAMETERS 
     p = param_struct(); % in case some parameters are overwritten
 
     %% CHECK IF CONNECTED
-       
     tg = slrealtime(p.tg_model); % target computer interface
 
     if tg.isConnected == 0
@@ -26,7 +26,6 @@ function SG__build()
         end
     end
 
-    
     %% UPLOAD MODEL TO WORKSPACE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     load_system(p.MDL); % loads slx model defined in params.m
     
@@ -42,13 +41,67 @@ function SG__build()
     
     %%% for running time
     set_param(p.MDL, 'StopTime',num2str(Inf)) 
+
+   
     
     %%% Set sample times 
-    %  data acquisition
-    set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_acq)); 
-    set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_acq));  
-    
+    if p.tg_model == "Mobile"
+        set_param(p.MDL, 'FixedStep',num2str(p.ts_ctr)) 
+        %104 DMA MODE
+        %{
+        set_param([p.MDL, '/setup_135'], 'parConvClockBaseRate', "20MHz");
+        set_param([p.MDL, '/setup_135'], 'parConvClock1Divider', num2str(20E6*p.ts_ctr));
+        set_param([p.MDL,'/Enabled Subsystem Measure/File Log'],'decimation', num2str(p.log_dec)); %set decimation for logging
+
+        set_param([p.MDL, '/ao_104'], 'parTs', num2str(p.ts_ctr)); %same as the control to avoid hiccups c.f 20231019 notes
+        set_param([p.MDL, '/ai_104'], 'parTs', num2str(p.ts_ctr)); 
+        set_param([p.MDL,'/source/sweep'],'Ts', num2str(p.ts_ctr));
+        set_param([p.MDL,'/Rate Transition'],'OutPortSampleTime', num2str(p.ts_ctr));
+        %}
+
+        %135 IN DMA mode, this is not to be defined
+        %{
+        set_param([p.MDL, '/ao_135'], 'parSampleTime', num2str(p.ts_ctrl)); 
+        set_param([p.MDL, '/ai_135'], 'parSampleTime', num2str(p.ts_ctrl));
+        %}
+    elseif  p.tg_model == "Performance"
+        %334
+        set_param([p.MDL, '/IO334_IO'], 'ts', num2str(p.ts_log));
+    end
    
+    
+    %%% FOR CHIRP remove?
+    %{
+    set_param([MDL, '/source/sweep'], 'Ts', num2str(ts));
+    set_param([MDL, '/source/random'], 'SampleTime', num2str(ts));
+    %}
+    
+    
+    %%% UPLOAD PARAMETERS TO SL WORKSPACE
+     % current to voltage
+    %set_param([p.MDL, '/atm/i2u'], 'Gain', num2str(1/p.u2i)); %converts current to voltage (will be converted back with u2i)
+   
+    
+    % mic sensitivity
+    %set_param([p.MDL, '/sens_p'],'Value', mat2str([p.sens_p(:,1);p.sens_p(:,2)]));%
+    
+        
+    % back pressure to displacement transfer function
+    %set_param([p.MDL, '/pb2disp'], 'Value', mat2str([p.pb2disp(:,1);p.pb2disp(:,2)]));%
+    
+    
+    
+    %%% INITIALIZE EACH TF (RMK: DO NOT INITIALIZE WITH ZEROS!)
+    %%% unitcell i and atom j:
+    %{
+    for ii = 1:8
+            for jj = 1:2
+            set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Numerator',  ['[', num2str([0.5 0.5 0.5]), ']']);
+            set_param([p.MDL, char("/uc_"+ii+"/tf_"+jj)], 'Denominator',['[', num2str([1 1 1]), ']']);
+            end
+    end
+%}
+    
     %% BUILD APPLICATION FOR SG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     fprintf('Building the application...\n');
     
@@ -61,10 +114,8 @@ function SG__build()
     end
     
     fprintf('\t[DONE]\n');
-   
-    
     %% LOAD TARGET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %
+    %{
     % Multiple applications can be uploaded on a single target. Each time the
     % target is stopped, the correct application must first be loaded then
     % started. The ``tg.load`` function will upload the *.mldatx file if not up
