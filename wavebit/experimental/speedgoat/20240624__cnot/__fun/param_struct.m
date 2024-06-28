@@ -13,7 +13,7 @@ function params = param_struct();
     
     %% DEFAULT WAVEBIT STATE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.A = 0.01;% source gain (Pa)
-
+    params.freq_0 = 602; % make sure that params.freq_0/params.ts is a whole number
     params.rho = [1;1];
     params.theta = [0;0];
     params.phi = [0;0];  
@@ -25,20 +25,22 @@ function params = param_struct();
     %% SWEEP CALIBRATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %constant
-    params.freq_sine = 500; %635 %cf 20231129
+     %635 %cf 20231129
     %sweep
     params.freq_ini = 150;%150; %% initial frequency
     params.freq_fin = 1200;%1200;%1500; %% final frequency
     
 
     %% STATE MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.avg_num_wind = 1; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: 15 FOR CAL
+    %params.avg_num_wind = 1; %The number of windows with 0% overlap (x2-1 for 50% overlap).RMK: 15 FOR CAL
     %freq_max = params.freq_fin - 0*params.freq_ini;
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
-    params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz (0.5 for s-matrix and 5 for stplot)
-    params.tmax = 5; %params.avg_num_wind/params.freq_res; %0.6 for pulse ( back to default otherwise) % sweep up time (s) measurement time = 2 x tmax
+    %params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz (0.5 for s-matrix and 5 for stplot)
     
-    nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
+    nT = 1000*(1/(2*2*params.freq_0)); % n times "nyquist frequency to resolve omega_1";
+    params.tmax = nT;
+    
+    %nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Machine type
     %tg_model = 'Baseline'; %target select
@@ -47,19 +49,19 @@ function params = param_struct();
     params.MDL = 'SG__MDL'; % name of the slx model (performance)
     
     %%% Speedgoat sample time: CANNOT CHANGE ONCE BUILT AND UPLOADED !
-    params.ts_ctr = 50e-06; 
-    params.fs_ctr = (1/params.ts_ctr);
-    params.log_dec = floor(params.fs_ctr/nyquist_rate); %file log decimation -> reduces log file size by factor of log_dec
-    params.ts_log = params.ts_ctr*params.log_dec; % must be <= 1/(2*freq_span) (a bit over the nyquist-shannon limit)
-    params.fs_log = round(1/params.ts_log); %c.f.20231018__
+   % params.ts_ctr = 50e-06; 
+    %params.fs_ctr = (1/params.ts_ctr);
+    %params.log_dec = floor(params.fs_ctr/nyquist_rate); %file log decimation -> reduces log file size by factor of log_dec
+    %params.ts_log = params.ts_ctr*params.log_dec; % must be <= 1/(2*freq_span) (a bit over the nyquist-shannon limit)
+    %params.fs_log = round(1/params.ts_log); %c.f.20231018__
 
     %%% not in DMA mode
-    %{
-    params.ts_acq = 50e-06; %%% control sampling time - this defines the new sampling when computing the tf and saved on the HD
-    params.fs_acq = 1/params.ts_acq; 
+    %
+    params.ts_ctr = 50e-06; %%% control sampling time - this defines the new sampling when computing the tf and saved on the HD
+    params.fs_ctr = 1/params.ts_ctr; 
     %}
     %% TRANSFER FUNCTION PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.wind = params.fs_log/params.freq_res; % The window size is in number of samples. Window of 1s yields a resolution of 1Hz, 2s --> 0.5 Hz etc... The window size is in number of samples
+    %params.wind = params.fs_log/params.freq_res; % The window size is in number of samples. Window of 1s yields a resolution of 1Hz, 2s --> 0.5 Hz etc... The window size is in number of samples
 
     %% CONTROL SENSITIVITY 
     %%% MIC  p(unitcell,atom)

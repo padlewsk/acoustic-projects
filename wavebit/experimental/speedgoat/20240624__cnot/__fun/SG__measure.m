@@ -56,8 +56,8 @@ function [signal_raw] = SG__measure(p, dlg)
     % Find the signal 'acq' in the application which will later be polled.
     sigInfo = app.getSignals; % list of all the signals in the application
     sigInfo = sigInfo(strcmp({sigInfo.SignalLabel}, 'acq')); % keep only one with the acq signal (TEST POINT!)
-    tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
-    
+   % tg.setparam('','N_trig', uint32((2*p.tmax)/sigInfo.SamplePeriod) + 1);% +1 to record a little after the sweep end %sigInfo.SamplePeriod = ts_rec NOT CLEAR
+    tg.setparam('','N_trig', uint32(p.tmax/sigInfo.SamplePeriod))
     %sets the parameters p on the target:!!
     setparam(p);
     tg.setparam('', 'i2u', 0); % sets control current to 0 at the very start
@@ -127,7 +127,7 @@ function [signal_raw] = SG__measure(p, dlg)
     %% RUN MEASUREMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %initialize
     tg.setparam('', 'rec', false);
-    %tg.setparam('', 'enable_source', false); %turn source off
+    tg.setparam('', 'enable_source', false); %turn source off
 
     fprintf('Measuring...'); 
     tic;
@@ -136,51 +136,24 @@ function [signal_raw] = SG__measure(p, dlg)
     tg.setparam('', 'i2u', p.i2u); % re-enables control current
     % record data from start
     % make a short pulse of the Constant block 'rec'
-    %tg.setparam('', 'enable_source', true); %turn source on IMPLEMENT???
+    tg.setparam('', 'enable_source', true); %turn source on and wait for signal stabilisation
+    pause(0.5)
+    
     tg.setparam('', 'rec', true); %start logging --> serves as tg.startRecording();
     tg.setparam('', 'rec', false);
-   
-    % wait until the signal 'acq' is false, meaning the acquisition is over
     
-    %kappa_0 = 0; % INITIAL LINEAR COUPLING
-    %kappa_1 = p.kappa; %LINEAR COUPLING
-    idx_rng = 1; %seed index
+
+    % wait until the signal 'acq' is false, meaning the acquisition is over
     tmr = tic;
     while tg.getsignal(sigInfo.BlockPath, sigInfo.PortIndex)
-        pause(0.05);
-         %%%% LIVE KAPPA VARIATION (don't forget to comment out initial vals)
-        %{
-        t = toc(tmr);
-        if t < 0.25*p.tmax % first quarter set kappa = 0
-            kappa = kappa_0;
-        elseif t < 0.75*p.tmax
-            kappa = kappa_0 + (t - 0.25*tmax)*(kappa_1 - kappa_0)/(0.5*tmax);
-        else 
-            kappa = kappa_1;
-        end
-        p.cpl_L = kappa*p.cpl;   % Linear coupling
-        p.cpl_R = kappa*p.cpl;   % Linear coupling
-        %tg.setparam('','k_mat',   diag(p.cpl_L,-1)  + diag(p.cpl_R,1));    %linear coupling matrix k 
-        setdisorder(p); %sets the new disorder and sends it to target
-        %}
-        
-         %%%% RANDOM DISORDER
-        %setdisorder(p,idx_rng);  idx_rng = idx_rng + 1; sets the disorder and changes with every step
-
-        if dlg.CancelRequested %%% Check if cancel button is pressed
-            dlg.Message = 'Measurement aborted.';
-            tg.stop;% stops target
-            data = nan(1,4+16);
-            return
-        end
+        %pause(0.05);
     end
-    %tg.setparam('', 'enable_source', false); %turn source off
+    tg.setparam('', 'enable_source', false); %turn source off
     tg.stopRecording();
     fprintf('done.\n');
     toc (tmr)
     toc
-    
-
+   
     %% OUTPUT DATA & PROCESSING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     fprintf('Fetching data from target...');

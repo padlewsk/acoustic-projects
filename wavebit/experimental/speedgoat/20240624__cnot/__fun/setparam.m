@@ -15,6 +15,8 @@ function [] = setparam(p)
     %}
     
     % SOURCE PARAMETERS 
+
+    tg.setparam('', 'freq_0', p.freq_0); % 
     tg.setparam('', 'rho', p.rho);% 
     tg.setparam('', 'theta', p.theta); % 
     tg.setparam('', 'phi', p.phi); %
@@ -22,6 +24,8 @@ function [] = setparam(p)
     
     tg.setparam('', 'rho_corr', p.rho_corr);% 
     tg.setparam('', 'harm_corr', p.harm_corr); % 
+
+   
     %{
     %sweep not used for now
     tg.setparam('', 'tmax', p.tmax);%
@@ -49,5 +53,4 @@ function [] = setparam(p)
 
     % mic sensitivity     %%% NOT USED YET... BUT UNCOMMENT WHEN USED
     tg.setparam('', 'sens_p', reshape(p.sens_p',[] ,1));%
-
 end
