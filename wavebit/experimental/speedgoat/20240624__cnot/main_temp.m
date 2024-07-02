@@ -13,11 +13,11 @@ addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
 
-p.A = 0.01;% source gain (Pa)
-p.rho = [1.4;1];
+p.A = 0.02;% source gain (Pa)
+p.rho = [1;1];
 
-p.theta = [pi/2; 0]; %[0;pi]  = [omega_0, omega_1]
-p.phi = [3*pi/2;0]; %dephase of omega_1 w/r to omega_0
+p.theta = [pi;0]; %[0;pi]  = [omega_0, omega_1]
+p.phi = [0;0]; %dephase of omega_1 w/r to omega_0
 
 %correct wavebit amplitude difference and hamonics
 p.rho_corr = [1.25;1];
@@ -28,66 +28,28 @@ signal_raw = SG__measure(p); %with updated parameters
 %% GET DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 raw_time = seconds(signal_raw.Time); %raw_time = raw_time -raw_time(1);
 raw_data = signal_raw.Variables; %Pa
-%%  PROCESS 
+%%  PROCESS
+
 %%% TWO PHASE LOCKIN TECHNIQUE 
-t = raw_time - raw_time(1);%!!!!
-U_raw = raw_data(:,1);% hann(numel(t)).*
+t = raw_time - raw_time(1);%!!!!$
+[theta_0,phi_0]  = read_state(p,t,raw_data(:,1)) %%  outputs plot in deg
+%[theta_1,phi_1]  = read_state(p,t,raw_data(:,2)); %%  outputs plot
 
-T = t(end)- t(1); 
-
-X_omega_0 = (1/T)*trapz(t,real(exp(-1i*p.omega_0*t)).*U_raw);
-Y_omega_0 = (1/T)*trapz(t,real(exp(-1i*(p.omega_0*t + pi/2))).*U_raw);
-R_omega_0 = 2*sqrt(X_omega_0^2 + Y_omega_0^2); %%%!!! 2X?
-phi_omega_0 = atan2(Y_omega_0,X_omega_0); %rad
-
-%
-X_omega_1 = (1/T)*trapz(t,real(exp(-1i*(p.omega_1*t))).*U_raw);
-Y_omega_1 = (1/T)*trapz(t,real(exp(-1i*(p.omega_1*t + pi/2))).*U_raw);
-R_omega_1 = 2*sqrt(X_omega_1^2 + Y_omega_1^2);%%%!!! 2X?
-phi_omega_1 = atan2(Y_omega_1,X_omega_1); %rad
-%}
-
-%{
-figure()
-hold on
-plot(t,U_raw,'r-','LineWidth',2)
-plot(t,R_omega_0*real(exp(-1i*(p.omega_0*t+phi_omega_0))),'k--','LineWidth',1)
-plot(t,R_omega_1*real(exp(-1i*(p.omega_1*t + phi_omega_1))),'k--','LineWidth',1)
-plot(t,real(R_omega_0*exp(-1i*(2*pi*p.freq_0*t + phi_omega_0)) + R_omega_1*exp(-1i*(p.omega_1*t + phi_omega_1))),'k-','LineWidth',1)
-hold off
-xlim([0 5/p.freq_0])
-legend("raw","\omega_0","\omega_1","\omega_0  + \omega_1")
-title("")
-%}
-
-
-%  relative phase in degrees cf: 20240702
-phi  = mod(rad2deg(angle(exp(1i*(-(phi_omega_1 - p.omega_1/p.omega_0*phi_omega_0))))) - 90,360) %%  relative phase why 90??
-%rad2deg(p.phi(1))
-
-%{
-X_omega_2 = (1/T)*trapz(t,real(R_omega_0*exp(-1i*(p.omega_0*t + phi_omega_0)) + R_omega_1*exp(-1i*(p.omega_1*t + phi_omega_1))).*U_raw);
-Y_omega_2 = (1/T)*trapz(t,real(R_omega_0*exp(-1i*(p.omega_0*t + phi_omega_0 + pi/2)) + R_omega_1*exp(-1i*(p.omega_1*t + phi_omega_1 + pi/2))).*U_raw);
-%R_omega_2 = 2*sqrt(X_omega_1^2 + Y_omega_1^2);%%%!!! 2X?
-phi_omega_2 = atan2(Y_omega_2,X_omega_2); %rad
-rad2deg( phi_omega_2)
-%}
-%%
 [F,P1] = onesideft(raw_data(:,1),p.fs_ctr,1);
 [F,P2] = onesideft(raw_data(:,2),p.fs_ctr,1);
 
 %% GRAPHICS 
 %%% see https://link.springer.com/content/pdf/10.1007/978-3-030-84300-7.pdf, p 69
-close all
-
-%
+close
+%{
 figure(1)
 hold on
-plot(t,U_raw)
+plot(t,raw_data(:,1))
 plot(t, real(cos(p.theta(1)/2)*exp(-1i*p.omega_0*t) + sin(p.theta(1)/2)*exp(1i*p.phi(1))*exp(-1i*p.omega_1*t)))
 hold off
 %}
 
+%{
 figure(2)
 hold on
 plot(t,U_raw,'-','LineWidth',2)
@@ -100,8 +62,7 @@ box on
 xlim([0 5/p.freq_0])
 legend("raw","\psi_0","\psi_1","\psi")
 title("")
-
-
+%}
 
 
 %%% bode plots
@@ -111,7 +72,7 @@ P1_temp = P1;
 P1_temp(abs(P1_temp) < tol) = 0;
 theta1 = angle(P1_temp);
 
-figure(3)
+figure(2)
 ax1=subplot(2,1,1);
 plot(F,20*log10(abs(P1)));
 xline(p.freq_0,'k--') 
@@ -153,8 +114,89 @@ linkaxes([ax1 ax2],'x')
 xlim([400 1400])
 %}
 
+%%% BLOCH SPHERE
+figure(3)
+% Define polar angles (in radians)
+theta = deg2rad(theta_0);
+phi =  deg2rad(phi_0);  
 
+% Calculate Bloch coordinates
+x = sin(theta) * cos(phi);
+y = sin(theta) * sin(phi);
+z = cos(theta);
+hold on
+% Create the Bloch sphere (transparent)
+[x_sphere, y_sphere, z_sphere] = sphere(128);
+surf(x_sphere, y_sphere, z_sphere, 'FaceAlpha', 0.3, 'EdgeColor', 'none'); % Transparent sphere
+colormap copper
+shading interp
+% Add the state vector (as an arrow)
+arrow_length = 1; % Example arrow length (adjust as desired)
+arrow_start = [0, 0, 0];
+arrow_end = [x, y, z];
+arrow_dir = arrow_end - arrow_start;
+quiver3(arrow_start(1), arrow_start(2), arrow_start(3), ...
+    arrow_dir(1), arrow_dir(2), arrow_dir(3), arrow_length, ...
+    'Color', 'r', 'LineWidth', 2);
+
+% Customize the plot (optional)
+axis equal;
+% Set the axis limits symmetrically around the origin
+axis auto;
+a = 1.5;
+amax = max(abs(a));
+axis([-amax, amax, -amax, amax, -amax, amax]);
+
+% Add lines for the axes intersecting at the origin
+hold on;
+line(xlim, [0, 0], [0, 0], 'Color', 'k');  % X-axis
+line([0, 0], ylim, [0, 0], 'Color', 'k');  % Y-axis
+line([0, 0], [0, 0], zlim, 'Color', 'k');  % Z-axis
+
+text(-0.05, -0.05, 1.1*amax, '|0\rangle')
+text(-0.05, -0.05, -1.1*amax, '|1\rangle')
+%text(x(end), y(end), z(end), 'End Point')
+
+
+title(' Bloch Sphere');
+hold off
+box off
+grid off
+axis off
+
+% Adjust view angle (optional)
+view(-45, 30); % Example view angle (adjust as desired)
+
+%{
+figure()
+% Create a scatter plot
+scatter3(S10, S20, S30, 'b.');
+
+% Set the axis limits symmetrically around the origin
+axis auto;
+a = axis;
+amax = max(abs(a));
+axis([-amax, amax, -amax, amax, -amax, amax]);
+
+% Add lines for the axes intersecting at the origin
+hold on;
+line(xlim, [0, 0], [0, 0], 'Color', 'k');  % X-axis
+line([0, 0], ylim, [0, 0], 'Color', 'k');  % Y-axis
+line([0, 0], [0, 0], zlim, 'Color', 'k');  % Z-axis
+
+% Attach labels to the axes
+xlabel('X', 'Position', [amax, 0, 0]);
+ylabel('Y', 'Position', [0, amax, 0]);
+zlabel('Z', 'Position', [0, 0, amax]);
+
+% Customize the plot as needed (title, view angle, etc.)
+title('3D Scatter Plot with Axes at Origin');
+view(3);
+%}
 autoArrangeFigures
+
+
+
 
 
 
