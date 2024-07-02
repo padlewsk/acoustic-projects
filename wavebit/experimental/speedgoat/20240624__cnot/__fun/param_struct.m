@@ -14,6 +14,8 @@ function params = param_struct();
     %% DEFAULT WAVEBIT STATE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.A = 0.01;% source gain (Pa)
     params.freq_0 = 602; % make sure that params.freq_0/params.ts is a whole number
+    params.omega_0 = 2*pi*602; % make sure that params.freq_0/params.ts is a whole number
+    params.omega_1 = 2*2*pi*602; % make sure that params.freq_0/params.ts is a whole number
     params.rho = [1;1];
     params.theta = [0;0];
     params.phi = [0;0];  
@@ -37,7 +39,7 @@ function params = param_struct();
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     %params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz (0.5 for s-matrix and 5 for stplot)
     
-    nT = 1000*(1/(2*2*params.freq_0)); % n times "nyquist frequency to resolve omega_1";
+    nT = 500*(1/(2*2*params.freq_0)); % n times "nyquist frequency to resolve omega_1";
     params.tmax = nT;
     
     %nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
