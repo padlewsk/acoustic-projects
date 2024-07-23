@@ -98,7 +98,7 @@ function dydt = odecrystal(t,y,sys_param)
         freq_src = sys_param.f_src; %param.c0/param.a/2; %centering pulse on this frequency
         omega_src = 2*pi*freq_src;
         T_src = 1/freq_src; %1/freq 
-        t0 = 3*T_src;% delay for single pulse %%%%%%%%%%%%%%%%%
+        t0 = 1*T_src;% delay for single pulse %%%%%%%%%%%%%%%%% 3
         tau = 0.5*T_src/sqrt(2);% width
 
         p_src = sys_param.A_src*exp(1i*(omega_src*t))*exp(-(t-t0)^2/(2*tau^2)); %single pulse
@@ -112,7 +112,7 @@ function dydt = odecrystal(t,y,sys_param)
         %}
        
 
-    elseif sys_param.src_select == 2  %%% SWEEP  (temporal cutoff)
+    elseif sys_param.src_select == 2  %%% FREQ SWEEP  (temporal cutoff)
         %p_src = 1/(1+exp(1000*(-t)))*sys_param.A_src*rand(1)*1/(1+exp(1000*(t-sys_param.t_fin/2)));
            
         if t < sys_param.t_fin %sys_param.t_fin/2
@@ -131,6 +131,10 @@ function dydt = odecrystal(t,y,sys_param)
         else
             p_src = 0;
         end
+
+      elseif sys_param.src_select == 3  %%% AMPLITUDE SWEEP  (temporal cutoff)
+        p_src = 1/(1+exp(500*(-t)))*sys_param.A_src*sin(2*pi*sys_param.f_src*t)*1/(1+exp(1000*(t-sys_param.t_fin/2)));
+        p_src =  (t/sys_param.t_fin)*p_src; 
     else
         fprintf("%%% No source selected.\n")
     end
@@ -165,7 +169,9 @@ function dydt = odecrystal(t,y,sys_param)
     cpl_mat_nl = diag(sys_param.cpl_nl_L,-1) + diag(sys_param.cpl_nl_R,1); % nonlinear coupling matrix k_nl
     %cpl_mat_nl = diag(sys_param.cpl_nl_L,-1) + diag(sys_param.cpl_nl_R,1) + diag(sys_param.kappa_nl*ones(sys_param.N_cell*2,1)); % nonlinear local + coupling matrix k_nl 
 
-    i_s = sys_param.Sd/sys_param.Bl*(cpl_mat*p_s + cpl_mat_nl*p_s.^3); 
+    i_s = sys_param.Sd/sys_param.Bl*(cpl_mat*p_s + cpl_mat_nl*(abs(p_s).^2).*p_s); %NHSE
+    %i_s = sys_param.Sd/sys_param.Bl*(cpl_mat*p_s + cpl_mat_nl*(abs(p_s))); %NHSE
+    %i_s = sys_param.Sd/sys_param.Bl*(cpl_mat*p_s + cpl_mat_nl*p_s.^3); %TOPO
 
     % Active control A
     A = zeros(sys_param.mat_size,1);

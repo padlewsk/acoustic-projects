@@ -46,7 +46,7 @@ fig1 = figure(1);
 axis square;
 % Loop over the time vector
 for idx = 1:length(t_raw)
-    colormap magma
+    %colormap magma
     % Draw the X and Y components
     %imagesc(abs(squeeze(psi2D(idx,:,:)))); %sqweeze is used to reduce the dimension to MxN (rmv time)
     sl =surfl(abs(squeeze(psi2D(idx,:,:))),'light');
@@ -151,23 +151,23 @@ function dpdt = nl_nr_2D(t, p, M,N) % nonlinear nonreciprocal 2D system
         % Onsite energy
         H(ii,ii) = E;
         
-        delta = 0.04; % NL parameter
+        delta = 0.13; % NL parameter%0.04
         % NORTH AND SOUTH HALF
         if mod(ii,N) ~= 0 && mod(ii,N)<=floor(N/2) % NORTH
-            H(ii,ii+1) = t_h + delta*abs(p(ii)); %to top
-            H(ii+1,ii) = t_h - delta*abs(p(ii+1)); %to bottom
+            H(ii,ii+1) = t_h + delta*abs(p(ii))^2; %to top
+            H(ii+1,ii) = t_h - delta*abs(p(ii+1))^2; %to bottom
         elseif mod(ii,N) ~= 0 && mod(ii,N)>floor(N/2) % SOUTH
-            H(ii,ii+1) = t_h - delta*abs(p(ii)); %to top
-            H(ii+1,ii) = t_h + delta*abs(p(ii+1)); %to bottom
+            H(ii,ii+1) = t_h - delta*abs(p(ii))^2; %to top
+            H(ii+1,ii) = t_h + delta*abs(p(ii+1))^2; %to bottom
         end
 
         % WEST AND EAST HALF
         if ii <= N*(M-1)  && ii<=floor(N*M/2) % WEST
-            H(ii,ii+N) = t_v + delta*abs(p(ii)); % to left
-            H(ii+N,ii) = t_v - delta*abs(p(ii+N)); % to right
+            H(ii,ii+N) = t_v + delta*abs(p(ii))^2; % to left
+            H(ii+N,ii) = t_v - delta*abs(p(ii+N))^2; % to right
         elseif ii <= N*(M-1)  && ii>floor(N*M/2) % EAST
-            H(ii,ii+N) = t_v - delta*abs(p(ii)); % to left
-            H(ii+N,ii) = t_v + delta*abs(p(ii+N)); % to right
+            H(ii,ii+N) = t_v - delta*abs(p(ii))^2; % to left
+            H(ii+N,ii) = t_v + delta*abs(p(ii+N))^2; % to right
         end
     end
     %END HAMILTONIAN
@@ -176,7 +176,7 @@ end
 
 
 
-function dpdt = nr_2D(t, p, M,N) % linear nonreciprocal 2D system
+function dpdt = nr_2D(t, p, M,N) % linear nonreciprocal 2D system 
     % HAMILTONIAN
     E = 0 - 0*1i;   % onsite energy (complex to counter act the NonHermiticity)
     t_h = -0.1; % hopping integral in the horizontal direction (left/right) alters simulation speed
@@ -219,48 +219,4 @@ function dpdt = nr_2D(t, p, M,N) % linear nonreciprocal 2D system
     %END HAMILTONIAN
 dpdt =  -1i*H*p; 
 end
-
-
-%{
-function H = createHamiltonian(M,N)
-    E = 0 - 0*1i;   % onsite energy (complex to counter act the NonHermiticity)
-    t_h = -0.1; % hopping integral in the horizontal direction (left/right) alters simulation speed
-    t_v = t_h; % hopping integral in the vertical direction (up/down)
-
-    % M is the number of atoms in one dimension (rows)
-    % N is the number of atoms in the other dimension (columns)
-    % E is the onsite energy
-    % t is the hopping integral
-
-    % Initialize the Hamiltonian matrix
-    H = zeros(M*N, M*N);
-
-    % Fill the Hamiltonian matrix
-    for ii = 1:M*N
-        % Onsite energy
-        H(ii,ii) = E;
-
-        % Hopping integrals
-        NR_param = 0.35; %non reciprocal coupling parameter (1 --> fully NR)
-        
-        % NORTH AND SOUTH HALF
-        if mod(ii,N) ~= 0 && mod(ii,N)<=floor(N/2) % NORTH
-            H(ii,ii+1) = (1-NR_param)*t_h; %to top
-            H(ii+1,ii) = (1+NR_param)*t_h; %to bottom
-        elseif mod(ii,N) ~= 0 && mod(ii,N)>floor(N/2) % SOUTH
-            H(ii,ii+1) = (1+NR_param)*t_h; %to top
-            H(ii+1,ii) = (1-NR_param)*t_h; %to bottom
-        end
-
-        % WEST AND EAST HALF
-        if ii <= N*(M-1)  && ii<=floor(N*M/2) % WEST
-            H(ii,ii+N) = (1-NR_param)*t_v; % to left
-            H(ii+N,ii) = (1+NR_param)*t_v; % to right
-        elseif ii <= N*(M-1)  && ii>floor(N*M/2) % EAST
-            H(ii,ii+N) = (1+NR_param)*t_v; % to left
-            H(ii+N,ii) = (1-NR_param)*t_v; % to right
-        end
-    end
-end
-%}
 
