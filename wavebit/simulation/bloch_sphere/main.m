@@ -19,6 +19,8 @@ p.rho = [sqrt(1);sqrt(1)];
 p.theta = [0;0]; %[0 pi]  = [omega_0 omega_1]
 p.phi = [0;0]; %dephase of omega_1 w/r to omega_0
 
+
+
 %%  PROCESS AND GRAPHICS 
 close all
 %%% BLOCH SPHERE
