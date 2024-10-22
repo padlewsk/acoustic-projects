@@ -2,8 +2,8 @@
 
 clear all
 close all
-clc
-addpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox\')  
+%clc
+addpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox\matlab-toolbox')  
 addpath('./__fun/')
 %% PARAMETERS
 % Hamiltonian
@@ -47,9 +47,9 @@ while f==1 % energy minimizing
 end
 
 %% FIGURES
+%%% FIG 1
 %%% LOAD FIGURE PARAMETERS
 fig_param = fig_params();
-
 
 x=1:2*N;
 y=1:2*N;
@@ -109,7 +109,7 @@ hold off
 %% SAVE FIGURES
 sim_name = "NL_NR_cpl__delta_0";
 
-%
+%{
 tic
 if ~exist("__figures", 'dir')
    mkdir("__figures")
@@ -120,4 +120,5 @@ else
     fprintf("### FIGURE NOT SAVED: FILE NAME ALREADY EXISTS\n")
 end
 toc
+%}
 
