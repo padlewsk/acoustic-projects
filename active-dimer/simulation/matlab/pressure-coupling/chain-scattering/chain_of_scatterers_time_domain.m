@@ -1,6 +1,7 @@
 %%% CHAIN OF RESONATORS: TIME DOMAIN %%%%%%%%%%%%%%%%%%
 %RMK: SAVE PARAMS FILE BEFORE RUNNING SIMULATION
 %rng(1);%specifies the seed for the MATLAB® random number generator TEST
+%DELAYED OR NOT --> must comment
 close all;  
 clear all; 
 clc;
@@ -18,9 +19,12 @@ sim_name = "sim_A9_64cells";
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INITIALISATION
 y0 = zeros(2*sys_param.mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
-%y0 = zeros(1,6)%RES 
-%y0(sys_param.mat_size + 3) = Caa*Sd;
  
+%set disorder
+idx_rng = 1;
+%sys_param = disorder(sys_param,idx_rng); %%%% UNCOMMENT FOR DISORDER!!
+
+lag = sys_param.a/sys_param.c0/2*[1e-100]; % phase delay bewteen two speakers in terms of time delay between two speakers!!!
 %%% TODO: CRYSTAL S-MATRIX ANALYSIS
 %{ 
 F = [];     %frequency
@@ -36,6 +40,7 @@ if ~exist("t_out") % skips simulation if data has been loaded
     %'NormControl','on'
     opts = odeset('InitialStep', 1e-5, 'Refine', 10,'Stats','on'); % use refine to compute additional points
     [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,sys_param),[0,sys_param.t_fin], y0, opts); %dynamically adjusts sampling time
+    %sol = dde23(@(t,y,Z) dodecrystal(t,y,Z,sys_param),lag,@(t) history(t,sys_param),[0,sys_param.t_fin], opts); %delayed dynamics % history holds the intial values
     toc
     fprintf("### DONE.\n")
 else
@@ -44,6 +49,8 @@ else
 end
 %%% y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
 
+%t_out = flip(sol.x'); %ONLY FOR DELAYED --> RMK: sol is inverted for ode89
+%y_out = flip(sol.y');
 %% SAVE RAW DATA (every node)
 %{
 tic
@@ -105,26 +112,30 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 
 %% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %surface plot
-[X,Y] = meshgrid(1:2*sys_param.N_cell,t_out*1000);
-Z = abs(p_s); 
+[X,Y] = meshgrid(1:2*sys_param.N_cell,t_out*1000); 
+%Z = flip(abs(p_s),2); 
+Z = abs(p_s); %%%%%%%%%%%%%%
 Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA!
 
 fig2 = figure(2); % \Delta t simulation time step
+colormap magma
 h = ribbon(Y,Z,0.5);
 [h(:).EdgeColor] = deal('none');
 set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
 
 %add interface position
+%{
 p1 = [sys_param.N_cell 0 0];
 p2 = [sys_param.N_cell sys_param.t_fin*1000 0];
-p3 = [sys_param.N_cell sys_param.t_fin*1000 max(Z(:))/2];
-p4 = [sys_param.N_cell 0 max(Z(:))/2];  
+p3 = [sys_param.N_cell sys_param.t_fin*1000 max(Z(:))/4];
+p4 = [sys_param.N_cell 0 max(Z(:))/4];  
 xx = [p1(1) p2(1) p3(1) p4(1)];
 yy = [p1(2) p2(2) p3(2) p4(2)];
 zz = [p1(3) p2(3) p3(3) p4(3)];
 hold on;
 fill3(xx, yy, zz,'w', 'EdgeColor', 'none', 'FaceAlpha',0.3);
 hold off
+%}
 %%% figure style
 set(gcf,'position',fig_param.window_size);
 set(gcf, 'InvertHardCopy', 'off'); % to make black figure
@@ -133,26 +144,99 @@ set(gca,fig_param.fig_prop{:});
 set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w')
 %set(gca,'color','none','YDir','normal')
 grid("off")
-%box("on")
 xlim([0.5,2*sys_param.N_cell+0.5])
 %xlim([sys_param.N_cell-2.5,sys_param.N_cell+2.5]) % zoom on topological interface
-%ylim([t_out(1),t_out(end)/5]*1000)
+ylim([t_out(1),t_out(end)]*1000) % pulse
+%ylim([t_out(1),0.4]*1000) % sweep
+ylim([t_out(1),40]) % sweep
 %zlim([0,sys_param.A_src*1.5])
-%zlim([0,10])
-%zlim([0 sys_param.A_src*3])
+zlim([0,5])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
-%clim([0, sys_param.A_src*3]);
+clim([0, 4]);
 view(135,60)
-%view(180,0)
+view(45,40)
+
+%vecrast(fig2, 'large_low', 600, 'bottom', 'pdf');
+%%% FOR EXPORT
+%{
+ax = gca;
+ax.XAxis.Visible = 'off';
+ax.YAxis.Visible = 'off';
+ax.ZAxis.Visible = 'off';
+pbaspect([1 3 0.6])
+view(160,20)
+%vecrast(fig2, 'test', 600, 'bottom', 'pdf');
+%}
+
+%TEMP SCATTER PLOT TRY%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{
+x=1:2*sys_param.N_cell; %SPACE
+y=t_out*1000; %TIME
+nn=1;
+
+X = []; Y = []; Z = [];
+
+for i=1:length(x) %%% MAKE 3D PLOT
+    for j=1:length(y)
+        X(nn) = x(i); % site
+        Y(nn) = y(j)/100; % time
+        Z(nn) = abs(p_s(j,i)); %% psi_abs
+        nn = nn+1;
+    end
+end
+
+fig6 = figure(6)
+colormap magma
+scatter3(X-sys_param.N_cell,Y,Z,2*sys_param.N_cell,Z,'filled','MarkerEdgeColor','none','MarkerFaceAlpha',1,'linewidth',0.5)
+shading interp
+%zlim([0,sys_param.A_src*1.5])
+
+view(135,60)
+
+%
+ax = gca;
+ax.ZAxis.Visible = 'off';
+ax.GridAlpha = 0;  
+ax.XGrid = 'off';
+ax.YGrid = 'off';
+ax.ZGrid = 'on';
+ax.Color = 'none';
 
 
+set(gcf,'position',fig_param.window_size);
+%set(gcf, 'InvertHardCopy', 'off'); % to make black figure
+%set(gcf,'Color',[0 0 0]);% to make black figure
+%set(gca,fig_param.fig_prop{:},'XColor','w','YColor','w');
+set(gca,fig_param.fig_prop{:},'Position', [0, 0, 400,600]);
 
+%clim([0,0.4])
 
+xlim([-sys_param.N_cell,sys_param.N_cell])
+xlabel('Site')
+ylabel('Source Amplitude')
+%ylim([t_out(1),0.5]*1000) % pulse
+ylim([0,5]) % pulse
+
+%{
+%add interface highlight
+p1 = [0 0 0];
+p2 = [0 2*sys_param.N_cell 0];
+p3 = [0 2*sys_param.N_cell -5*t];
+p4 = [0 0 -5*t];  
+XX = [p1(1) p2(1) p3(1) p4(1)];
+YY = [p1(2) p2(2) p3(2) p4(2)];
+ZZ = [p1(3) p2(3) p3(3) p4(3)];
+hold on;
+fill3(XX, YY, ZZ,'w', 'EdgeColor', 'none', 'FaceAlpha',0.3);
+%}
+hold off
+
+%}
 
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 t_vec =  (0:sys_param.t_samp:sys_param.t_fin)'; %need to create another time vector because the output of the simulation isn't with constant sampling.
@@ -180,8 +264,9 @@ plot(f,P(1:1:sys_param.N_cell*2,:),"LineWidth",2)
 hold off
 box on
 grid on
-xlim([sys_param.fi ,sys_param.ff])
+%xlim([sys_param.fi ,sys_param.ff])
 %xlim([0 ,sys_param.ff])
+%ylim([0 ,0.4])
 colorbar
 %legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location','eastoutside', 'NumColumns', 2)
 %title("Single-Sided Amplitude Spectrum of S(t)")

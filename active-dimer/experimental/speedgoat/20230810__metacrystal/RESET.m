@@ -1,4 +1,3 @@
-
 addpath('__fun');
     %%% UPLOAD PARAMETERS 
 p = param_struct(); % in case some parameters are overwritten

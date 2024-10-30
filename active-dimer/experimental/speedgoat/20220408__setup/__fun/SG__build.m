@@ -64,7 +64,7 @@ function SG__build()
    
     
     %% LOAD TARGET %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %{
+    %
     % Multiple applications can be uploaded on a single target. Each time the
     % target is stopped, the correct application must first be loaded then
     % started. The ``tg.load`` function will upload the *.mldatx file if not up

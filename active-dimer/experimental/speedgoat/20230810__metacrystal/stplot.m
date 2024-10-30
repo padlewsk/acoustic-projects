@@ -90,7 +90,7 @@ set(gca,'color','none','YDir','normal')
 
 grid("off")
 xlim([0.5,2*sys_param.N_cell+0.5])
-%ylim([t_out(1),300])
+%ylim([t_out(1),110])
 %ylim([t_out(1),sys_param.tmax*1.2]*1000)
 %zlim([0, 12])
 xlabel('site n')
@@ -101,6 +101,7 @@ c.Label.String = 'Amplitude (Pa)';
 %c.Color = 'w';%dark mode
 %clim([2, 12]);
 view(135,50)
+
 %view(180,0)
 %exportgraphics(gcf,"myplot.png",'BackgroundColor','none')
 
@@ -115,7 +116,7 @@ p_vec = p_out;
 
 %%% SPLIT SIGNAL INTO PARTS FOR SPECTRAL AVERAGING
 % sys_param.freq_res
-parts = 100*sys_param.avg_num_wind; % number of parts to split the time domain signal (reduces frequency resolution)
+parts = 60*sys_param.avg_num_wind; % number of parts to split the time domain signal (reduces frequency resolution) 1 for pulse
 part_size = floor(size(p_vec,1)/parts)*ones(1, parts); % Determine the size of each part
 part_size(end) = size(p_vec,1) - sum(part_size(1:end-1)); % removes last bit to have equal-sized matrices
 p_vec_split = mat2cell(p_vec, part_size, size(p_vec,2)); % Split the matrix into sys_param.avg_num_wind parts
@@ -228,7 +229,7 @@ box on
 grid on
 %xlim([sys_param.freq_ini ,sys_param.freq_fin])
 xlim([0 ,sys_param.freq_fin])
-legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location', 'NorthEast', 'NumColumns', 2)
+legend(string("P_{" + [1:1:sys_param.N_cell*2]+"}"), 'Location', 'eastoutside', 'NumColumns', 2)
 %title("Single-Sided Amplitude Spectrum of S(t)")
 xlabel("f (Hz)")
 ylabel("|P1(f)|")

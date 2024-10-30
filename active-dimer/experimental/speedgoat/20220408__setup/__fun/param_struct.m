@@ -5,9 +5,9 @@ function params = param_struct()
     %%% RMK: Manually update the asterixed parameters after running either
 
     %% SPEAKER PARAM
-    params.spkrName = "atm_82";
-    params.Re = 7.39; %Ohm
-    params.Sd = 12e-4; % Same diaphragm area for both
+    params.spkrName = "wb_1";
+    params.Re = 6.6; %Ohm !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    params.Sd = 32e-4; % Same diaphragm area for both
 
     %% INPUTS
     params.pf_channel = 1;
@@ -15,8 +15,8 @@ function params = param_struct()
     params.v_channel  = 3;
    
     %% SENSITIVITY
-    params.sens_pf = 1/(-35.624327e-3); %(m/s)/V 
-    params.sens_pb = 1/(-37.700286e-3); %(m/s)/V 
+    params.sens_pf = 1/(-37.5e-3); %(m/s)/V 
+    params.sens_pb = 1/(-37.7e-3); %(m/s)/V 
     
     %unchanged
     params.sens_v = 0.01; %(m/s)/V 
@@ -39,8 +39,8 @@ function params = param_struct()
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.A = 0.04; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.tmax = 15; %%20 sweep up measurement time (s) 
-    params.fi = 150; %% initial frequency
-    params.ff = 1200;%1500; %% final frequency
+    params.fi = 50; %% initial frequency
+    params.ff = 600;%1500; %% final frequency
     
     %%% Frequency vector %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Used to estimate the transfer functions
@@ -48,6 +48,8 @@ function params = param_struct()
     t = linspace(0,params.tmax,params.N)';
     params.freq = params.fi + ((params.ff - params.fi)/(params.tmax))*t; %%%linear frequency vector;
 
-
+    %% FIT WINDOW %%%
+     params.window_min = 150; % SELECT FREQUENCY WINDOW TO SUBTRACT DATA
+     params.window_max = 250;
 end
 

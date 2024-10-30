@@ -52,17 +52,18 @@ legend('p_{11}','p_{12}','p_{21}','p_{22}')
 
 %%% TIME DOMAIN p(t,N) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OMIT FIRST DATA POINTS
-t_cut_idx = t_out>=0*50e-3; %cf 20231025 with fix at 20231128
+t_cut_idx = t_out>=1; %cf 20231025 with fix at 20231128
 %t_cut_idx = t_out<8000e-3; 
 t_out = t_out(t_cut_idx);
 t_out = t_out-t_out(1); %reset t_o = 0;
-p_out = p_out(t_cut_idx,:)*2.2;
-%p_out = p_out(t_cut_idx,:)*0.85;
+
+p_out = p_out(t_cut_idx,:);
+%p_out = p_out(t_cut_idx,:)*0.8;
 
 %surface plot
 [X,Y] = meshgrid(1:2*sys_param.N_cell,t_out*1000);
 Z = abs(p_out); 
-Z = smoothdata(Z,"movmean");%%%% SMOOTHING DATA! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Z = smoothdata(Z,"movmean")*0.8;%%%% SMOOTHING DATA! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fig2 = figure(2); % \Delta t simulation time step
 colormap('magma');
@@ -77,12 +78,14 @@ set(gca,'XColor','w','YColor','w','ZColor','w') %dark mode
 %}
 
 %add interface position
-p1 = [sys_param.N_cell 0 0];
-p2 = [sys_param.N_cell t_out(end)*1000 0];
-%p3 = [sys_param.N_cell t_out(end)*1000 max(Z(:))/2];
-%p4 = [sys_param.N_cell 0 max(Z(:))/2];  
-p3 = [sys_param.N_cell t_out(end)*1000 5];
-p4 = [sys_param.N_cell 0 5];
+pos_interface = 9;
+
+p1 = [pos_interface 0 0];
+p2 = [pos_interface t_out(end)*1000 0];
+p3 = [sys_param.N_cell t_out(end)*1000 max(Z(:))/2];
+p4 = [sys_param.N_cell 0 max(Z(:))/2];  
+%p3 = [pos_interface t_out(end)*1000 0.5];
+%p4 = [pos_interface 0 0.5];
 xx = [p1(1) p2(1) p3(1) p4(1)];
 yy = [p1(2) p2(2) p3(2) p4(2)];
 zz = [p1(3) p2(3) p3(3) p4(3)];
@@ -94,25 +97,25 @@ hold off
 set(gca,fig_param.fig_prop{:});
 set(gca,'color','none','YDir','normal')
 
-grid("off")
+grid("off") 
 xlim([0.5,2*sys_param.N_cell+0.5])
-ylim([t_out(1),600])
-%ylim([t_out(1),5000])
-%ylim([t_out(1),sys_param.tmax*1.2]*1000)
-zlim([0, 12])
-%zlim([4, 12])
+%ylim([t_out(1),t_out(1)+20])
+ylim([t_out(1),sys_param.tmax*0.5]*1000)
+%zlim([0, 2])
+zlim([4, 12])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
 c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 %c.Color = 'w';%dark mode
+%clim([0, 2]);
 clim([4, 12]);
-view(135,50)
-%view(180,0)
+view(135,60)% 50
+%view(45,45)
 %exportgraphics(gcf,"myplot.png",'BackgroundColor','none')
 
-vecrast(fig2, '20240111__src_A635__A_2__interface_0__kappa_0p8__kappaNL_0', 600, 'bottom', 'pdf');
+
 
 
 
@@ -244,4 +247,20 @@ ylabel("|P1(f)|")
 
 autoArrangeFigures
 toc
-%plot2svg('test1.svg', fig2)
+%% SAVE FIGURES
+
+%% SAVE FIGURES
+sim_name = "20240111__src_A635__A_5__interface_2__kappaNL_1__sigmaT_5";
+
+%
+tic
+if ~exist("__figures", 'dir')
+   mkdir("__figures")
+end
+if ~isfile(string("./__figures/fig__" + sim_name + ".pdf")) || ~isfile("./" + string(sim_name)+ ".pdf")
+    exportgraphics(fig1, string("./__figures/fig__" + sim_name + ".pdf"), 'ContentType', 'vector')% save the figure as a tightly cropped PDF file
+    vecrast(fig2, char(sim_name), 600, 'bottom', 'pdf');
+else
+    fprintf("### FIGURE NOT SAVED: FILE NAME ALREADY EXISTS\n")
+end
+toc

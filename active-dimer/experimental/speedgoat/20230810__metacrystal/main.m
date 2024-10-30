@@ -89,7 +89,6 @@ cal.H21_corr = smoothdata(cal.H21_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(
 cal.H31_corr = smoothdata(cal.H31_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
 cal.H41_corr = smoothdata(cal.H41_corr,"movmean", (10/p.freq_res)/(freq(2)-freq(1)));
 
-
 H11_a = ones(N,1);
 H21_a=  processed_data_a.H21./cal.H21_corr; 
 H31_a = processed_data_a.H31./cal.H31_corr;
@@ -117,7 +116,6 @@ s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
 s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be +! ????
 s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be -!
 s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
-
 %}
 
 %%% DATA SMOOTHING HERE!!!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

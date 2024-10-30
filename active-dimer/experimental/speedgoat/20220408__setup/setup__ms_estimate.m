@@ -124,7 +124,8 @@ while 1
             F = ocData.F;
 
             %%% Fit window
-            window = F>350 & F<650; % SELECT FREQUENCY WINDOW TO SUBTRACT DATA
+            %window = F>350 & F<650; % SELECT FREQUENCY WINDOW TO SUBTRACT DATA
+            window = F>p.window_min & F<p.window_max; % SELECT FREQUENCY WINDOW TO SUBTRACT DATA
             
             Zs_OC = -ocData.Zs(window);
             Zs_CC = -ccData.Zs(window);
@@ -160,6 +161,7 @@ while 1
             fprintf('Cmc = %e;\n\n', Cmc_est);
             fprintf('f0 = %e\n', f0_est);
             fprintf('Q = %e\n', Q_est);
+            fprintf('Fit window = [%.0f,%.0f]\n', p.window_min,p.window_max);
             
             clf
             figure(1)
@@ -172,7 +174,7 @@ while 1
             legend('Open Circuit','Closed Circuit')
             grid on
             hold off
-            xlim([300 700]);
+            xlim([p.fi p.ff]);
 
 
             %%

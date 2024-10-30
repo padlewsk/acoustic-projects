@@ -14,23 +14,25 @@ addpath('./__fun/')
 sys_param = sys_params();
 
 %%% SAVE DATA FOR PLOTS
-sim_name = "sim_sigmasweep_cells";
+sim_name = "20240318__sigma_phase__0_0p2__6";
 
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% load data
-%load('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\active-dimer\simulation\matlab\pressure-coupling\chain-scattering\__data\20240304__sigma_0_1__20_20.mat')
+%%% LOAD DATA
+load('.\__data\20240318__sigma_phase__0_0p2__6.mat')
 
-%
-idx_dis_max = 60;
-sigma_list = linspace(0,1,idx_dis_max); %  disorder w/r to initial value (0 to 1) (must be ascending)
-idx_rng_max = 20; % average over different seeds
+%%% COUPLING DISORDER Rmk: use 0.8
+%{
+idx_dis_max = 11;
+sigma_list = linspace(0,0.5,idx_dis_max); %  coupling disorder w/r to initial value (0 to 0.2) (must be ascending)
+idx_rng_max = 10; % average over different seeds
 fprintf("### SIMULATING PULSE DYNAMICS ON METACRYSTAL...\n")
 idx_rng_temp = idx_rng_max + 1; % initialize fail seed.
 for idx_dis = 1:idx_dis_max
     for idx_rng = (0 + (1:idx_rng_max))
         %%% INITIALISATION
+        sys_param = sys_params(); %RESET to prevent disorder propagation
         sys_param.sigma_cpl = sigma_list(idx_dis); % change sigma value and run simulation LOC OR CPL!
-        sys_param = disorder(sys_param,idx_rng);
+        sys_param = disorder(sys_param,idx_rng)
         y0 = zeros(2*sys_param.mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
         
         %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,7 +42,6 @@ for idx_dis = 1:idx_dis_max
     
         fprintf(strcat("### DISORDER = ", string(sigma_list(idx_dis)), ", RANDOM SEED = ", string(idx_rng), '\n'))
         [t_out,y_out] = ode89(@(t,y) odecrystal(t,y,sys_param),[0,sys_param.t_fin], y0, opts); %dynamically adjusts sampling time
-         
         while t_out(end) ~= sys_param.t_fin % If simulation fails (diverging solution), choose new seed
             warning('### UNSTABLE SIMULATION. ASSIGNING A NEW SEED.');
             sys_param = sys_params(); %%%% RESET SYS_PARAM For each iteration (couplings set back to initial val)
@@ -57,14 +58,54 @@ for idx_dis = 1:idx_dis_max
         x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
         p_s = 1/(sys_param.Caa)*(x(:,2:4:end) - x(:,3:4:end) - x(:,4:4:end)); %(xi-xs-xo)
         sim_raw = array2timetable(abs(p_s),'RowTimes',seconds(t_out)); 
-        p_sim_amp(idx_dis,idx_rng,:) = findamplitude(sim_raw ,150e-3,250e-3); % find mean pressure amplitude in 150-250 ms interval
+        p_sim_amp(idx_dis,idx_rng,:) = findamplitude(sim_raw ,sys_param.t_fin/2 - 50e-3,sys_param.t_fin/2); % find mean pressure amplitude in 50ms before excitation end (where equilibrium is reached)
+        %p_sim_amp(idx_dis,idx_rng,:) = findamplitude(sim_raw,sys_param.t_fin/2,sys_param.t_fin); % find mean pressureamplitude in when excitation is over (only works for linear coupling where
     end
     p_sim_amp_temp = squeeze(p_sim_amp(idx_dis,:,:)); % sqz rmvs unused dimension
     p_sim_amp_avg(idx_dis,:) = mean(p_sim_amp_temp,1); % averaging over different runs
 end
 fprintf("### DONE.\n")
 %}
-%% SAVE DATA
+
+%%% PHASE DISORDER RMK: Set kappa to 1e-2 to get similar as coupling disorder !
+%
+idx_dis_max = 19;
+sigma_list = linspace(1,19,idx_dis_max); %  phase disorder in number of samples (ts = 35e-6) starts at 1 bc thats the real sampling time
+idx_rng_max = 2; % average over different seeds (not necessary set to 1)
+fprintf("### SIMULATING PULSE DYNAMICS ON METACRYSTAL...\n")
+idx_rng_temp = idx_rng_max + 1; % initialize fail seed.
+for idx_dis = 1:idx_dis_max
+    for idx_rng = (0 + (1:idx_rng_max))
+        %%% INITIALISATION
+        %%% rng(idx_rng)
+        %%% lag = sys_param.a/sys_param.c0/2*[abs(sigma_list(idx_dis)*2*(rand(16,1) - 0.5))]; %list of phase delays bewteen two speakers in terms of time delay between two speakers
+        lag = 30e-6*[sigma_list(idx_dis)]; % where 35us is the exp sampling time.
+        %%% the spread of delay increases with idx_dis
+        %%% COUPLED ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        tic
+        %'NormControl','on'
+        opts = odeset('InitialStep', 1e-5, 'Refine', 10,'Stats','on'); % use refine to compute additional points
+        fprintf(strcat("### PHASE DISORDER = ", string(sigma_list(idx_dis)), ", RANDOM SEED = ", string(idx_rng), '\n'))
+        sol = dde23(@(t,y,Z) dodecrystal(t,y,Z,sys_param),lag,@(t) history(t,sys_param),[0,sys_param.t_fin], opts); %delayed dynamics % history holds the intial values
+        t_out = sol.x'; %DELAYED
+        y_out = sol.y';
+        toc
+        %%% y_out = [x1,...,xn,q1,...qn] ? [acoustic charge, acoustic flow]
+        x = y_out(:,1:sys_param.mat_size);   % acoustic charge
+        q = y_out(:,sys_param.mat_size+1:end);% acoustic flow
+        x_s = x(:,3:4:end); %the third node is where the first speaker is located and then every 4th that follows until the end.e.g. N=1 -> two columns: one for each speaker
+        p_s = 1/(sys_param.Caa)*(x(:,2:4:end) - x(:,3:4:end) - x(:,4:4:end)); %(xi-xs-xo)
+        sim_raw = array2timetable(abs(p_s),'RowTimes',seconds(t_out)); 
+        p_sim_amp(idx_dis,idx_rng,:) = findamplitude(sim_raw ,sys_param.t_fin/2 - 50e-3,sys_param.t_fin/2); % find mean pressure amplitude in 50ms before excitation end (where equilibrium is reached)
+        %p_sim_amp(idx_dis,idx_rng,:) = findamplitude(sim_raw,sys_param.t_fin/2,sys_param.t_fin); % find mean pressureamplitude in when excitation is over (only works for linear coupling where
+    end
+    p_sim_amp_temp = squeeze(p_sim_amp(idx_dis,:,:)); % sqz rmvs unused dimensionq
+    p_sim_amp_avg(idx_dis,:) = mean(p_sim_amp_temp,1);%.*linspace(1,1.1,16); % averaging over different runs %%%%%%%% COMPENSATION!!!!
+end
+fprintf("### DONE.\n")
+%}
+
+%%% SAVE RAW DATA
 %{
 tic
 % make timetable
@@ -144,14 +185,15 @@ patch(100*[sigma_list flip(sigma_list)], 100*[(IPR_exp_avg+IPR_exp_std)' flip(IP
 yline(100*1/(sys_param.N_cell*2),'--','Fully delocalized baseline','LabelHorizontalAlignment','center','LabelVerticalAlignment','bottom','FontSize',20,'LineWidth', 3)%1/N --> Delocalised regime
 hold off
 xlabel('Disorder \sigma (%)')
-ylabel('IPR(%)')
+ylabel('IPR (\times 10^{-2})')
 %xlim([1.5 12])
-ylim([1 2.5])
+%ylim([6.1 7.2])
 grid off
 box on
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:});
 %}
-vecrast(fig2, 'IPR_vs_sigma', 600, 'bottom', 'pdf'); %%% SAVE GRAPHICS 
+%vecrast(fig2, 'IPR_vs_sigma', 600, 'bottom', 'pdf'); %%% SAVE GRAPHICS 
 
+save("sigma_phase_sim.mat","sigma_list","IPR_exp_avg","IPR_exp_std")
 autoArrangeFigures
