@@ -12,7 +12,7 @@ addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
 
-p.A = 0.2;% source gain (Pa)
+p.A = 0.1;% source gain (Pa)
 p.rho = [sqrt(1);sqrt(1)];
 
 p.theta = [0;0]; %[0 pi]  = [omega_0 omega_1]

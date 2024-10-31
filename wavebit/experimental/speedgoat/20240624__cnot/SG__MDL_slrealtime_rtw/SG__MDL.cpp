@@ -7,9 +7,9 @@
  *
  * Code generation for model "SG__MDL".
  *
- * Model version              : 6.522
+ * Model version              : 6.524
  * Simulink Coder version : 9.8 (R2022b) 13-May-2022
- * C++ source code generated on : Wed Oct 30 18:12:17 2024
+ * C++ source code generated on : Thu Oct 31 16:05:59 2024
  *
  * Target selection: slrealtime.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -584,7 +584,7 @@ void SG__MDL_initialize(void)
       {
         mxArray **sfcnParams = (mxArray **)
           &SG__MDL_M->NonInlinedSFcns.Sfcn0.params;
-        ssSetSFcnParamsCount(rts, 37);
+        ssSetSFcnParamsCount(rts, 35);
         ssSetSFcnParamsPtr(rts, &sfcnParams[0]);
         ssSetSFcnParam(rts, 0, (mxArray*)SG__MDL_ConstP.setup_135_P1_Size);
         ssSetSFcnParam(rts, 1, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
@@ -593,36 +593,34 @@ void SG__MDL_initialize(void)
         ssSetSFcnParam(rts, 4, (mxArray*)SG__MDL_ConstP.setup_135_P5_Size);
         ssSetSFcnParam(rts, 5, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
         ssSetSFcnParam(rts, 6, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
-        ssSetSFcnParam(rts, 7, (mxArray*)SG__MDL_ConstP.setup_135_P8_Size);
+        ssSetSFcnParam(rts, 7, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
         ssSetSFcnParam(rts, 8, (mxArray*)SG__MDL_ConstP.setup_135_P9_Size);
-        ssSetSFcnParam(rts, 9, (mxArray*)SG__MDL_ConstP.setup_135_P10_Size);
-        ssSetSFcnParam(rts, 10, (mxArray*)SG__MDL_ConstP.setup_135_P10_Size);
-        ssSetSFcnParam(rts, 11, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
-        ssSetSFcnParam(rts, 12, (mxArray*)SG__MDL_ConstP.setup_135_P10_Size);
+        ssSetSFcnParam(rts, 9, (mxArray*)SG__MDL_ConstP.setup_135_P9_Size);
+        ssSetSFcnParam(rts, 10, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
+        ssSetSFcnParam(rts, 11, (mxArray*)SG__MDL_ConstP.setup_135_P9_Size);
+        ssSetSFcnParam(rts, 12, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
         ssSetSFcnParam(rts, 13, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
-        ssSetSFcnParam(rts, 14, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
-        ssSetSFcnParam(rts, 15, (mxArray*)SG__MDL_ConstP.setup_135_P5_Size);
-        ssSetSFcnParam(rts, 16, (mxArray*)SG__MDL_ConstP.setup_135_P17_Size);
-        ssSetSFcnParam(rts, 17, (mxArray*)SG__MDL_ConstP.setup_135_P8_Size);
-        ssSetSFcnParam(rts, 18, (mxArray*)SG__MDL_ConstP.setup_135_P19_Size);
-        ssSetSFcnParam(rts, 19, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
-        ssSetSFcnParam(rts, 20, (mxArray*)SG__MDL_ConstP.setup_135_P10_Size);
-        ssSetSFcnParam(rts, 21, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
-        ssSetSFcnParam(rts, 22, (mxArray*)SG__MDL_ConstP.setup_135_P10_Size);
+        ssSetSFcnParam(rts, 14, (mxArray*)SG__MDL_ConstP.setup_135_P5_Size);
+        ssSetSFcnParam(rts, 15, (mxArray*)SG__MDL_ConstP.setup_135_P16_Size);
+        ssSetSFcnParam(rts, 16, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
+        ssSetSFcnParam(rts, 17, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
+        ssSetSFcnParam(rts, 18, (mxArray*)SG__MDL_ConstP.setup_135_P9_Size);
+        ssSetSFcnParam(rts, 19, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
+        ssSetSFcnParam(rts, 20, (mxArray*)SG__MDL_ConstP.setup_135_P9_Size);
+        ssSetSFcnParam(rts, 21, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
+        ssSetSFcnParam(rts, 22, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
         ssSetSFcnParam(rts, 23, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
         ssSetSFcnParam(rts, 24, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
-        ssSetSFcnParam(rts, 25, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
+        ssSetSFcnParam(rts, 25, (mxArray*)SG__MDL_ConstP.setup_135_P26_Size);
         ssSetSFcnParam(rts, 26, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
-        ssSetSFcnParam(rts, 27, (mxArray*)SG__MDL_ConstP.setup_135_P28_Size);
+        ssSetSFcnParam(rts, 27, (mxArray*)SG__MDL_ConstP.setup_135_P26_Size);
         ssSetSFcnParam(rts, 28, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
-        ssSetSFcnParam(rts, 29, (mxArray*)SG__MDL_ConstP.setup_135_P28_Size);
-        ssSetSFcnParam(rts, 30, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
-        ssSetSFcnParam(rts, 31, (mxArray*)SG__MDL_ConstP.setup_135_P32_Size);
-        ssSetSFcnParam(rts, 32, (mxArray*)SG__MDL_ConstInitP.setup_135_P33_Size);
-        ssSetSFcnParam(rts, 33, (mxArray*)SG__MDL_ConstInitP.setup_135_P33_Size);
-        ssSetSFcnParam(rts, 34, (mxArray*)SG__MDL_ConstP.setup_135_P10_Size);
-        ssSetSFcnParam(rts, 35, (mxArray*)SG__MDL_ConstP.setup_135_P36_Size);
-        ssSetSFcnParam(rts, 36, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
+        ssSetSFcnParam(rts, 29, (mxArray*)SG__MDL_ConstP.setup_135_P30_Size);
+        ssSetSFcnParam(rts, 30, (mxArray*)SG__MDL_ConstInitP.setup_135_P31_Size);
+        ssSetSFcnParam(rts, 31, (mxArray*)SG__MDL_ConstInitP.setup_135_P31_Size);
+        ssSetSFcnParam(rts, 32, (mxArray*)SG__MDL_ConstP.setup_135_P9_Size);
+        ssSetSFcnParam(rts, 33, (mxArray*)SG__MDL_ConstP.setup_135_P34_Size);
+        ssSetSFcnParam(rts, 34, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
       }
 
       /* registration */
@@ -742,10 +740,29 @@ void SG__MDL_initialize(void)
         ssSetSFcnParam(rts, 4, (mxArray*)SG__MDL_ConstP.setup_135_P5_Size);
         ssSetSFcnParam(rts, 5, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
         ssSetSFcnParam(rts, 6, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
-        ssSetSFcnParam(rts, 7, (mxArray*)SG__MDL_ConstP.setup_135_P10_Size);
-        ssSetSFcnParam(rts, 8, (mxArray*)SG__MDL_ConstP.setup_135_P10_Size);
+        ssSetSFcnParam(rts, 7, (mxArray*)SG__MDL_ConstP.setup_135_P9_Size);
+        ssSetSFcnParam(rts, 8, (mxArray*)SG__MDL_ConstP.setup_135_P9_Size);
         ssSetSFcnParam(rts, 9, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
         ssSetSFcnParam(rts, 10, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
+      }
+
+      /* work vectors */
+      ssSetPWork(rts, (void **) &SG__MDL_DW.ai_135_PWORK[0]);
+
+      {
+        struct _ssDWorkRecord *dWorkRecord = (struct _ssDWorkRecord *)
+          &SG__MDL_M->NonInlinedSFcns.Sfcn1.dWork;
+        struct _ssDWorkAuxRecord *dWorkAuxRecord = (struct _ssDWorkAuxRecord *)
+          &SG__MDL_M->NonInlinedSFcns.Sfcn1.dWorkAux;
+        ssSetSFcnDWork(rts, dWorkRecord);
+        ssSetSFcnDWorkAux(rts, dWorkAuxRecord);
+        ssSetNumDWorkAsInt(rts, 1);
+
+        /* PWORK */
+        ssSetDWorkWidthAsInt(rts, 0, 4);
+        ssSetDWorkDataType(rts, 0,SS_POINTER);
+        ssSetDWorkComplexSignal(rts, 0, 0);
+        ssSetDWork(rts, 0, &SG__MDL_DW.ai_135_PWORK[0]);
       }
 
       /* registration */
@@ -872,14 +889,33 @@ void SG__MDL_initialize(void)
         ssSetSFcnParam(rts, 2, (mxArray*)SG__MDL_ConstP.setup_135_P3_Size);
         ssSetSFcnParam(rts, 3, (mxArray*)SG__MDL_ConstP.setup_135_P3_Size);
         ssSetSFcnParam(rts, 4, (mxArray*)SG__MDL_ConstP.setup_135_P5_Size);
-        ssSetSFcnParam(rts, 5, (mxArray*)SG__MDL_ConstP.setup_135_P17_Size);
+        ssSetSFcnParam(rts, 5, (mxArray*)SG__MDL_ConstP.setup_135_P16_Size);
         ssSetSFcnParam(rts, 6, (mxArray*)SG__MDL_ConstP.ao_2_P7_Size);
         ssSetSFcnParam(rts, 7, (mxArray*)SG__MDL_ConstP.ao_2_P8_Size);
         ssSetSFcnParam(rts, 8, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
-        ssSetSFcnParam(rts, 9, (mxArray*)SG__MDL_ConstP.setup_135_P10_Size);
+        ssSetSFcnParam(rts, 9, (mxArray*)SG__MDL_ConstP.setup_135_P9_Size);
         ssSetSFcnParam(rts, 10, (mxArray*)SG__MDL_ConstP.setup_135_P6_Size);
         ssSetSFcnParam(rts, 11, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
         ssSetSFcnParam(rts, 12, (mxArray*)SG__MDL_ConstP.setup_135_P2_Size);
+      }
+
+      /* work vectors */
+      ssSetPWork(rts, (void **) &SG__MDL_DW.ao_2_PWORK[0]);
+
+      {
+        struct _ssDWorkRecord *dWorkRecord = (struct _ssDWorkRecord *)
+          &SG__MDL_M->NonInlinedSFcns.Sfcn2.dWork;
+        struct _ssDWorkAuxRecord *dWorkAuxRecord = (struct _ssDWorkAuxRecord *)
+          &SG__MDL_M->NonInlinedSFcns.Sfcn2.dWorkAux;
+        ssSetSFcnDWork(rts, dWorkRecord);
+        ssSetSFcnDWorkAux(rts, dWorkAuxRecord);
+        ssSetNumDWorkAsInt(rts, 1);
+
+        /* PWORK */
+        ssSetDWorkWidthAsInt(rts, 0, 5);
+        ssSetDWorkDataType(rts, 0,SS_POINTER);
+        ssSetDWorkComplexSignal(rts, 0, 0);
+        ssSetDWork(rts, 0, &SG__MDL_DW.ao_2_PWORK[0]);
       }
 
       /* registration */

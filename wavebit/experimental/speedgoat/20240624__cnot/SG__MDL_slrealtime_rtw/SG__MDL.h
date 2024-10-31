@@ -7,9 +7,9 @@
  *
  * Code generation for model "SG__MDL".
  *
- * Model version              : 6.522
+ * Model version              : 6.524
  * Simulink Coder version : 9.8 (R2022b) 13-May-2022
- * C++ source code generated on : Wed Oct 30 18:12:17 2024
+ * C++ source code generated on : Thu Oct 31 16:05:59 2024
  *
  * Target selection: slrealtime.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -153,6 +153,7 @@ struct B_SG__MDL_T {
 
 /* Block states (default storage) for system '<Root>' */
 struct DW_SG__MDL_T {
+  void *ai_135_PWORK[4];               /* '<Root>/ai_135' */
   struct {
     void *AQHandles;
   } TAQSigLogging_InsertedFor_Demux;   /* synthesized block */
@@ -169,6 +170,7 @@ struct DW_SG__MDL_T {
     void *AQHandles;
   } TAQSigLogging_InsertedFor_ai__h;   /* synthesized block */
 
+  void *ao_2_PWORK[5];                 /* '<Root>/ao_2' */
   struct {
     void *AQHandles[2];
     void *SLRTSigHandles[2];
@@ -270,94 +272,64 @@ struct ConstP_SG__MDL_T {
   real_T pooled7[4];
 
   /* Pooled Parameter (Expression: )
-   * Referenced by: '<Root>/setup_135'
-   */
-  real_T setup_135_P8_Size[2];
-
-  /* Pooled Parameter (Mixed Expressions)
-   * Referenced by: '<Root>/setup_135'
-   */
-  real_T pooled8;
-
-  /* Computed Parameter: setup_135_P9_Size
-   * Referenced by: '<Root>/setup_135'
+   * Referenced by:
+   *   '<Root>/ai_135'
+   *   '<Root>/ao_2'
+   *   '<Root>/setup_135'
    */
   real_T setup_135_P9_Size[2];
 
-  /* Expression: parAdcCorrectionValues
-   * Referenced by: '<Root>/setup_135'
-   */
-  real_T setup_135_P9[32];
-
-  /* Pooled Parameter (Expression: )
-   * Referenced by:
-   *   '<Root>/ai_135'
-   *   '<Root>/ao_2'
-   *   '<Root>/setup_135'
-   */
-  real_T setup_135_P10_Size[2];
-
   /* Pooled Parameter (Mixed Expressions)
    * Referenced by:
    *   '<Root>/ai_135'
    *   '<Root>/ao_2'
    *   '<Root>/setup_135'
    */
-  real_T pooled9;
+  real_T pooled8;
 
   /* Pooled Parameter (Expression: )
    * Referenced by:
    *   '<Root>/ao_2'
    *   '<Root>/setup_135'
    */
-  real_T setup_135_P17_Size[2];
+  real_T setup_135_P16_Size[2];
 
   /* Pooled Parameter (Expression: parDacVoltageRange)
    * Referenced by:
    *   '<Root>/ao_2'
    *   '<Root>/setup_135'
    */
-  real_T pooled10[16];
-
-  /* Computed Parameter: setup_135_P19_Size
-   * Referenced by: '<Root>/setup_135'
-   */
-  real_T setup_135_P19_Size[2];
-
-  /* Expression: parDacCorrectionValues
-   * Referenced by: '<Root>/setup_135'
-   */
-  real_T setup_135_P19[16];
+  real_T pooled9[16];
 
   /* Pooled Parameter (Expression: )
    * Referenced by: '<Root>/setup_135'
    */
-  real_T setup_135_P28_Size[2];
+  real_T setup_135_P26_Size[2];
 
   /* Pooled Parameter (Mixed Expressions)
    * Referenced by: '<Root>/setup_135'
    */
-  real_T pooled11;
+  real_T pooled10;
 
-  /* Computed Parameter: setup_135_P32_Size
+  /* Computed Parameter: setup_135_P30_Size
    * Referenced by: '<Root>/setup_135'
    */
-  real_T setup_135_P32_Size[2];
+  real_T setup_135_P30_Size[2];
 
   /* Expression: parFrameTriggerDivider
    * Referenced by: '<Root>/setup_135'
    */
-  real_T setup_135_P32;
+  real_T setup_135_P30;
 
-  /* Computed Parameter: setup_135_P36_Size
+  /* Computed Parameter: setup_135_P34_Size
    * Referenced by: '<Root>/setup_135'
    */
-  real_T setup_135_P36_Size[2];
+  real_T setup_135_P34_Size[2];
 
   /* Expression: parDioPullRefFront
    * Referenced by: '<Root>/setup_135'
    */
-  real_T setup_135_P36;
+  real_T setup_135_P34;
 
   /* Computed Parameter: ao_2_P7_Size
    * Referenced by: '<Root>/ao_2'
@@ -385,7 +357,7 @@ struct ConstInitP_SG__MDL_T {
   /* Pooled Parameter (Expression: )
    * Referenced by: '<Root>/setup_135'
    */
-  real_T setup_135_P33_Size[2];
+  real_T setup_135_P31_Size[2];
 };
 
 /* Real-time Model Data Structure */
@@ -418,8 +390,8 @@ struct tag_RTM_SG__MDL_T {
       time_T sfcnPeriod[1];
       time_T sfcnOffset[1];
       int_T sfcnTsMap[1];
-      uint_T attribs[37];
-      mxArray *params[37];
+      uint_T attribs[35];
+      mxArray *params[35];
     } Sfcn0;
 
     struct {
@@ -431,6 +403,8 @@ struct tag_RTM_SG__MDL_T {
       struct _ssOutPortCoSimAttribute outputPortCoSimAttribute[2];
       uint_T attribs[11];
       mxArray *params[11];
+      struct _ssDWorkRecord dWork[1];
+      struct _ssDWorkAuxRecord dWorkAux[1];
     } Sfcn1;
 
     struct {
@@ -442,6 +416,8 @@ struct tag_RTM_SG__MDL_T {
       struct _ssInPortCoSimAttribute inputPortCoSimAttribute[2];
       uint_T attribs[13];
       mxArray *params[13];
+      struct _ssDWorkRecord dWork[1];
+      struct _ssDWorkAuxRecord dWorkAux[1];
     } Sfcn2;
   } NonInlinedSFcns;
 

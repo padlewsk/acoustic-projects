@@ -1,10 +1,9 @@
-%%% UPDATED: 08.11.2023
+%%% UPDATED: 08.11.2024
 %%% DISPERSION VIA TRANSFER MATRIX METHOD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
 clc
 clf
-
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath(genpath('C:\Users\padlewsk\Desktop\acoustic-projects\toolbox\matlab-toolbox'));%
 addpath('./__fun');
