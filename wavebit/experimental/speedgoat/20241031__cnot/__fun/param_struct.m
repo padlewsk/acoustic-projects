@@ -14,15 +14,19 @@ function params = param_struct();
     %% DEFAULT WAVEBIT STATE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.A = 0.05;% source gain (Pa)
     params.freq_0 = 318.51; % make sure that params.freq_0/params.ts is a whole number
-    params.omega_0 = 2*pi*params.freq_0; % make sure that params.freq_0/params.ts is a whole number
-    params.omega_1 = 2*params.omega_0; % make sure that params.freq_0/params.ts is a whole number
-    params.rho = [1;1];
-    params.theta = [0;0];
-    params.phi = [0;0];  
+    params.omega_0_vec = 2*pi*[params.freq_0, params.freq_0]; 
+    %params.omega_1 = 2*params.omega_0; % make sure that params.freq_0/params.ts is a whole number
+    %params.rho = [1;1];
+    %params.theta = [0;0];
+    %params.phi = [0;0];  
     
     %correct wavebit amplitude difference and hamonics
-    params.rho_corr = [1;1];
-    params.harm_corr = [1;1];
+    %params.rho_corr = [1;1];
+    %params.harm_corr = [1;1];
+
+    %%% 1st qubit after a Hadamard gate
+    params.alpha_mat = [1 0 0; 0 0 0]; 
+    params.beta_mat  = [0 0 0; 1 0 0]; 
     
     %% SWEEP CALIBRATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -39,7 +43,7 @@ function params = param_struct();
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     %params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz (0.5 for s-matrix and 5 for stplot)
     
-    nT = 500*(1/(2*2*params.freq_0)); % n times "nyquist frequency to resolve omega_1";
+    nT = 10000/(2*pi*params.freq_0); % n times base cycle;
     params.tmax = nT;
     
     %nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
@@ -69,6 +73,8 @@ function params = param_struct();
     %%% MIC  p(unitcell,atom)
     params.sens_p(1) =  -1/37.5E-3;% 1/(V/Pa) SN65603 
     params.sens_p(2) =  -1/36.4E-3;% 1/(V/Pa) SN65602
+    params.sens_p(3) =  -1/38.7E-3;% 1/(V/Pa) SN65604 
+    params.sens_p(4) =  -1/36.4E-3;% 1/(V/Pa) SN65640
 
     %%%  CURRENT TO VOLTAGE
     params.i2u = 100; %current amplifier: Maxime: 100(V/A); Rivet: 103.8 (V/A)   
@@ -88,16 +94,16 @@ function params = param_struct();
     params.Sd = 32e-4; % Same diaphragm area for all
     
     %%% ms_estimate:  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % 1: R = 6.6
-    params.Bl(1)  =   3.320329e+00;
-    params.Rms(1) =   6.631074e-01;
-    params.Mms(1) =   2.529410e-03; 
-    params.Cmc(1) =   2.502146e-04; 
+    % 1: R = 6.6 TEMP!!! NEED TO MEASURE THIS !!!
+    params.Bl(1)  =   1.489841e+00;
+    params.Rms(1) =   1.394455e-01;
+    params.Mms(1) =   7.110030e-04; 
+    params.Cmc(1) =   2.158767e-04; 
     % 2: R = 6.5
-    params.Bl(2)  =  3.514322e+00;
-    params.Rms(2) =  6.414164e-01;
-    params.Mms(2) =  2.926775e-03;
-    params.Cmc(2) =  3.033226e-04; 
+    params.Bl(2)  =  1.489841e+00;
+    params.Rms(2) =  1.394455e-01;
+    params.Mms(2) =  7.110030e-04;
+    params.Cmc(2) =  2.158767e-04; 
     
     % Resonnance frequency (Hz)
     for ii = 1:2
@@ -108,7 +114,7 @@ function params = param_struct();
     %%%  
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; 
-    muR_tgt = 1; %0.25 
+    muR_tgt = 0.9995; %0.25 
     muC_tgt = 1;%0.85
 
     % Synthesize all to a same average:
