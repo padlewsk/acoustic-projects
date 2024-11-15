@@ -94,17 +94,18 @@ function params = param_struct();
     params.Sd = 32e-4; % Same diaphragm area for all
     
     %%% ms_estimate:  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % 1: R = 6.6 TEMP!!! NEED TO MEASURE THIS !!!
-    params.Bl(1)  =   1.489841e+00;
-    params.Rms(1) =   1.394455e-01;
-    params.Mms(1) =   7.110030e-04; 
-    params.Cmc(1) =   2.158767e-04; 
-    % 2: R = 6.5
-    params.Bl(2)  =  1.489841e+00;
-    params.Rms(2) =  1.394455e-01;
-    params.Mms(2) =  7.110030e-04;
-    params.Cmc(2) =  2.158767e-04; 
-    
+    % 1: R = 3.3 (bc thicker contact wires)
+    params.Bl(1)  =   1.729359e+00;
+    params.Rms(1) =   8.326843e-01;
+    params.Mms(1) =   1.676057e-03; 
+    params.Cmc(1) =   8.949133e-05; 
+    params.Csb(1) =   8.949133e-05; 
+    % 2: R = 7.1
+    params.Bl(2)  =  2.409590e+00;
+    params.Rms(2) =  8.168637e-01;
+    params.Mms(2) =  1.770252e-03;
+    params.Cmc(2) =  7.864552e-05; 
+    params.Csb(1) =   8.949133e-05; 
     % Resonnance frequency (Hz)
     for ii = 1:2
         params.f0(ii) = 1/(2*pi*sqrt(params.Mms(ii)*params.Cmc(ii))); 
