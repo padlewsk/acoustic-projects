@@ -86,6 +86,7 @@ plot(F,abs(polyval(fit,F)),'LineWidth',2)
 hold off
 xlim([p.fi p.ff]);
 ylim([1E-5 2.5E-5]);
+ylim([0 5E-5]);
 xlabel("Frequency (Hz)")
 ylabel("Magnitude (m\cdot{}V^{-1})")
 title("Displacement to back pressure transfer function: H_{p_b,\xi}")
@@ -94,7 +95,7 @@ grid on
 legend("data","fit",'Location','northwest')
 
 
-autoArrangeFigures
+%autoArrangeFigures
 %% SAVE DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %save([strcat('./__data/','tf_pb_xi_',p.spkrName)],'sigData');
 

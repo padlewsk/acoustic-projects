@@ -11,7 +11,7 @@ addpath('__fun');
 
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct(); 
-p.tmax = 2;  %integration time is 4 seconds
+p.tmax = 2;  %integration time is tmax x 2 seconds
 p.A = 0;
 p_channel = 1; 
 
