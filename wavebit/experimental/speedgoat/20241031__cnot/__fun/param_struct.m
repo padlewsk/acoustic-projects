@@ -13,7 +13,7 @@ function params = param_struct();
     
     %% DEFAULT WAVEBIT STATE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.A = 0.008;% source gain (Pa)
-    params.freq_0 = 323;%318.51; % make sure that params.freq_0/params.ts is a whole number
+    params.freq_0 = 418.1591;
     params.omega_0_vec = 2*pi*[params.freq_0, params.freq_0]; 
     %params.omega_1 = 2*params.omega_0; % make sure that params.freq_0/params.ts is a whole number
     %params.rho = [1;1];
@@ -71,10 +71,10 @@ function params = param_struct();
 
     %% CONTROL SENSITIVITY 
     %%% MIC  p(unitcell,atom)
-    params.sens_p(1) =  -1/37.5E-3;% 1/(V/Pa) SN65603 
-    params.sens_p(2) =  -1/36.4E-3;% 1/(V/Pa) SN65602
-    params.sens_p(3) =  -1/38.7E-3;% 1/(V/Pa) SN65604 
-    params.sens_p(4) =  -1/36.4E-3;% 1/(V/Pa) SN65640
+    params.sens_p(1) =  -1/36.2E-3;% 1/(V/Pa) SN65602 wb1 front
+    params.sens_p(2) =  -1/37.2E-3;% 1/(V/Pa) SN65603 wb1 back
+    params.sens_p(3) =  -1/38.7E-3;% 1/(V/Pa) SN65604 wb2 front
+    params.sens_p(4) =  -1/36.1E-3;% 1/(V/Pa) SN65640 wb2 back
 
     %%%  CURRENT TO VOLTAGE
     params.i2u = 100; %current amplifier: Maxime: 100(V/A); Rivet: 103.8 (V/A)   
@@ -99,23 +99,23 @@ function params = param_struct();
     params.Rms(1) =   8.326843e-01;
     params.Mms(1) =   1.676057e-03; 
     params.Cmc(1) =   8.949133e-05; 
-    params.Csb(1) =   8.949133e-05; 
+    params.Csb(1) =   7.151905e-07; %m/s/Pa MODEL-LESS CONTROL 
     % 2: R = 7.1
     params.Bl(2)  =  2.409590e+00;
     params.Rms(2) =  8.168637e-01;
     params.Mms(2) =  1.770252e-03;
     params.Cmc(2) =  7.864552e-05; 
-    params.Csb(1) =   8.949133e-05; 
+    params.Csb(2) =  7.358935e-07; %m/s/Pa MODEL-LESS CONTROL 
     % Resonnance frequency (Hz)
     for ii = 1:2
         params.f0(ii) = 1/(2*pi*sqrt(params.Mms(ii)*params.Cmc(ii))); 
     end
     
     %% CONTROL TARGET IMPEDENCE PARAMETERS 
-    %%%  
+    %%%  FEEDFORWARD
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; 
-    muR_tgt = 0.9995; %0.25 
+    muR_tgt = 0.05;  
     muC_tgt = 1;%0.85
 
     % Synthesize all to a same average:
