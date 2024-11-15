@@ -12,8 +12,8 @@ function params = param_struct();
     %params.Zc = params.c0*params.rho0; % characteristic specific acoustic impedence at 300K
     
     %% DEFAULT WAVEBIT STATE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.A = 0.05;% source gain (Pa)
-    params.freq_0 = 318.51; % make sure that params.freq_0/params.ts is a whole number
+    params.A = 0.008;% source gain (Pa)
+    params.freq_0 = 323;%318.51; % make sure that params.freq_0/params.ts is a whole number
     params.omega_0_vec = 2*pi*[params.freq_0, params.freq_0]; 
     %params.omega_1 = 2*params.omega_0; % make sure that params.freq_0/params.ts is a whole number
     %params.rho = [1;1];
@@ -24,7 +24,7 @@ function params = param_struct();
     %params.rho_corr = [1;1];
     %params.harm_corr = [1;1];
 
-    %%% 1st qubit after a Hadamard gate
+    %%% Default val: 
     params.alpha_mat = [1 0 0; 0 0 0]; 
     params.beta_mat  = [0 0 0; 1 0 0]; 
     

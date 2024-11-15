@@ -11,12 +11,12 @@ addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
 
-p.A = 0.05;% source gain (Pa)
 
-p.alpha_mat = [1 0 0; 0 0 0]; 
-p.beta_mat  = [0 0 0; 1 0 0]; 
+p.A = 0.008;% source gain (Pa)
 
-%p.rho = [sqrt(1);sqrt(1)];
+% after a Hadamard gate
+p.alpha_mat = 4.5*[sqrt(1/2) 0 0; sqrt(1/2) 0 0]; % corrections
+p.beta_mat  = [sqrt(1/2) 0 0; sqrt(1/2) 0 0];
 
 %p.theta = [0;0]; %[0 pi]  = [omega_0 omega_1]
 %p.phi = [0;0]; %dephase of omega_1 w/r to omega_0
