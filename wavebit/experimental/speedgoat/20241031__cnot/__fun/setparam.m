@@ -42,11 +42,11 @@ function [] = setparam(p)
     [b, a] = tfdata(p.Phi_d);
     b = cell2mat(b');
     b = [b(1,1:3); b(2,1:3)]; % [num coefs of 1.1 atom; num coefs of 1.2 atom] % check if this is ok!
-    %tg.setparam('','dtf_b',b);
+    tg.setparam('','dtf_b',b);
     
     a = cell2mat(a');
     a = [a(1,1:3); a(2,1:3)];
-    %tg.setparam('','dtf_a',a);% [den coefs of 1.1 atom; den coefs of 1.2 atom]
+    tg.setparam('','dtf_a',a);% [den coefs of 1.1 atom; den coefs of 1.2 atom]
    
     % impedance synthesis (FEEDBACK)%
     %tg.setparam('', 'Csb', p.Csb); COMMENT OUT FOR NOW BUT THIS DOES NOT
@@ -56,7 +56,7 @@ function [] = setparam(p)
     % current to voltage
     tg.setparam('', 'i2u', p.i2u); %converts current to voltage (will be converted back with u2i)
 
-    % mic sensitivity     %%% NOT USED YET... BUT UNCOMMENT WHEN USED
-    tg.setparam('', 'sens_p', reshape(p.sens_p',[] ,1));%
+    % mic sensitivity     
+    tg.setparam('', 'sens_p', reshape(p.sens_p,[] ,1));%
     
 end

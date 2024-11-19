@@ -12,7 +12,7 @@ function params = param_struct();
     %params.Zc = params.c0*params.rho0; % characteristic specific acoustic impedence at 300K
     
     %% DEFAULT WAVEBIT STATE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.A = 0.008;% source gain (Pa)
+    params.A = 0.005;% source gain (Pa)
     params.freq_0 = 418.1591;
     params.omega_0_vec = 2*pi*[params.freq_0, params.freq_0]; 
     %params.omega_1 = 2*params.omega_0; % make sure that params.freq_0/params.ts is a whole number
@@ -115,11 +115,11 @@ function params = param_struct();
     %%%  FEEDFORWARD
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; 
-    muR_tgt = 0.05;  
-    muC_tgt = 1;%0.85
+    muR_tgt = 0.2;  
+    muC_tgt = 1;
 
     % Synthesize all to a same average:
-    Bl_avg =  mean(params.Bl(:),"all");
+    %Bl_avg =  mean(params.Bl(:),"all");
     Mms_avg = mean(params.Mms(:),"all");
     Rms_avg = mean(params.Rms(:),"all");
     Cmc_avg = mean(params.Cmc(:),"all");
@@ -141,8 +141,8 @@ function params = param_struct();
         b1(ii) = params.Bl(ii)*muR(ii)*params.Rms(ii);
         b0(ii) = params.Bl(ii)*muC(ii)/params.Cmc(ii);
         %Transfer functionp. model:
-        Phi_c(ii) = tf([a2(ii),a1(ii),a0(ii)],[b2(ii),b1(ii),b0(ii)]);%/(sens_p_p/i2u);
-        params.Phi_d(ii) = c2d(Phi_c(ii),params.ts_ctr,'tustin'); %discretized (necessary for SG model
+        Phi_c(ii) = tf([a2(ii),a1(ii),a0(ii)],[b2(ii),b1(ii),b0(ii)]);
+        params.Phi_d(ii) = c2d(Phi_c(ii),params.ts_ctr,'tustin'); %discretized (necessary for SG model)
         params.Phi_d(ii) = minreal(params.Phi_d(ii));
     end
     params.fst = params.f0(1,1)*sqrt(muC(1,1)/muM(1,1));%same value for all atms
