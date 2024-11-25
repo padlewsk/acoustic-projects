@@ -137,7 +137,7 @@ function [signal_raw] = SG__measure(p, dlg)
     % record data from start
     % make a short pulse of the Constant block 'rec'
     tg.setparam('', 'enable_source', true); %turn source on and wait for signal stabilisation
-    pause(0.5)
+    pause(10/(2*pi*p.freq_0)) % wait integer number of cycles
     
     tg.setparam('', 'rec', true); %start logging --> serves as tg.startRecording();
     tg.setparam('', 'rec', false);
@@ -157,7 +157,7 @@ function [signal_raw] = SG__measure(p, dlg)
     %% OUTPUT DATA & PROCESSING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     fprintf('Fetching data from target...');
-    signal_raw = get_signals(tg, {'data.p1','data.p2',});
+    signal_raw = get_signals(tg, {'data.p1','data.p2','data.p3','data.p4'});
     %preprocessing
     %signal_data.Variables = movmean(signal_data_raw.Variables,seconds(signal_data_raw.Time),p.ds_acq);
     %toc

@@ -2,7 +2,7 @@
 ## Makefile generated for component 'SG__MDL'. 
 ## 
 ## Makefile     : SG__MDL.mk
-## Generated on : Wed Oct 30 18:12:26 2024
+## Generated on : Thu Oct 31 16:06:08 2024
 ## Final product: $(START_DIR)/SG__MDL_slrealtime_rtw/SG__MDL
 ## Product type : executable
 ## 
@@ -128,7 +128,7 @@ BUILD_TYPE = "Top-Level Standalone Executable"
 ## INCLUDE PATHS
 ###########################################################################
 
-INCLUDES_BUILDINFO = -I$(START_DIR) -I$(START_DIR)/SG__MDL_slrealtime_rtw -I$(MATLAB_ROOT)/toolbox/slrealtime/simulink/blocks/dist/include -I$(MATLAB_ROOT)/toolbox/slrealtime/target/kernel/dist/include -I$(MATLAB_ROOT)/extern/include -I$(MATLAB_ROOT)/simulink/include -I$(MATLAB_ROOT)/rtw/c/src -I$(MATLAB_ROOT)/rtw/c/src/ext_mode/common -IC:/PROGRA~3/SPEEDG~1/SPEEDG~1/R2022b/990~1.1/SG_BLO~1/common/libsg -IC:/PROGRA~3/SPEEDG~1/SPEEDG~1/R2022b/990~1.1 -IC:/PROGRA~3/SPEEDG~1/SPEEDG~1/R2022b/990~1.1/SG_BLO~1/analog/include -I$(START_DIR)/SG__MDL_slrealtime_rtw/instrumented
+INCLUDES_BUILDINFO = -I$(START_DIR) -I$(START_DIR)/SG__MDL_slrealtime_rtw -I$(MATLAB_ROOT)/toolbox/slrealtime/simulink/blocks/dist/include -I$(MATLAB_ROOT)/toolbox/slrealtime/target/kernel/dist/include -I$(MATLAB_ROOT)/extern/include -I$(MATLAB_ROOT)/simulink/include -I$(MATLAB_ROOT)/rtw/c/src -I$(MATLAB_ROOT)/rtw/c/src/ext_mode/common -IC:/PROGRA~3/SPEEDG~1/SPEEDG~1/R2022b/971~1.1/SG_BLO~1/common/libsg -IC:/PROGRA~3/SPEEDG~1/SPEEDG~1/R2022b/971~1.1 -IC:/PROGRA~3/SPEEDG~1/SPEEDG~1/R2022b/971~1.1/SG_BLO~1/analog/include -I$(START_DIR)/SG__MDL_slrealtime_rtw/instrumented
 
 INCLUDES = $(INCLUDES_BUILDINFO)
 
@@ -148,7 +148,7 @@ DEFINES = $(DEFINES_) $(DEFINES_BUILD_ARGS) $(DEFINES_CUSTOM) $(DEFINES_OPTS) $(
 ## SOURCE FILES
 ###########################################################################
 
-SRCS = $(MATLAB_ROOT)/rtw/c/src/rt_matrx.c $(MATLAB_ROOT)/rtw/c/src/rt_printf.c $(START_DIR)/SG__MDL_slrealtime_rtw/SG__MDL.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/SG__MDL_data.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/rtGetInf.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/rtGetNaN.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/rt_nonfinite.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/slrealtime_datatype_ground.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/main.cpp C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/sg_IO132_IO133_ad_s_v2.c C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/sg_IO132_IO133_da_s_v2.c C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/sg_IO132_IO133_setup_s_v2.c C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/src/sg_io132.c host_timer_x86.c slrealtime_code_profiling_utility_functions.cpp
+SRCS = $(MATLAB_ROOT)/rtw/c/src/rt_matrx.c $(MATLAB_ROOT)/rtw/c/src/rt_printf.c $(START_DIR)/SG__MDL_slrealtime_rtw/SG__MDL.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/SG__MDL_data.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/rtGetInf.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/rtGetNaN.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/rt_nonfinite.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/slrealtime_datatype_ground.cpp $(START_DIR)/SG__MDL_slrealtime_rtw/main.cpp C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/sg_IO132_IO133_ad_s_v2.c C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/sg_IO132_IO133_da_s_v2.c C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/sg_IO132_IO133_setup_s_v2.c C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/src/sg_io132.c host_timer_x86.c slrealtime_code_profiling_utility_functions.cpp
 
 ALL_SRCS = $(SRCS)
 
@@ -204,7 +204,7 @@ CPPFLAGS += $(CPPFLAGS_) $(CPPFLAGS_BASIC)
 # C++ Linker
 #---------------
 
-CPP_LDFLAGS_ = -lsg_qnx710_x86_64 -LC:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/common/libsg
+CPP_LDFLAGS_ = -lsg_qnx710_x86_64 -LC:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/common/libsg
 
 CPP_LDFLAGS += $(CPP_LDFLAGS_)
 
@@ -212,7 +212,7 @@ CPP_LDFLAGS += $(CPP_LDFLAGS_)
 # C++ Shared Library Linker
 #------------------------------
 
-CPP_SHAREDLIB_LDFLAGS_ = -lsg_qnx710_x86_64 -LC:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/common/libsg
+CPP_SHAREDLIB_LDFLAGS_ = -lsg_qnx710_x86_64 -LC:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/common/libsg
 
 CPP_SHAREDLIB_LDFLAGS += $(CPP_SHAREDLIB_LDFLAGS_)
 
@@ -220,7 +220,7 @@ CPP_SHAREDLIB_LDFLAGS += $(CPP_SHAREDLIB_LDFLAGS_)
 # Linker
 #-----------
 
-LDFLAGS_ = -lsg_qnx710_x86_64 -LC:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/common/libsg
+LDFLAGS_ = -lsg_qnx710_x86_64 -LC:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/common/libsg
 
 LDFLAGS += $(LDFLAGS_)
 
@@ -228,7 +228,7 @@ LDFLAGS += $(LDFLAGS_)
 # Shared Library Linker
 #--------------------------
 
-SHAREDLIB_LDFLAGS_ = -lsg_qnx710_x86_64 -LC:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/common/libsg
+SHAREDLIB_LDFLAGS_ = -lsg_qnx710_x86_64 -LC:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/common/libsg
 
 SHAREDLIB_LDFLAGS += $(SHAREDLIB_LDFLAGS_)
 
@@ -287,27 +287,27 @@ $(PRODUCT) : $(OBJS) $(PREBUILT_OBJS)
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 
-%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/%.c
+%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 
-%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/%.cpp
+%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 
-%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/src/%.c
+%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/src/%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 
-%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/src/%.cpp
+%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/src/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 
-%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/%.c
+%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 
-%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/%.cpp
+%.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 
@@ -403,19 +403,19 @@ main.o : $(START_DIR)/SG__MDL_slrealtime_rtw/main.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 
-sg_IO132_IO133_ad_s_v2.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/sg_IO132_IO133_ad_s_v2.c
+sg_IO132_IO133_ad_s_v2.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/sg_IO132_IO133_ad_s_v2.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 
-sg_IO132_IO133_da_s_v2.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/sg_IO132_IO133_da_s_v2.c
+sg_IO132_IO133_da_s_v2.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/sg_IO132_IO133_da_s_v2.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 
-sg_IO132_IO133_setup_s_v2.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/sg_IO132_IO133_setup_s_v2.c
+sg_IO132_IO133_setup_s_v2.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/sg_IO132_IO133_setup_s_v2.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 
-sg_io132.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.9.0.1/sg_blocks/analog/src/sg_io132.c
+sg_io132.o : C:/ProgramData/Speedgoat/speedgoatlib/R2022b/9.7.1.1/sg_blocks/analog/src/sg_io132.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 

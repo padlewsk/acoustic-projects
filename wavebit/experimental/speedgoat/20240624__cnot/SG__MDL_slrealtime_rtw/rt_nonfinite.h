@@ -7,9 +7,9 @@
  *
  * Code generation for model "SG__MDL".
  *
- * Model version              : 6.522
+ * Model version              : 6.524
  * Simulink Coder version : 9.8 (R2022b) 13-May-2022
- * C++ source code generated on : Wed Oct 30 18:12:17 2024
+ * C++ source code generated on : Thu Oct 31 16:05:59 2024
  *
  * Target selection: slrealtime.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping

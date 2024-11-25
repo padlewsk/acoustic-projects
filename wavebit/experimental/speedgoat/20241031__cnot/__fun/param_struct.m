@@ -12,17 +12,21 @@ function params = param_struct();
     %params.Zc = params.c0*params.rho0; % characteristic specific acoustic impedence at 300K
     
     %% DEFAULT WAVEBIT STATE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    params.A = 0.05;% source gain (Pa)
-    params.freq_0 = 318.51; % make sure that params.freq_0/params.ts is a whole number
-    params.omega_0 = 2*pi*params.freq_0; % make sure that params.freq_0/params.ts is a whole number
-    params.omega_1 = 2*params.omega_0; % make sure that params.freq_0/params.ts is a whole number
-    params.rho = [1;1];
-    params.theta = [0;0];
-    params.phi = [0;0];  
+    params.A = 0.005;% source gain (Pa)
+    params.freq_0 = 418.1591;
+    params.omega_0_vec = 2*pi*[params.freq_0, params.freq_0]; 
+    %params.omega_1 = 2*params.omega_0; % make sure that params.freq_0/params.ts is a whole number
+    %params.rho = [1;1];
+    %params.theta = [0;0];
+    %params.phi = [0;0];  
     
     %correct wavebit amplitude difference and hamonics
-    params.rho_corr = [1;1];
-    params.harm_corr = [1;1];
+    %params.rho_corr = [1;1];
+    %params.harm_corr = [1;1];
+
+    %%% Default val: 
+    params.alpha_mat = [1 0 0; 0 0 0]; 
+    params.beta_mat  = [0 0 0; 1 0 0]; 
     
     %% SWEEP CALIBRATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -39,7 +43,7 @@ function params = param_struct();
     %N_lines = 6400; %50, 100, 200, 400, 800, 1600, 3200 or 6400 lines to use for calculating the FFT spectrum for a time record.  
     %params.freq_res = 0.5; %freq_max/N_lines; %frequency resolution Hz (0.5 for s-matrix and 5 for stplot)
     
-    nT = 500*(1/(2*2*params.freq_0)); % n times "nyquist frequency to resolve omega_1";
+    nT = 10000/(2*pi*params.freq_0); % n times base cycle;
     params.tmax = nT;
     
     %nyquist_rate = 4*(2*params.freq_fin); % over 4x to be safe... 
@@ -67,8 +71,10 @@ function params = param_struct();
 
     %% CONTROL SENSITIVITY 
     %%% MIC  p(unitcell,atom)
-    params.sens_p(1) =  -1/37.5E-3;% 1/(V/Pa) SN65603 
-    params.sens_p(2) =  -1/36.4E-3;% 1/(V/Pa) SN65602
+    params.sens_p(1) =  -1/36.2E-3;% 1/(V/Pa) SN65602 wb1 front
+    params.sens_p(2) =  -1/37.2E-3;% 1/(V/Pa) SN65603 wb1 back
+    params.sens_p(3) =  -1/38.7E-3;% 1/(V/Pa) SN65604 wb2 front
+    params.sens_p(4) =  -1/36.1E-3;% 1/(V/Pa) SN65640 wb2 back
 
     %%%  CURRENT TO VOLTAGE
     params.i2u = 100; %current amplifier: Maxime: 100(V/A); Rivet: 103.8 (V/A)   
@@ -88,31 +94,32 @@ function params = param_struct();
     params.Sd = 32e-4; % Same diaphragm area for all
     
     %%% ms_estimate:  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % 1: R = 6.6
-    params.Bl(1)  =   3.320329e+00;
-    params.Rms(1) =   6.631074e-01;
-    params.Mms(1) =   2.529410e-03; 
-    params.Cmc(1) =   2.502146e-04; 
-    % 2: R = 6.5
-    params.Bl(2)  =  3.514322e+00;
-    params.Rms(2) =  6.414164e-01;
-    params.Mms(2) =  2.926775e-03;
-    params.Cmc(2) =  3.033226e-04; 
-    
+    % 1: R = 3.3 (bc thicker contact wires)
+    params.Bl(1)  =   1.729359e+00;
+    params.Rms(1) =   8.326843e-01;
+    params.Mms(1) =   1.676057e-03; 
+    params.Cmc(1) =   8.949133e-05; 
+    params.Csb(1) =   7.151905e-07; %m/s/Pa MODEL-LESS CONTROL 
+    % 2: R = 7.1
+    params.Bl(2)  =  2.409590e+00;
+    params.Rms(2) =  8.168637e-01;
+    params.Mms(2) =  1.770252e-03;
+    params.Cmc(2) =  7.864552e-05; 
+    params.Csb(2) =  7.358935e-07; %m/s/Pa MODEL-LESS CONTROL 
     % Resonnance frequency (Hz)
     for ii = 1:2
         params.f0(ii) = 1/(2*pi*sqrt(params.Mms(ii)*params.Cmc(ii))); 
     end
     
     %% CONTROL TARGET IMPEDENCE PARAMETERS 
-    %%%  
+    %%%  FEEDFORWARD
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; 
-    muR_tgt = 1; %0.25 
-    muC_tgt = 1;%0.85
+    muR_tgt = 0.2;  
+    muC_tgt = 1;
 
     % Synthesize all to a same average:
-    Bl_avg =  mean(params.Bl(:),"all");
+    %Bl_avg =  mean(params.Bl(:),"all");
     Mms_avg = mean(params.Mms(:),"all");
     Rms_avg = mean(params.Rms(:),"all");
     Cmc_avg = mean(params.Cmc(:),"all");
@@ -134,8 +141,8 @@ function params = param_struct();
         b1(ii) = params.Bl(ii)*muR(ii)*params.Rms(ii);
         b0(ii) = params.Bl(ii)*muC(ii)/params.Cmc(ii);
         %Transfer functionp. model:
-        Phi_c(ii) = tf([a2(ii),a1(ii),a0(ii)],[b2(ii),b1(ii),b0(ii)]);%/(sens_p_p/i2u);
-        params.Phi_d(ii) = c2d(Phi_c(ii),params.ts_ctr,'tustin'); %discretized (necessary for SG model
+        Phi_c(ii) = tf([a2(ii),a1(ii),a0(ii)],[b2(ii),b1(ii),b0(ii)]);
+        params.Phi_d(ii) = c2d(Phi_c(ii),params.ts_ctr,'tustin'); %discretized (necessary for SG model)
         params.Phi_d(ii) = minreal(params.Phi_d(ii));
     end
     params.fst = params.f0(1,1)*sqrt(muC(1,1)/muM(1,1));%same value for all atms

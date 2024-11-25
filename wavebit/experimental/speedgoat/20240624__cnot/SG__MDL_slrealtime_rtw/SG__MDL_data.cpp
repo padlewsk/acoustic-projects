@@ -7,9 +7,9 @@
  *
  * Code generation for model "SG__MDL".
  *
- * Model version              : 6.522
+ * Model version              : 6.524
  * Simulink Coder version : 9.8 (R2022b) 13-May-2022
- * C++ source code generated on : Wed Oct 30 18:12:17 2024
+ * C++ source code generated on : Thu Oct 31 16:05:59 2024
  *
  * Target selection: slrealtime.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -103,28 +103,6 @@ const ConstP_SG__MDL_T SG__MDL_ConstP = {
   { 1.0, 1.0, 1.0, 1.0 },
 
   /* Pooled Parameter (Expression: )
-   * Referenced by: '<Root>/setup_135'
-   */
-  { 1.0, 1.0 },
-
-  /* Pooled Parameter (Mixed Expressions)
-   * Referenced by: '<Root>/setup_135'
-   */
-  2.0,
-
-  /* Computed Parameter: setup_135_P9_Size
-   * Referenced by: '<Root>/setup_135'
-   */
-  { 1.0, 32.0 },
-
-  /* Expression: parAdcCorrectionValues
-   * Referenced by: '<Root>/setup_135'
-   */
-  { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0 },
-
-  /* Pooled Parameter (Expression: )
    * Referenced by:
    *   '<Root>/ai_135'
    *   '<Root>/ao_2'
@@ -155,17 +133,6 @@ const ConstP_SG__MDL_T SG__MDL_ConstP = {
   { 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0,
     4.0 },
 
-  /* Computed Parameter: setup_135_P19_Size
-   * Referenced by: '<Root>/setup_135'
-   */
-  { 1.0, 16.0 },
-
-  /* Expression: parDacCorrectionValues
-   * Referenced by: '<Root>/setup_135'
-   */
-  { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0 },
-
   /* Pooled Parameter (Expression: )
    * Referenced by: '<Root>/setup_135'
    */
@@ -176,7 +143,7 @@ const ConstP_SG__MDL_T SG__MDL_ConstP = {
    */
   700.0,
 
-  /* Computed Parameter: setup_135_P32_Size
+  /* Computed Parameter: setup_135_P30_Size
    * Referenced by: '<Root>/setup_135'
    */
   { 1.0, 1.0 },
@@ -186,7 +153,7 @@ const ConstP_SG__MDL_T SG__MDL_ConstP = {
    */
   10.0,
 
-  /* Computed Parameter: setup_135_P36_Size
+  /* Computed Parameter: setup_135_P34_Size
    * Referenced by: '<Root>/setup_135'
    */
   { 1.0, 1.0 },
