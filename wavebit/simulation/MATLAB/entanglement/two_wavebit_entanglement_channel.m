@@ -2,7 +2,7 @@ close all
 clear all
 clc
 addpath('./__fun')  
-addpath('./__fun') 
+addpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\toolbox')
 
 
 N = 2; %2 qubits
@@ -37,6 +37,10 @@ st_1 = exp(-1i*omega_1*t);
 nrm = (1/sqrt(2))^(1/2);
 %%% NONSEPARABLE STATE: modulate the coefficients such as to obtain a bell state
 %
+psi_1_t =  (nrm*st_0).*(     ch_1 ) + (nrm*st_1).*(     ch_2);
+psi_2_t =  (nrm*st_0).*(conj(ch_1)) + (nrm*st_1).*(conj(ch_2));
+%}
+%{
 %random globalphases
 psi_1_t =  exp(+1i*(rand-0.5)*2*pi).*((nrm*st_0).*(     ch_1 ) + (nrm*st_1).*(     ch_2));
 psi_2_t =  exp(+1i*(rand-0.5)*2*pi).*((nrm*st_0).*(conj(ch_1)) + (nrm*st_1).*(conj(ch_2)));
@@ -44,8 +48,13 @@ psi_2_t =  exp(+1i*(rand-0.5)*2*pi).*((nrm*st_0).*(conj(ch_1)) + (nrm*st_1).*(co
 
 %%% SEPARABLE STATE
 %{
-psi_1_t = (1/sqrt(2)*st_0).*(ch_1) + (1/sqrt(2)*st_1).*(ch_1);
-psi_2_t = (st_0).*(ch_1);
+psi_1_t = (st_0).*(ch_0);
+psi_2_t = (st_0).*(ch_0);
+%}
+
+%{
+psi_1_t = (1/sqrt(2)*st_0).*(ch_0) + (1/sqrt(2)*st_1).*(ch_0);
+psi_2_t = (st_0).*(ch_0);
 %}
 
 % ESTIMATE the coefs, alpha, from the measured data psi: (lockin) TODO!!!
@@ -87,14 +96,14 @@ close all
 % Plot the results
 
 fig1 = figure(1)
-cmap = colormap('magma')
+cmap = copper(3)
 set(gcf,'position',fig_param.window_size);
 tiledlayout(2,1)
 nexttile 
 hold on
-plot(t*(freq), real(psi_1_t),'--','LineWidth', 2)
-plot(t*(freq), imag(psi_1_t),'--','LineWidth', 2)
-plot(t*(freq), abs(psi_1_t),'-','LineWidth', 2)
+plot(t*(freq), real(psi_1_t),'-','LineWidth', 2,'color', [0.5, 0.7235, 0.8705])
+plot(t*(freq), imag(psi_1_t),'--','LineWidth', 2,'color',[0.5, 0.7235, 0.8705])
+plot(t*(freq), abs(psi_1_t),'-','LineWidth', 3,'color',	[0, 0.4470, 0.7410])
 hold off
 %xlabel('Cycles (s \cdot f_0)');
 ylabel('\psi_1');
@@ -107,9 +116,9 @@ set(gca,fig_param.fig_prop{:},'YGrid','off','GridLineStyle', '--');
 % Plot the results
 nexttile
 hold on
-plot(t*(freq), real(psi_2_t),'--','LineWidth', 2)
-plot(t*(freq), imag(psi_2_t),'--','LineWidth', 2)
-plot(t*(freq), abs(psi_2_t),'-','LineWidth', 2)
+plot(t*(freq), real(psi_1_t),'-','LineWidth', 2,'color', [0.8175, 0.5390, 0.5920])
+plot(t*(freq), imag(psi_1_t),'--','LineWidth', 2,'color',[0.8175, 0.5390, 0.5920])
+plot(t*(freq),  abs(psi_1_t),'-','LineWidth', 3,'color',[0.6350, 0.0780, 0.1840])
 hold off
 xlabel('Cycles (2\pi/\omega_0)');
 ylabel('\psi_2');
@@ -153,18 +162,34 @@ grid on
 [F, Psi_2_t] = onesideft(real(psi_2_t),f_s,2);
 figure(3)
 hold on
-plot(F, abs(Psi_1_t),'LineWidth', 2) 
-plot(F, abs(Psi_2_t),'LineWidth', 2) 
+plot(F, abs(Psi_1_t),'LineWidth', 3, 'color', [0, 0.4470, 0.7410]) 
+plot(F, abs(Psi_2_t),'LineWidth', 3, 'color', [0.6350, 0.0780, 0.1840]) 
 hold off
 xlim([0 10000])
 %xlim([-1.2*omega_1_q/(2*pi) 1.2*omega_1_q/(2*pi)]) %onesided
 ylim([0 1])
-xline(omega_0/(2*pi),'-','LineWidth', 1,'Label','\langlet|0\rangle')
-xline(omega_1/(2*pi),'-','LineWidth', 1,'Label','\langlet|1\rangle')
-xline(Omega_0/(2*pi),'-','LineWidth', 1,'Label','QEC_1')
-xline(Omega_1/(2*pi),'-','LineWidth', 1,'Label','QEC_2')
+%ch0
+xline(omega_0/(2*pi),'--','LineWidth', 2,'Label','\langlet|0\rangle','Color',	[0.5, 0.7235, 0.8705])
+xline(omega_1/(2*pi),'--','LineWidth', 2,'Label','\langlet|1\rangle','Color',	[0.8175, 0.5390, 0.5920])
+
+%ch1 %%% CHANGE THESE COLORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+xline(Omega_0/(2*pi),'--','LineWidth', 2,'Label','QEC_1', 'Color', [0.65875, 0.63125, 0.73125])
+xline(Omega_0/(2*pi)+omega_0/(2*pi),'--','LineWidth', 2,'Color',	[0.5, 0.7235, 0.8705])
+xline(Omega_0/(2*pi)-omega_0/(2*pi),'--','LineWidth', 2,'Color',	[0.5, 0.7235, 0.8705])
+xline(Omega_0/(2*pi)+omega_1/(2*pi),'--','LineWidth', 2,'Color',	[0.8175, 0.5390, 0.5920])
+xline(Omega_0/(2*pi)-omega_1/(2*pi),'--','LineWidth', 2,'Color',	[0.8175, 0.5390, 0.5920])
+
+%ch2
+xline(Omega_1/(2*pi),'--','LineWidth', 2,'Label','QEC_2', 'Color', [0.65875, 0.63125, 0.73125])
+xline(Omega_1/(2*pi)+omega_0/(2*pi),'--','LineWidth', 2,'Color',	[0.5, 0.7235, 0.8705])
+xline(Omega_1/(2*pi)-omega_0/(2*pi),'--','LineWidth', 2,'Color',	[0.5, 0.7235, 0.8705])
+xline(Omega_1/(2*pi)+omega_1/(2*pi),'--','LineWidth', 2,'Color',	[0.8175, 0.5390, 0.5920])
+xline(Omega_1/(2*pi)-omega_1/(2*pi),'--','LineWidth', 2,'Color',	[0.8175, 0.5390, 0.5920])
+
 legend('\psi_1', '\psi_2')
 box on
+xlabel('Frequency (Hz)');
+ylabel('Amplitude (a.u.)');
 set(gcf,'position',fig_param.window_size);
 set(gca,fig_param.fig_prop{:},'YGrid','off','GridLineStyle', '--');
 
