@@ -1,0 +1,74 @@
+%%% MEASUREMENT SETUP: This is a straight forward way to estimate the
+%%% speaker mechanical parameters, the sensitivities and the back
+%%% pressure-displacement transfer function.
+
+%% DIALOG BOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+case_select = 0;
+answer = questdlg('Select Measurement Step','Setup', 'Sensitivity', 'Mechanical Parameter Estimator','Backpressure-displacement transfer function');
+% Handle response
+switch answer
+    case 'Sensitivity';
+        disp([answer ''])
+        case_select = 1;
+        %run('ms_estimate__coef.m')
+        
+    case 'Mechanical Parameter Estimator'
+        disp([answer ''])
+        case_select = 2;
+        run('ms_estimate__coef.m')
+        
+    case 'Estimate parameters'
+        if isfile('CC.mat') ==  0 && isfile('OC.mat') ==  0
+            disp('No measurement files found.')
+            return;
+            
+        elseif isfile('CC.mat') ==  0 && isfile('OC.mat') ==  1
+            msgbox('Closed Circuit measurement file is missing.')
+            return;
+            
+        elseif isfile('CC.mat') ==  1 && isfile('OC.mat') ==  0
+            msgbox('Open Circuit measurement file is missing. ')
+            return;
+            
+        else
+            disp('Estimating mechanical parameters...')
+            case_select = 3;
+            %%% Run measurement and compute Zs and alpha
+            %{
+            run('SG_measurement.m')
+            %%% COMPUTE IMPEDENCE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+            %%% Acoustic impedance
+
+            %{
+            %%% tfestimate method (Determines the transfer function between v and pf):
+            [Zs{ii},F] = tfestimate(v_out.data,pf_out.data,wind,[],[],fs);
+
+            %%% FFT method (Does the same as tfestimate):
+            pf = pf_out.data; %wind.*pf_out.data; %hamming(L).*pf_out.data;
+            v = v_out.data;% wind.*v_out.data;
+            %}
+
+            NFFT = 2^(nextpow2(length(pf))+3); % n-point dft + padding
+
+            Pf = fft(pf,NFFT); %2sided spectrum
+            V = fft(v,NFFT);
+
+            Pf = Pf(1:NFFT/2);%1sided spectrum (up to Nyquist bin)
+            V = V(1:NFFT/2);
+
+            Zs  = Pf./V; %Specific Acoustic Impedance
+            F = (1/ts*((1:NFFT/2))/NFFT)'; %FFT frequency vector
+            %}
+            
+            run('ms_estimate__coef.m')
+              
+            fprintf('Bl = %f\n', Bl_est);
+            fprintf('Rms = %f\n', Rms_est);
+            fprintf('Mmc = %f\n', Mmc_est);
+            fprintf('Cms = %f\n', Cms_est);
+        end    
+end
+case_select = 0; %reset case_select to 0

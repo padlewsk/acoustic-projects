@@ -5,18 +5,21 @@ function params = param_struct()
     %%% RMK: Manually update the asterixed parameters after running either
 
     %% SPEAKER PARAM
-    params.spkrName = "wb_1";
-    params.Re = 6.6; %Ohm !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    params.spkrName = "wb_2";
+    params.Re = 7.1; %Ohm !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     params.Sd = 32e-4; % Same diaphragm area for both
 
-    %% INPUTS
-    params.pf_channel = 1;
-    params.pb_channel = 2;
-    params.v_channel  = 3;
+    %% INPUT CHANNELS
+    params.pf_channel = 1; % FOR RETRO COMPATIVILITY
+    params.pb_channel = 2; % FOR RETRO COMPATIVILITY
+    params.v_channel  = 3; % FOR RETRO COMPATIVILITY
+
+    params.in_select  = [1 2 3 4]; % 4 input channels DEFAULT [1 2 3 4]
+    params.out_select  =[1]; % 4 output channels DEFAULT [1]
    
     %% SENSITIVITY
-    params.sens_pf = 1/(-37.5e-3); %(m/s)/V 
-    params.sens_pb = 1/(-37.7e-3); %(m/s)/V 
+    params.sens_pf = 1/(-38.7e-3); %(m/s)/V 
+    params.sens_pb = 1/(-36.1e-3); %(m/s)/V 
     
     %unchanged
     params.sens_v = 0.01; %(m/s)/V 
@@ -30,7 +33,7 @@ function params = param_struct()
     %% SPEEDGOAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Machine type
     params.tg_model = 'Mobile'; %target select
-    params.MDL = 'SG__MDL_IO104_setup'; % name of the slx model (performance)
+    params.MDL = 'SG__MDL_IO135_setup'; % name of the slx model (performance)
 
     %%% Sample timeCANNOT CHANGE ONCE FLASH
     params.ts_acq = 100e-06; %% % sampling time (s) ED
@@ -39,8 +42,8 @@ function params = param_struct()
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.A = 0.04; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.tmax = 15; %%20 sweep up measurement time (s) 
-    params.fi = 50; %% initial frequency
-    params.ff = 600;%1500; %% final frequency
+    params.fi = 50; % 100 % initial frequency
+    params.ff = 10000;% 800; %% final frequency
     
     %%% Frequency vector %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Used to estimate the transfer functions
@@ -49,7 +52,7 @@ function params = param_struct()
     params.freq = params.fi + ((params.ff - params.fi)/(params.tmax))*t; %%%linear frequency vector;
 
     %% FIT WINDOW %%%
-     params.window_min = 150; % SELECT FREQUENCY WINDOW TO SUBTRACT DATA
-     params.window_max = 250;
+     params.window_min = 300; % SELECT FREQUENCY WINDOW TO SUBTRACT DATA
+     params.window_max = 500;
 end
 

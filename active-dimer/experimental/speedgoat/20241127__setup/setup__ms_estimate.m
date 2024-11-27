@@ -50,9 +50,9 @@ while 1
             Data = sigData.Variables; %freq;sig1;sig2;sig3;
     
             f = Data(:,1);%data frequency
-            v = Data(:,p.v_channel + 1)*p.sens_v;  
-            pf = Data(:,p.pf_channel + 1)*p.sens_pf;
-            pb = Data(:,p.pb_channel + 1)*p.sens_pb; 
+            v = Data(:, p.v_channel + 1)*p.sens_v;  %[m/s] 
+            pf = Data(:,p.pf_channel + 1)*p.sens_pf; %[Pa] 
+            pb = Data(:,p.pb_channel + 1)*p.sens_pb; %[Pa] 
     
             [Zs,F] = tfestimate(v,pf,hamming(p.N/8),[],p.freq,p.fs_acq);
            
