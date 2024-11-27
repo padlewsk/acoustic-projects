@@ -11,11 +11,11 @@ addpath('./__fun');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
 
-p.A = 1;% source gain (Pa)
+p.A = -200;% source gain (Pa)
 
 % after a Hadamard gate
-p.alpha_mat = [0 0 0; 0 0 0]; % state 0: [1st qbit, 2nd qbit]
-p.beta_mat  = [1 0 0; 1 0 0]; % state 1: [1st qbit, 2nd qbit]
+p.alpha_mat = [1 0 0; 1 0 0]; % state 0: [1st qbit, 2nd qbit]
+p.beta_mat  = [0 0 0; 0 0 0]; % state 1: [1st qbit, 2nd qbit]
 
 %p.theta = [0;0]; %[0 pi]  = [omega_0 omega_1]
 %p.phi = [0;0]; %dephase of omega_1 w/r to omega_0
@@ -75,7 +75,7 @@ ylim([-100 0])
 ax2=subplot(2,1,2);
 plot(F,20*log10(abs(P2)));
 xline(p.freq_0,'k--') 
-xline(2*p.freq_0,'k--')
+%xline(2*p.freq_0,'k--')
 grid on
 linkaxes([ax1 ax2],'x')
 xlim([200 8000])

@@ -115,7 +115,7 @@ function params = param_struct();
     %%%  FEEDFORWARD
     %RMKS: No synthisis: muR = muM = muC = 1; All the same for now
     muM_tgt = 1; 
-    muR_tgt = 0.2;  
+    muR_tgt = 0.5;  
     muC_tgt = 1;
 
     % Synthesize all to a same average:

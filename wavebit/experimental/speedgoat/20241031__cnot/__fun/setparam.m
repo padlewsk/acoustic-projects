@@ -37,6 +37,8 @@ function [] = setparam(p)
 
     % Bl
     %tg.setparam('','Bl',reshape(p.Bl',[] ,1)); %RMK: the reshape is simply to change the 8x2 matrix to a 16x1 
+    % Sd
+   % tg.setparam('', 'Sd', p.Sd);
 
     % impedance synthesis (FEEDFORWARD)
     [b, a] = tfdata(p.Phi_d);
