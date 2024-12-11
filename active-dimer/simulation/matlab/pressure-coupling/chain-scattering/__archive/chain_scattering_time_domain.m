@@ -21,7 +21,7 @@ f_samp = 5E5;
 t_samp = 1/f_samp;
 
 %%% SIMULATION TIME (MATLAB odes use adaptive ste1p size)
-t_fin = 12*N_cell*param.a/param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
+t_fin = 1*N_cell*param.a/param.c0; %simulation time in seconds (time for sound to go from source to end of crystal)
 
 %%% INITIALISATION
 y0 = zeros(2*mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'

@@ -16,12 +16,13 @@ sys_param = sys_params();
 %%% SAVE DATA FOR PLOTS
 sim_name = "sim_A9_64cells";
 
+
 %% SIMULATION  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INITIALISATION
 y0 = zeros(2*sys_param.mat_size,1);% solver initial condition %y = [x1,...,xn,q1,...qn]'
  
 %set disorder
-idx_rng = 1;
+idx_rng = 2;
 %sys_param = disorder(sys_param,idx_rng); %%%% UNCOMMENT FOR DISORDER!!
 
 lag = sys_param.a/sys_param.c0/2*[1e-100]; % phase delay bewteen two speakers in terms of time delay between two speakers!!!
