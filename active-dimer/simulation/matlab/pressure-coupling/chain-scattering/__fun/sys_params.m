@@ -55,7 +55,7 @@ function sys_param = sys_params();
     
     %%% SIMULATION PARAMETERS    
     %%% SYSTEM SIZE
-    sys_param.N_cell = 30; %number of unit cells (= half the number of sites) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    sys_param.N_cell = 32; %number of unit cells (= half the number of sites) 30 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     sys_param.mat_size = sys_param.N_cell*8+1; %number of nodes in the acoustic circuit
 
     %% TRANSFER MATRIX UNIT CELL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -133,7 +133,7 @@ function sys_param = sys_params();
     %%% SOURCE
     sys_param.fi = 300; %% initial frequency 300
     sys_param.ff = 660; %% final frequency 1300
-    sys_param.A_src = 2; %%% incident pressure amplitude (Pa) %%% 30
+    sys_param.A_src = 5; %%% incident pressure amplitude (Pa) %%% 2
     sys_param.f_src  = 644.5;%644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse 
     sys_param.src_select = 1; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1 = PULSE CENTERED AT sys_param.f_src %%% 2 freq sweep  %%% 3 amp sweep
     sys_param.src_loc = [1];%source location (at each circuit node)
@@ -141,11 +141,11 @@ function sys_param = sys_params();
     %sys_param.src_loc = [1:sys_param.mat_size]; % All nodes are sources
 
     %%% SAMPLING (for post processing --> doesn't affect sim time alot)
-    sys_param.f_samp = 3*(sys_param.ff); %must be at least over 2*niquist %% even higher
+    sys_param.f_samp = 5*(sys_param.ff); % 3 must be at least over 2*niquist %% even higher
     sys_param.t_samp = 1/sys_param.f_samp;
 
     %%% SIMULATION TIME (MATLAB odes use adaptive step size)2*0.3;%
-    sys_param.t_fin = 5*sys_param.N_cell*sys_param.a/sys_param.c0; % 5 for pulse dynamics, 30 for cte %simulation time in seconds (time for sound to go from source to end of crystal)
+    sys_param.t_fin = 10*sys_param.N_cell*sys_param.a/sys_param.c0; % 5 for pulse dynamics, 30 for cte %simulation time in seconds (time for sound to go from source to end of crystal)
     
     %%% COUPLING MATRIX
   % coupling kappa>0 => v>w; kappa <0 => v>w; 
@@ -175,10 +175,10 @@ function sys_param = sys_params();
     %sys_param.cpl = [mod(0:sys_param.N_cell-2,2) mod(sys_param.N_cell:2*sys_param.N_cell-1,2)];% interface 2 best
     
     %LINEAR (actually gamma/2 following https://doi.org/10.1103/PhysRevLett.121.086803) 
-    gamma_v_A = +0.1*0.5; % v asymmetry --> Coupling to left if >0
-    gamma_w_A = +0.1*0.5;  % w asymmetry
-    gamma_v_B = -0.1*0.5; % v asymmetry  
-    gamma_w_B = -0.1*0.5; % w asymmetry 
+    gamma_v_A = +0.1*0.5*0; % v asymmetry --> Coupling to left if >0
+    gamma_w_A = +0.1*0.5*0;  % w asymmetry
+    gamma_v_B = -0.1*0.5*0; % v asymmetry  
+    gamma_w_B = -0.1*0.5*0; % w asymmetry 
 
     sys_param.cpl = zeros(1, 2*sys_param.N_cell-1); % initialize
     sys_param.cpl_L    = sys_param.cpl;   % initialize

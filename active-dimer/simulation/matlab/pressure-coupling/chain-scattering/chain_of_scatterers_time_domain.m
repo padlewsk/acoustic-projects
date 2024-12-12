@@ -149,7 +149,7 @@ xlim([0.5,2*sys_param.N_cell+0.5])
 %xlim([sys_param.N_cell-2.5,sys_param.N_cell+2.5]) % zoom on topological interface
 ylim([t_out(1),t_out(end)]*1000) % pulse
 %ylim([t_out(1),0.4]*1000) % sweep
-ylim([t_out(1),40]) % sweep
+%ylim([t_out(1),40]) % sweep
 %zlim([0,sys_param.A_src*1.5])
 zlim([0,5])
 xlabel('site n')
@@ -160,9 +160,9 @@ c.Label.String = 'Amplitude (Pa)';
 c.Color = 'w';
 clim([0, 4]);
 view(135,60)
-view(45,40)
+%view(45,40)
 
-%vecrast(fig2, 'large_low', 600, 'bottom', 'pdf');
+%vecrast(fig2, 'passive_64_cell_time', 600, 'bottom', 'pdf');
 %%% FOR EXPORT
 %{
 ax = gca;
@@ -356,6 +356,7 @@ set(gca,fig_param.fig_prop{:},'XColor','w','YColor','w');
 %set(gcf,'position',[50, 50, 800, 1000]);
 hold on
 yline([415/1000 644.5/1000],'w-',{'Local','Bragg'},'LineWidth',2,'alpha',0.3);
+%yline([415/1000],'w-',{'Local'},'LineWidth',2,'alpha',0.3);
 %imagesc(qa/pi,omega/(2*pi),abs(Y));
 %imagesc(abs(Y_fold));
 imagesc(qa/(pi),omega/(2*pi)/1000,(abs(Y_fold)));
@@ -514,7 +515,8 @@ plot(t_out(2:end)-t_out(1:end-1))
 title("step size (s)")
 %}
 %}
-
+%%% EXPORT
+%vecrast(fig3, 'passive_64_cell_freq', 600, 'bottom', 'pdf');
 %%
 autoArrangeFigures
 toc

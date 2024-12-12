@@ -3,22 +3,25 @@
 
 addpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox');
 fprintf('### Running Simulation...\n')
-%% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-run('../params.m') %imports parameters
+%% IMPORT SIM PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath('..\');
+run('params.m'); %imports parameters
 %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 t = (0:ts:tmax)'; %time vector
 f = fi+(ff-fi)*t/tmax; %frequency vector
 source = sin(2*pi*f.*t);% source is directly in pressure +randn(size(t))/10; %noisy chirp c
 
 %% SIMULATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 tau_max = 50E-6; % Maximum time delay for contorl loop (s)
-ii = 1;
+ts = 1e-5; %% % 2.5e-5;sampling time (s) %%% CANNOT CHANGE ONCE FLASHED
+fs = 1/ts; %40*ff; %% sampling frequency (Hz)
+tmax = 40;
+num_steps = 6;
 
-tau_list = linspace(0,tau_max,5); %[0:ts:(tau_max-ts),tau_max]; %tau list
-%tau_list = tau_max; %tau list bypass
+tau_list = linspace(0,tau_max,num_steps); %[0:ts:(tau_max-ts),tau_max]; %tau list
 
-for tau = tau_list 
+for ii = 1:num_steps
+    tau = tau_list(ii);
     sim('ClosedBoxLS_MDL_v2020a',tmax); %simulink
     
     %%% Acoustic impedance
@@ -58,18 +61,14 @@ for tau = tau_list
     TF{ii} = islocalmin(alpha_temp,'MinSeparation',fs*10,'SamplePoints', F_temp);
     %BW{ii} = F_temp(TF) - min(BW_temp);
     %}
-    
-    
-    ii = ii + 1;
 end
 %t = tout; %Sometimes t is different??? WHY???
 
 fprintf('### Simulation Complet\n')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FIGURES
-
-
-%% pf&v VS t&f --------------------------------------------------------
+fig_param = fig_params(); %FIGURE PARAMETERS
+%%% pf&v VS t&f --------------------------------------------------------
 %
 figure(3)
 tt = tiledlayout(1,1);
@@ -117,7 +116,7 @@ legend("v","P_f")
 
 
 
-%% alpha vs freq
+%%% alpha vs freq
 figure(4);
 cmap = copper(numel(alpha_sim)); % Cell array of colors.
 
@@ -136,15 +135,12 @@ ylim([0 1.1]);
 
 xlabel("Frequency (Hz)")
 ylabel("Absorbtion coefficient")
-title("\mu_R = " + muR + ",   " + "\mu_M = " + muM + ",   " + "\mu_C = " + muC)
+%title("\mu_R = " + muR + ",   " + "\mu_M = " + muM + ",   " + "\mu_C = " + muC)
 box on
 grid on
-legend("\tau = " + string(tau_list*1000) + " ms",'Location','northwest')
-
-
-
-
-
+legend("\tau = " + string(tau_list*1E6) + " \mus",'Location','northeast')
+set(gcf,'position',fig_param.window_size);
+set(gca,fig_param.fig_prop{:});
 
 
 
@@ -157,11 +153,11 @@ tt = tiledlayout(2,1); %Create tile layout
 %%% Magnetude of Specific Acoustic Impedance
 ax1 = nexttile; 
 for ii = 1:numel(alpha_sim) 
-    semilogx(ax1,F_sim,abs(Zs_sim{ii}),'color',cmap(ii,:),'LineWidth',3)
+    semilogx(ax1,F_sim,abs(Zs_sim{ii})/1000,'color',cmap(ii,:),'LineWidth',3)
     xline(f0,'-.k');
     xline(fst,'-.k');
-    ylabel("Magnetiude (Pa.s/m)")
-    ylim([0 1200]);
+    ylabel("Magnetiude (kPa.s/m)")
+    ylim([0 1200/1000]);
     box on
     grid on
     set(ax1,'xticklabel',[])
@@ -169,7 +165,9 @@ for ii = 1:numel(alpha_sim)
 end
 hold off
 %legend("\tau = " + string(tau_list*1000) + " ms",'Location','northwest')
-title("\mu_R = " + muR + ",   " + "\mu_M = " + muM + ",   " + "\mu_C = " + muC)
+%title("\mu_R = " + muR + ",   " + "\mu_M = " + muM + ",   " + "\mu_C = " + muC)
+set(gcf,'position',fig_param.window_size);
+set(gca,fig_param.fig_prop{:});
 
 %%% Phase
 ax2 = nexttile;
@@ -196,7 +194,8 @@ xlim([fi ff]);
 % Move plots closer together
 xticklabels(ax1,{})
 tt.TileSpacing = 'compact';
-
+set(gcf,'position',fig_param.window_size);
+set(gca,fig_param.fig_prop{:});
 
 
  %% Sweep spectral analisis
