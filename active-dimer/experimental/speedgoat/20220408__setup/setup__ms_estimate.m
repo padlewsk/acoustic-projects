@@ -164,18 +164,27 @@ while 1
             fprintf('Fit window = [%.0f,%.0f]\n', p.window_min,p.window_max);
             
             clf
+            %cmap = colormap(pink(5));
+            cmap = [187, 143, 235;
+                50, 126, 227]/255;
             figure(1)
-            loglog(ocData.F,abs(ocData.Zs),'LineWidth',2);
+            semilogy(ocData.F,abs(ocData.Zs),'--','LineWidth',2,'color',cmap(1,:));
             hold on
-            loglog(ccData.F,abs(ccData.Zs),'LineWidth',2);
+            semilogy(ccData.F,abs(ccData.Zs),'-','LineWidth',2,'color',cmap(2,:));
               xlabel("Frequency (Hz)")
             ylabel("Mechanical Impedance (N.s/m)")
             box on
-            legend('Open Circuit','Closed Circuit')
+            legend('Open Circuit','Closed Circuit','Location','northeast')
             grid on
             hold off
             xlim([p.fi p.ff]);
-
+            ylim([100 2500])
+            %%% FONT AND AX SIZE
+            set(gca,'fontsize',10)
+            set(gca,'linewidth',2)
+            
+            %%% SAVE FIG:
+            %vecrast(gcf, 'Z_mech', 600, 'bottom', 'pdf');
 
             %%
             break;

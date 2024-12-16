@@ -5,7 +5,7 @@ function params = param_struct()
     %%% RMK: Manually update the asterixed parameters after running either
 
     %% SPEAKER PARAM
-    params.spkrName = "wb_1";
+    params.spkrName = "atm_11";
     params.Re = 6.6; %Ohm !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     params.Sd = 32e-4; % Same diaphragm area for both
 
@@ -39,8 +39,8 @@ function params = param_struct()
     %% SOURCE GENERATOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     params.A = 0.04; %% source amplitude (V) Tannoy: 0.02 (V)%Duct speaker: 0.15 (V)
     params.tmax = 15; %%20 sweep up measurement time (s) 
-    params.fi = 50; %% initial frequency
-    params.ff = 600;%1500; %% final frequency
+    params.fi = 200; %% initial frequency
+    params.ff = 700;%1500; %% final frequency
     
     %%% Frequency vector %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Used to estimate the transfer functions
