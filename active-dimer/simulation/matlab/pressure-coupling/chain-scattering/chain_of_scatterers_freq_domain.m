@@ -10,8 +10,9 @@ addpath(genpath('\\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projec
 %%% RUN PARAMETERS FILE
 addpath('./__fun/')
 sys_param = sys_params();
-sys_param.Rms = 0.261*2; % lossy
-sys_param.kappa = 0.8*sys_param.Sd; % RMK: Sd in the time domain code is found in the odecrystal part...
+sys_param.Rms = 0.261*2; % lossy 
+sys_param.Mms = 0.75*6.6710e-04; % to change the res freq
+sys_param.kappa = 0.9*sys_param.Sd; % RMK: Sd in the time domain code is found in the odecrystal part... 0.8
 
 %% DISPERSION 
 
@@ -55,8 +56,9 @@ for k_idx = 1:numel(k)
 end
 q_F_lossless(1) = 0;% rmv the NaN;
 
-
-
+%%% UNFOLD DISPERSION
+q_F_lossy_unfolded = [q_F_lossy(1,1:320),flip(q_F_lossy(1,321:end))+pi/sys_param.a]; %320 bc that is in the gap...
+q_F_lossless_unfolded = [q_F_lossless(1,1:320),flip(q_F_lossless(1,321:end))+pi/sys_param.a]; %320 bc that is in the gap...
 
 %%% ZAK PHASE %%% FALSE!!! --> ce geometric phase and band inversion in
 
@@ -74,7 +76,6 @@ D = V;   %eigenvalue [p+;p-]
 for k_idx = 1:numel(k)
         [V(:,:,k_idx),D(:,:,k_idx)] = eig(S(:,:,k_idx));
 end
-
 
 
 %{
@@ -146,12 +147,17 @@ set(ax(2),'OuterPosition',pos,fig_param.fig_prop{:},'YTickLabel',[],'XMinorTick'
 annotation('textbox',[.83 0.4 .1 .2], 'String','\leftarrow Bragg','EdgeColor','none')
 annotation('textbox',[.83 0.237 .1 .2], 'String','\leftarrow Local','EdgeColor','none')
 
-%{
-%%% FIGURE 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%% FIGURE 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% UNFOLDED BAND
+q_sim = (q_F_lossless_unfolded);
+freq_sim = freq;
+save("./__data/sim.mat","freq_sim","q_sim")
 figure(2)
-plot(linspace(-1,1,numel(delta_phi_B1)),delta_phi_B1/pi);
+%plot(linspace(-1,1,numel(delta_phi_B1)),delta_phi_B1/pi);
 hold on
-plot(linspace(-1,1,numel(delta_phi_B2)),delta_phi_B2/pi);
-plot(linspace(-1,1,numel(delta_phi_B3)),delta_phi_B3/pi);
+plot(abs(real(q_F_lossless_unfolded))*sys_param.a/pi/2,freq,"-","Color", "#0072BD","LineWidth",2);
+plot(abs(imag(q_F_lossless_unfolded))*sys_param.a/pi/2,freq,":","Color", "#0072BD","LineWidth",2);
+
 hold off
 %}

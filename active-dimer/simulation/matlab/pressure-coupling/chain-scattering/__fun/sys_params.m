@@ -132,7 +132,7 @@ function sys_param = sys_params();
     
     %%% SOURCE
     sys_param.fi = 300; %% initial frequency 300
-    sys_param.ff = 660; %% final frequency 1300
+    sys_param.ff = 1300; %% final frequency 1300 660
     sys_param.A_src = 5; %%% incident pressure amplitude (Pa) %%% 2
     sys_param.f_src  = 644.5;%644.5; % Hz speaker + enclosure res freq 644.5 for sin and pulse 
     sys_param.src_select = 1; % 0 = SINE*SIGMOIDE at sys_param.f_src; 1 = PULSE CENTERED AT sys_param.f_src %%% 2 freq sweep  %%% 3 amp sweep

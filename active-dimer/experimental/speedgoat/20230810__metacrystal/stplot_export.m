@@ -1,4 +1,5 @@
 %%% SPATIO-TEMPORAL AND DISPERSION PLOTS %%%%%%%%%%%%%%%%%%
+%%%20241712 UPDATE: simulation comparison
 close all; pause(0); 
 clear all; 
 clc;
@@ -70,6 +71,7 @@ colormap('magma');
 h = ribbon(Y,Z,0.5);
 [h(:).EdgeColor] = deal('none');
 set(h, {'CData'}, get(h,'ZData'), 'FaceColor','interp','MeshStyle','column'); % make colour indicate amplitude
+
 %{
 set(gcf,'position',fig_param.window_size);
 set(gcf, 'InvertHardCopy', 'off'); % to make black figure
@@ -90,7 +92,7 @@ xx = [p1(1) p2(1) p3(1) p4(1)];
 yy = [p1(2) p2(2) p3(2) p4(2)];
 zz = [p1(3) p2(3) p3(3) p4(3)];
 hold on;
-fill3(xx, yy, zz,'k', 'EdgeColor', 'none', 'FaceAlpha',0.5);
+%fill3(xx, yy, zz,'k', 'EdgeColor', 'none', 'FaceAlpha',0.5); %%%% INTERFACE HIGHLIGHT
 hold off
 %%% figure style
 
@@ -102,7 +104,7 @@ xlim([0.5,2*sys_param.N_cell+0.5])
 %ylim([t_out(1),t_out(1)+20])
 ylim([t_out(1),sys_param.tmax*0.5]*1000)
 %zlim([0, 2])
-zlim([4, 12])
+%zlim([4, 12])
 xlabel('site n')
 ylabel('t (ms)')
 zlabel("|p_n| (Pa)")
@@ -110,16 +112,19 @@ c = colorbar;
 c.Label.String = 'Amplitude (Pa)';
 %c.Color = 'w';%dark mode
 %clim([0, 2]);
-clim([4, 12]);
+%clim([4, 12]);
 view(135,60)% 50
 %view(45,45)
 %exportgraphics(gcf,"myplot.png",'BackgroundColor','none')
 
 
-
-
-
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% import simulation chain_of_scatterers_freq_domain
+%%% \\files7.epfl.ch\data\padlewsk\My Documents\PhD\acoustic-projects-master\active-dimer\simulation\matlab\pressure-coupling\chain-scattering
+load('./__data/sim.mat','freq_sim','q_sim') ; %Manual Load
+%freq_sim = sim.freq_sim;
+%qa_sim = sim.qa_sim;
+
 
 %%% OMIT FIRST DATA POINTS
 t_vec = t_out; 
@@ -143,13 +148,14 @@ Y = mean(Y, 3); % Take the average along the third dimension --> in Fourier spac
 Y = fftshift(Y); %filters out DC component
 
 NFFT_f = length(t_vec); % signal length
-omega = 2*pi*sys_param.fs_log*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1))'; %
+omega = 2*pi*sys_param.fs_log*((-(NFFT_f-1)/2:(NFFT_f-1)/2)/(NFFT_f-1))'- 0*2*pi*25; %%% OFFSET!!!
 
 NFFT_qa = length(p_vec); % signal length
-qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1))'+ 0.25 ; %%% WHY THIS 0.5???'
+qa = -2*pi*((-((NFFT_qa-1)/2):(NFFT_qa-1)/2)/(NFFT_qa-1))'+ 0*0.25 ; %%% WHY THIS 0.5?? !!!!!
 
 %%% BAND FOLDING %%% RMK: sys_param.N_cell must be EVEN
-Y_fold = Y;%Bypass folding
+Y_fold = Y; %Bypass folding
+
 %{
 Y_inner = [Y(:,sys_param.N_cell/2+1:3*sys_param.N_cell/2)];
 Y_outer = flip([Y(:,3*sys_param.N_cell/2+1:2*sys_param.N_cell) Y(:,1:sys_param.N_cell/2)],2);
@@ -157,6 +163,13 @@ Y_fold = (Y_inner+Y_outer);
 %}
 
 %%% CUT OFF HIGH FREQUENCIES
+%{
+threshold = 0.5;
+Y_fold(abs(Y_fold) < threshold) = 0;
+%Y_fold(abs(Y_fold) > threshold) = 1;
+%}
+
+%%% ----------- PLOT -----------%%%
 fig3 = figure(3);
 %
 set(gcf,'position',fig_param.window_size);
@@ -170,8 +183,11 @@ set(gca,fig_param.fig_prop{:});
 %set(gcf,'position',[50, 50, 800, 1000]);
 hold on
 %
-imagesc(qa/(pi),omega/(2*pi)/1000,abs(Y_fold));
-yline([440/1000 645/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'LabelHorizontalAlignment', 'center');
+imagesc(qa/(pi),omega/(2*pi)/1000,(abs(Y_fold)));
+%yline([440/1000 647/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.2,'LabelHorizontalAlignment', 'right');
+yline([460/1000 660/1000],'w--',{'Local','Bragg'},'LineWidth',1,'alpha',0.4,'LabelHorizontalAlignment', 'right');
+plot(abs(real(q_sim))*sys_param.a/pi/2,freq_sim/1000,'w-','LineWidth',2); %%% SIMULATION
+plot(abs(imag(q_sim))*sys_param.a/pi/2,freq_sim/1000,'w--','LineWidth',2); %%% SIMULATION
 hold off
 
 %colormap('hot');
@@ -187,6 +203,8 @@ ylim([-2*sys_param.c0/sys_param.a*0 sys_param.c0/sys_param.a]/1000)
 %title("Transmission peak as a function of local disorder")
 box on
 hold off
+%legend('test','hi', 'Location', 'NorthWest')
+
 
 %saveas(fig3,'test','epsc')
 
@@ -248,9 +266,7 @@ ylabel("|P1(f)|")
 autoArrangeFigures
 toc
 %% SAVE FIGURES
-
-%% SAVE FIGURES
-sim_name = "20240111__src_A635__A_5__interface_2__kappaNL_1__sigmaT_5";
+sim_name = "20240111__src_AW__A_8__interface_0__kappa_0p8";
 
 %
 tic
@@ -258,9 +274,12 @@ if ~exist("__figures", 'dir')
    mkdir("__figures")
 end
 if ~isfile(string("./__figures/fig__" + sim_name + ".pdf")) || ~isfile("./" + string(sim_name)+ ".pdf")
-    exportgraphics(fig1, string("./__figures/fig__" + sim_name + ".pdf"), 'ContentType', 'vector')% save the figure as a tightly cropped PDF file
-    vecrast(fig2, char(sim_name), 600, 'bottom', 'pdf');
+    %exportgraphics(fig1, string("./__figures/fig__" + sim_name + ".pdf"), 'ContentType', 'vector')% save the figure as a tightly cropped PDF file
+    exportgraphics(fig3, string('export_test' + sim_name + ".pdf"))%
+    %vecrast(fig2, 'export_1', 600, 'bottom', 'pdf');
+    %vecrast(fig3, 'export_2', 600, 'bottom', 'pdf');
 else
     fprintf("### FIGURE NOT SAVED: FILE NAME ALREADY EXISTS\n")
 end
 toc
+%}

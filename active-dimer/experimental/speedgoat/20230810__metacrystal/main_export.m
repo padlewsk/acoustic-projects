@@ -1,5 +1,5 @@
 %%% FOR EXPORTING GRAPHICS
-%%% UPDATED: 08.01.2024 
+%%% UPDATED: 17.12.2024 
 %%%
 %%% DISPERSION VIA TRANSFER MATRIX METHOD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
