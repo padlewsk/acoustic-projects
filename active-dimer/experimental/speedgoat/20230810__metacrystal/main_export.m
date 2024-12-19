@@ -35,7 +35,7 @@ fstruct = dir('./__data/*70us*.mat');% change manually!!!
 load(strcat(fstruct.folder,'\',fstruct.name));
 
 %%% TRANSFER FUNCTION DATA
-load('C:/Speedgoat/temp/processed_data_a.mat');
+load('./__data/processed_data_a.mat') ; %Manual Load 
 freq = processed_data_a.freq; %corresponding wave vector
 
 k = 2*pi*freq/p.c0; %corresponding wave vector
@@ -67,6 +67,7 @@ s21 = s12;
 
 %% ASYMMETRIC + CASE
 %
+
 %%% CORRECTION DATA
 fstruct = dir('./__data/*70us*.mat');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANUAL INPUT !!!
 load(strcat(fstruct.folder,'\',fstruct.name));
@@ -114,10 +115,9 @@ C_b = 1i*(H31_b.*exp(+1i*k*(l2+s2)) - H41_b.*exp(+1i*k*l2))./(2*sin(k*s2));
 D_b = 1i*(H41_b.*exp(-1i*k*l2)      - H31_b.*exp(-1i*k*(l2+s2)))./(2*sin(k*s2));
 
 %%% COMPUTE SCATTERING MATRIX
-
 s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
-s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be +! ????
-s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be -!
+s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be +! ??????? HERE ASSUME ALL SAME
+s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be -!
 s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 
 %}
@@ -132,26 +132,29 @@ s22 = smoothdata(s22,"movmean", 40/(freq(2)-freq(1)));
 %}
 
 %%% COMPUTE TRANSFER MATRIX 
-t11 = 1./conj(s12);%s21-(s11.*s22./s12); ????????????????????????????????
+t11 = 1./conj(s12);%s21 - (s22.*s11)./s12; % ???????????????????????????????? 1./conj(s12) 1./conj(s21) if reciprocal;
+%t11 = 1./conj(s12);
 t12 = s22./s12;
 t21 = -s11./s12;
 t22 = 1./s12;
 
 %%% COMPUTE FLOQUET-BLOCH WAVE VECTOR q:
-%%% General solutions \pm
-%
+%%% General solutions \pm IS THIS CORRECT ?: CF BLOCH AN TRANSFER
+%%% MATRIX METHOD in onenote
+%{
 for ii = 1:N
-    T = [t11(ii),t12(ii);t21(ii),t22(ii)];
-    q = log(0.5*(trace(T) - sqrt(trace(T)^2-4*det(T))))/(1i*p.a);
-
+    T = ([t11(ii),t12(ii);t21(ii),t22(ii)]);
+    %q = log(0.5*(trace(T) - sqrt(trace(T)^2 - 4*det(T))))/(1i*p.a);
+    q = log(0.5*(trace(T) + sqrt(trace(T)^2 - 4*det(T))))/(1i*p.a);
     q_real(ii) = real(q);
     q_imag(ii) = imag(q);
 end
 %}
-%%% If reciprocal, the eigensolutions are the same and can be simplified:
- %q_real = real(acos((t11+t22)/2)/p.a);%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- %q_imag = imag(acos((t11+t22)/2)/p.a);
-
+%%% This is due to continuity equation, the can be simplified:
+%
+q_real = real(acos((t11+t22)/2)/p.a);%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+q_imag = imag(acos((t11+t22)/2)/p.a);
+%}
 %% GRAPHICS 
 %%% see https://link.springer.com/content/pdf/10.1007/978-3-030-84300-7.pdf, p 69
 close all
@@ -161,7 +164,7 @@ fig_param = fig_params(); % must be done to utilize the structure
 data_crop = freq>150; %crop the data to remover the low frequency garbage
 
 %%% DISPERSION (ONLY FOR SINGLE CELL)
-%{
+%
 figure(1);
 hold on
 plot(abs(q_real)*p.a/pi,freq,'-r','LineWidth',3)
@@ -262,7 +265,7 @@ grid on
 
 
 %{
-figure(2);
+figure(5);
 subplot(2,1,1);
 %hold on;
 plot(freq, abs(s11).^2, 'DisplayName', 's11');

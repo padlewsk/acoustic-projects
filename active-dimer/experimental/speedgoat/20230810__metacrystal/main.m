@@ -114,8 +114,8 @@ D_b = 1i*(H41_b.*exp(-1i*k*l2)      - H31_b.*exp(-1i*k*(l2+s2)))./(2*sin(k*s2));
 %%% COMPUTE SCATTERING MATRIX
 
 s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
-s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be +! ????
-s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be -!
+s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be +! ????
+s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be -!
 s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 %}
 

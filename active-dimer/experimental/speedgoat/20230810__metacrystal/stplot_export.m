@@ -268,7 +268,7 @@ toc
 %% SAVE FIGURES
 sim_name = "20240111__src_AW__A_8__interface_0__kappa_0p8";
 
-%
+%{
 tic
 if ~exist("__figures", 'dir')
    mkdir("__figures")
