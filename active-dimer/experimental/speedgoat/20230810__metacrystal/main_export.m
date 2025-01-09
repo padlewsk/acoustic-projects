@@ -116,8 +116,8 @@ D_b = 1i*(H41_b.*exp(-1i*k*l2)      - H31_b.*exp(-1i*k*(l2+s2)))./(2*sin(k*s2));
 
 %%% COMPUTE SCATTERING MATRIX
 s11 = (D_b.*B_a - D_a.*B_b)./( A_a.*D_b - A_b.*D_a);
-s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be +! ??????? HERE ASSUME ALL SAME
-s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be -!
+s12 = (A_a.*B_b - A_b.*B_a)./( A_a.*D_b - A_b.*D_a).*exp(+1i*k*p.a);% should be +! .*exp(+1i*k*p.a*p.N_cell)
+s21 = (D_b.*C_a - D_a.*C_b)./( A_a.*D_b - A_b.*D_a).*exp(-1i*k*p.a);% should be -! ISSUE WITH s21!!.*exp(-1i*k*p.a*p.N_cell)
 s22 = (A_a.*C_b - A_b.*C_a)./( A_a.*D_b - A_b.*D_a);
 
 %}
@@ -132,11 +132,11 @@ s22 = smoothdata(s22,"movmean", 40/(freq(2)-freq(1)));
 %}
 
 %%% COMPUTE TRANSFER MATRIX 
-t11 = 1./conj(s12);%s21 - (s22.*s11)./s12; % ???????????????????????????????? 1./conj(s12) 1./conj(s21) if reciprocal;
-%t11 = 1./conj(s12);
-t12 = s22./s12;
-t21 = -s11./s12;
-t22 = 1./s12;
+t11 = (s21 - (s22.*s11)./s12); % ???????????????????????????????? = 1./conj(s12) = 1./conj(s21) if reciprocal;
+%t11 = 1./conj(s21);
+t12 = (s22./s12);
+t21 = (-s11./s12);
+t22 = (1./s12);
 
 %%% COMPUTE FLOQUET-BLOCH WAVE VECTOR q:
 %%% General solutions \pm IS THIS CORRECT ?: CF BLOCH AN TRANSFER
@@ -158,6 +158,8 @@ q_imag = imag(acos((t11+t22)/2)/p.a);
 %% GRAPHICS 
 %%% see https://link.springer.com/content/pdf/10.1007/978-3-030-84300-7.pdf, p 69
 close all
+
+cmap = copper(4)
 %%% LOAD FIGURE PARAMETERS
 fig_param = fig_params(); % must be done to utilize the structure
 
@@ -189,31 +191,33 @@ legend("Re(q_{F})","Im(q_{F})","q_F = 2\pif/a ")
 %legend("\tau = " + string(tau_list*1000) + " ms",'Location','northwest')
 %}
 
-%%% S-MATRIX
+%%% S-MATRIX   
 fig2 = figure(2);
-%{
-plot(freq(data_crop), abs(s11(data_crop)).^2, 'DisplayName', '|s_{11}|^2','LineWidth',4);
+%
+plot(freq(data_crop), abs(s11(data_crop)).^2, 'DisplayName', '|s_{11}|^2','LineWidth',4,'Color',cmap(1,:));
 hold on;
-plot(freq(data_crop), abs(s21(data_crop)).^2, 'DisplayName', '|s_{21}|^2','LineWidth',4);
-plot(freq(data_crop), abs(s12(data_crop)).^2, 'DisplayName', '|s_{12}|^2','LineWidth',4);
-plot(freq(data_crop), abs(s22(data_crop)).^2, 'DisplayName', '|s_{22}|^2','LineWidth',4);
+plot(freq(data_crop), abs(s12(data_crop)).^2, 'DisplayName', '|s_{12}|^2','LineWidth',4,'Color',cmap(2,:));
+plot(freq(data_crop), abs(s21(data_crop)).^2, 'DisplayName', '|s_{21}|^2','LineWidth',4,'Color',cmap(4,:));
+plot(freq(data_crop), abs(s22(data_crop)).^2, 'DisplayName', '|s_{22}|^2','LineWidth',4,'Color',cmap(3,:));
 %}
+%{
 plot(freq(data_crop), (0.5*(abs(s11(data_crop))+abs(s22(data_crop)))).^2,'LineWidth',4);
 hold on;
 plot(freq(data_crop), (0.5*(abs(s12(data_crop))+abs(s21(data_crop)))).^2,'LineWidth',4);
+%}
 %xline(647,'--',{'Topological','interface'},fig_param.fig_prop{:}) % 
-xline(647,'--',fig_param.fig_prop{:}) % 
-%legend show
-legend(' R',' T', 'Location','NorthWest')
+%xline(647,'--',fig_param.fig_prop{:},'DisplayName','Bragg') % 
+legend('Location','NorthWest')
+%legend(' R',' T', 'Location','NorthWest')
 xlim([0,p.freq_fin])
 ylim([0,1])
 xlabel("Frequency (Hz)")
 %title("Transmission/reflection ")
 box on
-%grid on
+grid on
 set(gca,fig_param.fig_prop{:});
 %set(gca,'color','none','YDir','normal')
-%vecrast(fig2 , '20240130__src_AW__A_5__interface_0__kappa_0', 600, 'bottom', 'pdf');
+%vecrast(fig2 , 'S_matrix_NR_example', 600, 'bottom', 'pdf');
 
 %Correlation (C-files)
 figure(3);
