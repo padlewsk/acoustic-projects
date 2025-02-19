@@ -16,7 +16,7 @@ function params = fig_params()
     params.fig_prop = {'Fontsize',35,'TickLabelInterpreter','latex','LineWidth', params.line_width+1,'ClippingStyle', 'rectangle', 'Layer', 'top'};
     params.window_size = [0, 0, 800, 1000]; %[left bottom width height] [1500, 100, 680, 1000]
     params.box_shade = [626, 740]; %[min, max]
-    params.export_switch = 1;
+    params.export_switch = 0;
     params.tikz_prop = {'height','1.75\textwidth','width','1\textwidth','interpretTickLabelsAsTex',true};
 
 end

@@ -8,6 +8,7 @@ clf
 %% TOOLBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath(genpath('\\files7\data\padlewsk\My Documents\MATLAB\MyToolBox'));%
 addpath('./__fun');
+addpath('./__data');
 %% PARAMETERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = param_struct();
 
@@ -52,7 +53,7 @@ s21 = s12;
 
 %}
 
-%
+%{
 load('./__data/H21_corr.mat');
 load('./__data/H31_corr.mat');
 load('./__data/H41_corr.mat');
@@ -75,7 +76,7 @@ s21 = s12;
 %}
 
 %% ASYMMETRIC CASE
-%{
+%
 %%% IMPORT DATA:
 load('./__data/H21_corr.mat');
 load('./__data/H31_corr.mat');

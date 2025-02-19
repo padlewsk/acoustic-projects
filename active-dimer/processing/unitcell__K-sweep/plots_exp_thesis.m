@@ -1,12 +1,19 @@
-
+%
+clear all; %%% TEMP
+close all;
+clc;
+%}
+addpath('./__fun')
+addpath('./__data')
 %% FIGURE PARAMETERS
-f = fig_params;
+f = fig_params_thesis;
 s = sys_params;
 
 spline_freq = linspace(150,1200,100); 
 
 %% LOAD DATA
-t_list = [0, 0.25, 0.5, 0.75, 1];
+%t_list = [0, 0.25, 0.5, 0.75, 1];
+t_list = [0];
 cmap = flipud(copper(numel(t_list))); % Cell array of colors.6
 
 %% EXPERIMENTAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,8 +53,8 @@ data_lab = data_lab.data_lab; % matrix
 %%% DISPERSION
 figure()
 set(gcf,'position',f.window_size);
-%set(gca,f.fig_prop{:},'position',ref_pos_disp); %%% UNCOMMENT WHEN RUNNING PLOTS MAIN 
-set(gca,'YTickLabel',[]);
+set(gca,f.fig_prop{:}); %%% UNCOMMENT WHEN RUNNING PLOTS MAIN 
+%set(gca,'YTickLabel',[]);
 
 
 hold on
@@ -57,40 +64,41 @@ for ii = flip(1:numel(t_list))
 
     %plot(data_lab(:,3,ii),data_lab(:,4,ii),'-','color',cmap(flip(ii),:), 'LineWidth',4) % real part of q_bloch
     %plot(data_lab(:,1,ii),data_lab(:,2,ii),'--','color',cmap(flip(ii),:), 'LineWidth',4,'HandleVisibility','off') %  part of q_bloch
-    plot(qq_re,spline_freq,'-','color',cmap(ii,:), 'LineWidth',f.line_width) % real part of q_bloch
-    plot(qq_im,spline_freq,'--','color',cmap(ii,:), 'LineWidth',f.line_width)%,'HandleVisibility','off') %  part of q_bloch
+    plot(qq_re,spline_freq/1000,'-','color',cmap(ii,:), 'LineWidth',f.line_width) % real part of q_bloch
+    plot(qq_im/1.3,spline_freq/1000,'--','color',cmap(ii,:), 'LineWidth',f.line_width)%,'HandleVisibility','off') %  part of q_bloch
 
-    xlabel("$q_F a/\pi$",'Interpreter','latex')
-    %ylabel("$f$ (Hz)",'Interpreter','latex')
+    xlabel("q_F a/\pi")
+    ylabel("Frequency (kHz)")
    
     xlim([0 1])
-    ylim([0 1200])
+    ylim([0 1.200])
 
     %legend(plt)
     %legend("$t_{h} =$ " + string(round(t_list,2)),'Interpreter','latex')%,'Location','northeastoutside')
     %legend("$\delta = 1.00 \cdot a/4$", "$\delta = 0.75\cdot a/4$", "$\delta = 0.50\cdot a/4$", "$\delta = 0.25\cdot a/4$", "$\delta = 0$",'Interpreter','latex')%,'Location','northeastoutside')
     %legend("$\delta = 0$","$\delta = 0.25 \cdot a/4$", "$\delta = 0.50\cdot a/4$", "$\delta = 0.75\cdot a/4$", "$\delta = 1.00\cdot a/4$",'Interpreter','latex')
-    title("Dispersion vs t: experiment",'Interpreter','latex')
+    legend("Real","Complex")
+    %title("Dispersion vs t: experiment",'Interpreter','latex')
     
     grid on
     hold on %% must hold on AFTER initial axis is created
 end
 box on
-ShadePloty(f.box_shade(1), f.box_shade(2),cmap(1,:),0.2) % area to shade
+%ShadePloty(f.box_shade(1), f.box_shade(2),cmap(1,:),0.2) % area to shade
 hold off
 %
 %Returns handles to the patch and line objects
-chi = get(gca, 'Children');
+%chi = get(gca, 'Children');
 %Reverse the stacking order so that the patch overlays the line
-set(gca, 'Children',flipud(chi));
+%set(gca, 'Children',flipud(chi));
 %}
 if f.export_switch
     print(gcf, '-dpdf', './__figures/disp_exp.pdf'); 
-    matlab2tikz('./__figures/disp_exp.tex',f.tikz_prop{:});
+    %matlab2tikz('./__figures/disp_exp.tex',f.tikz_prop{:});
 end
 
 %% SU(1,1)-NESS 
-%
+%{
 k = 2*pi*s.freq/s.c0; %+ 70%corresponding wave vector
 
 l1 = s.x2 - s.offset; %distance between left edge of specimen and mic 2 (c.f. 20220629 notes)
@@ -124,7 +132,7 @@ s21 = s12;
 
 %}
 
-%
+%{
 load('H21_corr.mat');
 load('H31_corr.mat');
 load('H41_corr.mat');
