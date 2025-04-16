@@ -19,7 +19,7 @@ for d = 1:length(disorder_strength)
     H = zeros(N); % Hamiltonian matrix
  
     %%% I. Construct Hamiltonian with chiral preserving disorder 
-    %{
+    %
     for i = 1:N/2
         H(2*i-1, 2*i) = t1 + disorder * (rand - 0.5); % Intra-cell hopping with disorder
         H(2*i, 2*i-1) = H(2*i-1, 2*i);
@@ -46,7 +46,7 @@ for d = 1:length(disorder_strength)
     %}
 
     %%% III. Construct Hamiltonian with chiral non-preserving disorder 
-    %
+    %{
     for i = 1:N/2
         H(2*i-1, 2*i) = t1 + disorder * (rand - 0.5); % Intra-cell hopping with disorder
         H(2*i, 2*i-1) = t1 + disorder * (rand - 0.5); % Intra-cell hopping with disorder
@@ -59,7 +59,7 @@ for d = 1:length(disorder_strength)
     
 
     % Diagonalize Hamiltonian
-    eigenvalues = imag(eig(H)); %IS IMAGINARY IF NONRECIPROCAL
+    eigenvalues = real(eig(H)); %IS IMAGINARY IF NONRECIPROCAL
     energy_bands(:, d) = eigenvalues;
     
     % Count zero-energy states

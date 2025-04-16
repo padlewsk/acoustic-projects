@@ -239,6 +239,66 @@ hold off
 
 %}
 
+
+%% ANIMATION %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{
+% Define the figure
+fig2 = figure(2);
+colormap magma
+
+% Create the GIF file
+filename = 'pulse_evolution.gif';
+
+% Loop through each time frame to create the animation
+for t = 1:100:size(Z, 1) % Increase the step size to reduce the number of frames
+    % Update the surface plot for the current time frame
+    h = ribbon(Y(1:t, :), Z(1:t, :), 0.5);
+    [h(:).EdgeColor] = deal('none');
+    
+    % Set the CData to Z values for color mapping along the z-axis
+    for k = 1:length(h)
+        h(k).CData = h(k).ZData;
+    end
+    
+    set(h, 'FaceColor', 'interp', 'MeshStyle', 'column');
+    
+    % Set figure properties
+    set(gcf,'position',fig_param.window_size);
+    set(gcf, 'InvertHardCopy', 'off');
+    set(gcf,'Color',[0 0 0]);
+    set(gca,fig_param.fig_prop{:});
+    set(gca,'color','none','YDir','normal','XColor','w','YColor','w','ZColor','w');
+    grid("off");
+    xlim([0.5, 2*sys_param.N_cell+0.5]);
+    ylim([t_out(1), t_out(end)]*1000);
+    zlim([0, 5]);
+    xlabel('site n');
+    ylabel('t (ms)');
+    zlabel("|p_n| (Pa)");
+    c = colorbar;
+    c.Label.String = 'Amplitude (Pa)';
+    c.Color = 'w';
+    clim([0, 4]);
+    view(135, 60);
+    
+    % Capture the current frame
+    frame = getframe(gcf);
+    im = frame2im(frame);
+    [imind, cm] = rgb2ind(im, 256);
+    
+    % Write to the GIF file
+    if t == 1
+        imwrite(imind, cm, filename, 'gif', 'Loopcount', inf, 'DelayTime', 0.05); % Reduce delay time
+    else
+        imwrite(imind, cm, filename, 'gif', 'WriteMode', 'append', 'DelayTime', 0.05); % Reduce delay time
+    end
+    
+    % Clear the current plot frame
+    clf;
+end
+
+%}
+
 %% FRENQUENCY DOMAIN p(omega,q) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 t_vec =  (0:sys_param.t_samp:sys_param.t_fin)'; %need to create another time vector because the output of the simulation isn't with constant sampling.
 p_vec = interp1(t_out,p_s,t_vec); % Interpolate data 

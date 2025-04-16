@@ -82,7 +82,7 @@ axis square
 %box on
 %set(gca,'CLim',[0 1]);
 colorbar 
-saveas(gcf,'pauli_circle_m','pdf')
+%saveas(gcf,'pauli_circle_m','pdf')
 %title(sprintf('WINDING NUMBER = %i',winding))
 
 
@@ -117,4 +117,4 @@ ylabel('\Re(\Delta\omega)')
 %colorbar 
 hold off
 ax.Layer = 'top';
-saveas(gcf,'gap_size','pdf')
+%saveas(gcf,'gap_size','pdf')
